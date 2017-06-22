@@ -42,8 +42,9 @@ dependencies {
   compile 'com.squareup.retrofit2:converter-gson:2.0.2'
 
   //    butterknife
-  compile 'com.jakewharton:butterknife:8.4.0'
-  apt 'com.jakewharton:butterknife-compiler:8.4.0'
+//  compile 'com.jakewharton:butterknife:8.4.0'
+//  apt 'com.jakewharton:butterknife-compiler:8.4.0'
+//  compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
 
   //    dagger2
   compile group: 'com.google.dagger', name: 'dagger', version: '2.9'
