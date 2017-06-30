@@ -11,6 +11,8 @@ import android.view.SurfaceView
 import android.widget.Button
 import hugo.weaving.DebugLog
 import java.io.IOException
+import android.app.Activity
+import android.view.Surface
 
 
 @DebugLog
@@ -23,28 +25,30 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-//    val toolbar = findViewById(R.id.toolbar) as Toolbar
-//    setSupportActionBar(toolbar)
-  }
-
-  override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    menuInflater.inflate(R.menu.menu_main, menu)
-    return true
   }
 
 
   override fun onResume() {
     super.onResume()
-    Handler().postDelayed(Runnable {
+    Handler().postDelayed({
       val holder = cameraSurfaceView.holder
       holder.addCallback(this)
       holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
-      safeCameraOpen(0)
+      cameraInstance = openBackCameraInstance()
       startCameraRealtimePreview()
-    }, 2500)
+    }, 750)
 
+  }
+
+  private fun openBackCameraInstance() : Camera? {
+    try {
+      return Camera.open()
+    } catch (exc : RuntimeException) {
+      //todo: ...logging, show error, whatever
+      exc.printStackTrace()
+    }
+    return null
   }
 
   fun startCameraRealtimePreview() {
@@ -53,7 +57,10 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     cameraInstance?.let {
       val cameraSizes = (cameraInstance as Camera).parameters.supportedPreviewSizes
       try {
-        (cameraInstance as Camera).setPreviewDisplay(cameraSurfaceView.holder)
+        (cameraInstance as Camera).takeIf { cameraInstance != null }?.run {
+          it.setPreviewDisplay(cameraSurfaceView.holder)
+          setCameraDisplayOrientation(this@MainActivity, 0, cameraInstance!!)
+        }
       } catch (exc: IOException) {
         exc.printStackTrace()
       }
@@ -62,20 +69,42 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     cameraInstance?.let { it.startPreview() }
   }
 
-
-  private fun safeCameraOpen(hardwareCameraId: Int): Boolean {
-    var cameraOpen = false
-
-    try {
-//      releaseCameraAndPreview()
-      cameraInstance = Camera.open(hardwareCameraId)
-      cameraOpen = cameraInstance != null
-    } catch (exc: Exception) {
-      //... logging
-      exc.printStackTrace()
+  fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
+      camera: android.hardware.Camera) {
+    val info = android.hardware.Camera.CameraInfo()
+    android.hardware.Camera.getCameraInfo(cameraId, info)
+    val rotation = activity.windowManager.defaultDisplay.rotation
+    var degrees = 0
+    when (rotation) {
+      Surface.ROTATION_0 -> degrees = 0
+      Surface.ROTATION_90 -> degrees = 90
+      Surface.ROTATION_180 -> degrees = 180
+      Surface.ROTATION_270 -> degrees = 270
     }
 
-    return cameraOpen
+    var result: Int
+    //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+    // do something for phones running an SDK before lollipop
+    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+      result = (info.orientation + degrees) % 360
+      result = (360 - result) % 360 // compensate the mirror
+    } else { // back-facing
+      result = (info.orientation - degrees + 360) % 360
+    }
+
+    camera.setDisplayOrientation(result)
+  }
+
+  override fun surfaceDestroyed(holder: SurfaceHolder?) {
+    //...
+  }
+
+  override fun surfaceCreated(holder: SurfaceHolder?) {
+    //...
+  }
+
+  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+    //...
   }
 
   private fun releaseCameraAndPreview() {
@@ -92,29 +121,6 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     }
   }
 
-  override fun surfaceDestroyed(holder: SurfaceHolder?) {
-    //...
-  }
 
-  override fun surfaceCreated(holder: SurfaceHolder?) {
-    //...
-  }
 
-  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-    //...
-  }
-
-  //  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//    // Handle action bar item clicks here. The action bar will
-//    // automatically handle clicks on the Home/Up button, so long
-//    // as you specify a parent activity in AndroidManifest.xml.
-//    val id = item.itemId
-//
-//
-//    if (id == R.id.action_settings) {
-//      return true
-//    }
-//
-//    return super.onOptionsItemSelected(item)
-//  }
 }
