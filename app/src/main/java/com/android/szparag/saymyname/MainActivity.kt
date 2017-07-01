@@ -1,23 +1,25 @@
 package com.android.szparag.saymyname
 
 
+import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.hardware.Camera
+import android.hardware.Camera.ShutterCallback
+import android.media.ExifInterface
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.Button
-import hugo.weaving.DebugLog
-import java.io.IOException
-import android.app.Activity
-import android.graphics.Bitmap
-import android.hardware.Camera.PictureCallback
-import android.hardware.Camera.ShutterCallback
-import android.view.Surface
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
+import hugo.weaving.DebugLog
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.InputStream
 
 
 @Suppress("DEPRECATION")
@@ -62,27 +64,62 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     findViewById(R.id.button).setOnClickListener {
       cameraInstance?.takePicture(
           ShutterCallback {
-            //...
-          },
-          pictureCallback = object: PictureBitmapCallback {
-            override fun onPictureTaken(bitmap: Bitmap?, camera: Camera) {
-              (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
-              findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
-              findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
-            }
 
+          },
+          pictureCallback = object : PictureBitmapCallback {
+            override fun onPictureTaken(bitmap: Bitmap?, pictureBytesArray: ByteArray,
+                camera: Camera) {
+              bitmap?.let {
+                val orientation = CameraJavaUtils.getOrientation(pictureBytesArray)
+                var matrix = Matrix()
+                matrix.postRotate(orientation.toFloat())
+                val bitmap2 = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+//                bitmap.recycle()
+                (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap2)
+                findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
+                findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
+              }
+            }
           }
+
+//          PictureBitmapCallback({
+//            bitmap, data, camera ->
+//            val orientation = CameraJavaUtils.getOrientation(data)
+//            (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
+//            findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
+//            findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
+//          })
       )
+//      cameraInstance?.takePicture(
+//          ShutterCallback {
+//            //...
+//          },
+//          pictureCallback = object : PictureBitmapCallback {
+//            override fun onPictureTaken(bitmap: Bitmap?, camera: Camera) {
+//              if (bitmap != null) {
+//                CameraJavaUtils.getOrientation()
+//                (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
+//                findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
+//                findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
+//              } else {
+//                //todo: throw error
+//              }
+//            }
+//
+//          }
+//      )
     }
   }
 
+//  private fun decodeCameraInstanceBitmap(imageBytes: ByteArray): Bitmap {
+//    BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+//
+//  }
 
-
-
-  private fun openBackCameraInstance() : Camera? {
+  private fun openBackCameraInstance(): Camera? {
     try {
       return Camera.open()
-    } catch (exc : RuntimeException) {
+    } catch (exc: RuntimeException) {
       //todo: ...logging, show error, whatever
       exc.printStackTrace()
     }
@@ -96,14 +133,16 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       try {
         cameraInstance.run {
           it.setPreviewDisplay(cameraSurfaceView.holder)
-          setCameraDisplayOrientation(this@MainActivity, 0, cameraInstance)
+          setCameraDisplayOrientation(this@MainActivity, 0, it)
         }
       } catch (exc: IOException) {
         exc.printStackTrace()
       }
+
+      it.startPreview()
     }
 
-    cameraInstance?.let { it.startPreview() }
+//    cameraInstance?.let { it.startPreview() }
   }
 
   private fun setFocusMode(cameraInstance: Camera?) {
@@ -119,6 +158,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       camera: android.hardware.Camera) {
     val info = android.hardware.Camera.CameraInfo()
     android.hardware.Camera.getCameraInfo(cameraId, info)
+    val parameters = camera.parameters;
     val rotation = activity.windowManager.defaultDisplay.rotation
     var degrees = 0
     when (rotation) {
@@ -138,6 +178,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       result = (info.orientation - degrees + 360) % 360
     }
 
+    parameters.setRotation(result)
+    camera.parameters = parameters
     camera.setDisplayOrientation(result)
   }
 
