@@ -12,9 +12,15 @@ import android.widget.Button
 import hugo.weaving.DebugLog
 import java.io.IOException
 import android.app.Activity
+import android.graphics.Bitmap
+import android.hardware.Camera.PictureCallback
+import android.hardware.Camera.ShutterCallback
 import android.view.Surface
+import android.view.View
+import android.widget.ImageView
 
 
+@Suppress("DEPRECATION")
 @DebugLog
 class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
@@ -35,11 +41,43 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       holder.addCallback(this)
       holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
+//      findViewById(R.layout.layout_camera_preview_realtime).visibility = View.VISIBLE
       cameraInstance = openBackCameraInstance()
-      startCameraRealtimePreview()
+      startCameraRealtimePreview(cameraInstance)
+      setFocusMode(cameraInstance)
     }, 750)
 
+//    findViewById(R.id.button).setOnClickListener {
+//      cameraInstance?.takePicture(
+//          ShutterCallback {
+//            //...
+//          },
+//          null,
+//          PictureCallback { data, camera ->
+//            //...
+//          }
+//      )
+//    }
+
+    findViewById(R.id.button).setOnClickListener {
+      cameraInstance?.takePicture(
+          ShutterCallback {
+            //...
+          },
+          pictureCallback = object: PictureBitmapCallback {
+            override fun onPictureTaken(bitmap: Bitmap?, camera: Camera) {
+              (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
+              findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
+              findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
+            }
+
+          }
+      )
+    }
   }
+
+
+
 
   private fun openBackCameraInstance() : Camera? {
     try {
@@ -51,15 +89,14 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     return null
   }
 
-  fun startCameraRealtimePreview() {
+  fun startCameraRealtimePreview(cameraInstance: Camera?) {
 //    stopPreviewAndFreeCamera();
-
     cameraInstance?.let {
-      val cameraSizes = (cameraInstance as Camera).parameters.supportedPreviewSizes
+      cameraInstance.parameters.supportedPreviewSizes
       try {
-        (cameraInstance as Camera).takeIf { cameraInstance != null }?.run {
+        cameraInstance.run {
           it.setPreviewDisplay(cameraSurfaceView.holder)
-          setCameraDisplayOrientation(this@MainActivity, 0, cameraInstance!!)
+          setCameraDisplayOrientation(this@MainActivity, 0, cameraInstance)
         }
       } catch (exc: IOException) {
         exc.printStackTrace()
@@ -67,6 +104,15 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     }
 
     cameraInstance?.let { it.startPreview() }
+  }
+
+  private fun setFocusMode(cameraInstance: Camera?) {
+    //todo: implement system that handles case where cam doesnt have this FocusMode
+    cameraInstance?.let {
+      val parameters = it.parameters
+      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+      it.parameters = parameters
+    }
   }
 
   fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
@@ -120,7 +166,4 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       it.release()
     }
   }
-
-
-
 }
