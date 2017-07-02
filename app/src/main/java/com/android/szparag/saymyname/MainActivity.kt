@@ -30,7 +30,6 @@ import com.android.szparag.saymyname.retrofit.models.imageRecognition.Image
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Input
-import com.android.szparag.saymyname.retrofit.models.translation.TranslateText
 import com.android.szparag.saymyname.retrofit.models.translation.TranslatedText
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import hugo.weaving.DebugLog
