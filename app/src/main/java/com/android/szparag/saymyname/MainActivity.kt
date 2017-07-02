@@ -9,6 +9,7 @@ import android.hardware.Camera
 import android.hardware.Camera.ShutterCallback
 import android.os.Bundle
 import android.os.Handler
+import android.speech.tts.TextToSpeech
 import android.support.v7.app.AppCompatActivity
 import android.util.Base64
 import android.util.Log
@@ -35,6 +36,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.Locale
 
 
 @Suppress("DEPRECATION")
@@ -44,6 +46,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceView)
   val buttonTakePhoto: Button by bindView(R.id.button)
   var cameraInstance: Camera? = null
+
+  lateinit var textToSpeechClient: TextToSpeech
 
   //todo: remove this!
   var compressedPictureByteArray: ByteArray? = null
@@ -73,6 +77,12 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       takePicture(cameraInstance)
     }
 
+    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
+      status: Int ->
+      status.takeIf { it != TextToSpeech.ERROR }?.run {
+        textToSpeechClient.language = Locale.UK
+      }
+    })
 
   }
 
@@ -154,15 +164,29 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         Log.d("retrofit", "failure, $call, $response")
         response?.body()?.let {
           val concepts = it.outputs?.get(0)?.dataOutput?.concepts
-          (findViewById(R.id.englishText1) as TextView).text = concepts?.get(0)?.name
-          (findViewById(R.id.englishText2) as TextView).text = concepts?.get(1)?.name
-          (findViewById(R.id.englishText3) as TextView).text = concepts?.get(2)?.name
+          concepts?.get(0)?.name?.let {
+            (findViewById(R.id.englishText1) as TextView).text = it
+            textToSpeech(it)
+          }
+          concepts?.get(1)?.name?.let {
+            (findViewById(R.id.englishText2) as TextView).text = it
+            textToSpeech(it)
+          }
+          concepts?.get(2)?.name?.let {
+            (findViewById(R.id.englishText3) as TextView).text = it
+            textToSpeech(it)
+          }
         }
       }
     })
 
   }
 
+
+  private fun textToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
+    textToSpeechClient.speak(
+        text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
+  }
 
   //todo: this kotlin syntax here really sucks, refactor!
   private fun rescaleImageRequestFactor(downScaleFactor: Int,
