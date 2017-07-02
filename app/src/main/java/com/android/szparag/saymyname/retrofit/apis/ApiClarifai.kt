@@ -17,7 +17,7 @@ interface ApiClarifai {
 
   @POST("models/{model_id}/outputs")
   fun processImageByGeneralModel(
-    @Header("Authorization") key : String = "Key $key",
+    @Header("Authorization") key : String,
       @Path("model_id") modelId : String,
       @Body imagePredictRequest: ImagePredictRequest): Call<ImagePredictResponse>
 

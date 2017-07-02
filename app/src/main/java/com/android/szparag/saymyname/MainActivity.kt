@@ -10,13 +10,29 @@ import android.hardware.Camera.ShutterCallback
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.util.Base64
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
+import com.android.szparag.saymyname.retrofit.apis.ApiClarifai
+import com.android.szparag.saymyname.retrofit.models.DataInput
+import com.android.szparag.saymyname.retrofit.models.Image
+import com.android.szparag.saymyname.retrofit.models.ImagePredictRequest
+import com.android.szparag.saymyname.retrofit.models.ImagePredictResponse
+import com.android.szparag.saymyname.retrofit.models.Input
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import hugo.weaving.DebugLog
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -28,6 +44,10 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceView)
   val buttonTakePhoto: Button by bindView(R.id.button)
   var cameraInstance: Camera? = null
+
+  //todo: remove this!
+  var compressedPictureByteArray: ByteArray? = null
+  var compressedPictureBitmap: Bitmap? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -48,114 +68,12 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       setFocusMode(cameraInstance)
     }, 750)
 
-//    findViewById(R.id.button).setOnClickListener {
-//      cameraInstance?.takePicture(
-//          ShutterCallback {
-//            //...
-//          },
-//          null,
-//          PictureCallback { dataInput, camera ->
-//            //...
-//          }
-//      )
-//    }
-
 
     findViewById(R.id.button).setOnClickListener {
       takePicture(cameraInstance)
     }
 
 
-//    findViewById(R.id.button).setOnClickListener {
-//      cameraInstance?.takePicture(
-//          ShutterCallback {
-//
-//          },
-//          pictureCallback = object : PictureBitmapCallback {
-//            override fun onPictureTaken(bitmap: Bitmap?, pictureBytesArray: ByteArray,
-//                camera: Camera) {
-//              bitmap?.let {
-//                val orientation = CameraJavaUtils.getOrientation(pictureBytesArray)
-//                var matrix = Matrix()
-//                matrix.postRotate(orientation.toFloat())
-//                val bitmap2 = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix,
-//                    true)
-////                bitmap.recycle()
-//                (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap2)
-//                findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
-//                findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
-//
-//
-//                //todo: put into dagger
-//                val BASE_URL_CLARIFAI = "https://api.clarifai.com/v2/"
-//                val retrofitClientClarifai = Retrofit.Builder()
-//                    .baseUrl(BASE_URL_CLARIFAI)
-//                    .client(
-//                        OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
-//                    .addConverterFactory(GsonConverterFactory.create())
-//                    .build()
-//
-////                val apiClarifaiService = retrofitClientClarifai.create(ApiClarifai.class)
-////                apiClarif
-//
-//                var compressedBitmapOutputStream = ByteArrayOutputStream()
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 30, compressedBitmapOutputStream)
-//                val decodeByteArray = BitmapFactory.decodeByteArray(
-//                    compressedBitmapOutputStream.toByteArray(), 0,
-//                    compressedBitmapOutputStream.toByteArray().size)
-//
-//                var i = 1
-//                val apiServiceClarifai = retrofitClientClarifai.create(ApiClarifai::class.java)
-////                val callProcessImageByGeneralModel= apiServiceClarifai.processImageByGeneralModel(
-////                    imagePredictRequest = ImagePredictRequest(listOf(
-//////                        Input(DataInput(Image("https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Simple_Measuring_Cup.jpg/220px-Simple_Measuring_Cup.jpg"))))))
-////                        Input(DataInput(Image(Base64.encodeToString(pictureBytesArray, Base64.DEFAULT)))))))
-////
-//////                        InputBase64(DataImageBase64(Base64.encodeToString(pictureBytesArray, Base64.DEFAULT))))))
-////
-////                callProcessImageByGeneralModel.enqueue(object : Callback<ImagePredictResponse> {
-////                  override fun onFailure(call: Call<ImagePredictResponse>?, t: Throwable?) {
-////                    Log.d("retrofit", "failure, $call, $t")
-////                  }
-////
-////                  override fun onResponse(call: Call<ImagePredictResponse>?, response: Response<ImagePredictResponse>?) {
-////                    Log.d("retrofit", "failure, $call, $response")
-////                  }
-////
-////                })
-//
-//
-//              }
-//            }
-//          }
-//
-////          PictureBitmapCallback({
-////            bitmap, dataInput, camera ->
-////            val orientation = CameraJavaUtils.getOrientation(dataInput)
-////            (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
-////            findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
-////            findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
-////          })
-//      )
-////      cameraInstance?.takePicture(
-////          ShutterCallback {
-////            //...
-////          },
-////          pictureCallback = object : PictureBitmapCallback {
-////            override fun onPictureTaken(bitmap: Bitmap?, camera: Camera) {
-////              if (bitmap != null) {
-////                CameraJavaUtils.getOrientation()
-////                (findViewById(R.id.imageView) as ImageView).setImageBitmap(bitmap)
-////                findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
-////                findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
-////              } else {
-////                //todo: throw error
-////              }
-////            }
-////
-////          }
-////      )
-//    }
   }
 
 
@@ -166,7 +84,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         },
         null,
         Camera.PictureCallback { data, camera ->
-          onTakePictureByteArrayReady(data, camera)
+          onTakePictureByteArrayReady(data)
+          compressedPictureByteArray?.let { sendPictureToClarifai(it) }
         }
     )
   }
@@ -175,7 +94,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
   }
 
-  private fun onTakePictureByteArrayReady(pictureByteArray: ByteArray, camera: Camera) {
+  private fun onTakePictureByteArrayReady(pictureByteArray: ByteArray) {
     val options = BitmapFactory.Options().apply {
       //      this.inJustDecodeBounds = true
       this.inPurgeable = true
@@ -192,6 +111,9 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     val compressedBitmap = BitmapFactory.decodeByteArray(compressedByteStream.toByteArray(), 0,
         compressedByteStream.toByteArray().size)
 
+    compressedPictureBitmap = compressedBitmap
+    compressedPictureByteArray = compressedByteStream.toByteArray()
+
 //    Bitmap.createScaledBitmap()
 //    options.inPurgeable = false
 
@@ -199,6 +121,48 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
     findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
   }
+
+  private fun sendPictureToClarifai(pictureByteArray: ByteArray) {
+    //todo: put into dagger
+    val BASE_URL_CLARIFAI = "https://api.clarifai.com/v2/"
+    val retrofitClientClarifai = Retrofit.Builder()
+        .baseUrl(BASE_URL_CLARIFAI)
+        .client(
+            OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val apiServiceClarifai = retrofitClientClarifai.create(ApiClarifai::class.java)
+    val callProcessImageByGeneralModel = apiServiceClarifai.processImageByGeneralModel(
+        key = "Key " + getString(R.string.clarifai_api_key),
+        modelId = getString(R.string.clarifai_model_id),
+        imagePredictRequest = ImagePredictRequest(
+            listOf(
+                Input(DataInput(Image(Base64.encodeToString(pictureByteArray, Base64.DEFAULT))))))
+    )
+
+    callProcessImageByGeneralModel.enqueue(object : Callback<ImagePredictResponse> {
+      override fun onFailure(call: Call<ImagePredictResponse>?, t: Throwable?) {
+        Log.d("retrofit", "failure, $call, $t")
+        (findViewById(R.id.englishText1) as TextView).text = "failed"
+        (findViewById(R.id.englishText1) as TextView).text = ":("
+        (findViewById(R.id.englishText1) as TextView).text = ":((("
+      }
+
+      override fun onResponse(call: Call<ImagePredictResponse>?,
+          response: Response<ImagePredictResponse>?) {
+        Log.d("retrofit", "failure, $call, $response")
+        response?.body()?.let {
+          val concepts = it.outputs?.get(0)?.dataOutput?.concepts
+          (findViewById(R.id.englishText1) as TextView).text = concepts?.get(0)?.name
+          (findViewById(R.id.englishText2) as TextView).text = concepts?.get(1)?.name
+          (findViewById(R.id.englishText3) as TextView).text = concepts?.get(2)?.name
+        }
+      }
+    })
+
+  }
+
 
   //todo: this kotlin syntax here really sucks, refactor!
   private fun rescaleImageRequestFactor(downScaleFactor: Int,
