@@ -1,11 +1,13 @@
 package com.android.szparag.saymyname;
 
 import android.util.Log;
+import hugo.weaving.DebugLog;
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/1/2017.
  */
 
+@DebugLog
 public class CameraJavaUtils {
 
   private static final String TAG = "CameraExif";
