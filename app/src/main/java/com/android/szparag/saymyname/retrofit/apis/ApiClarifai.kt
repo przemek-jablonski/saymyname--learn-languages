@@ -1,11 +1,10 @@
 package com.android.szparag.saymyname.retrofit.apis
 
-import com.android.szparag.saymyname.retrofit.models.ImagePredictRequest
-import com.android.szparag.saymyname.retrofit.models.ImagePredictResponse
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
-import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -15,10 +14,14 @@ import retrofit2.http.Path
  */
 interface ApiClarifai {
 
+  //todo: rename to ApiImageRecognition
+  //todo: because i may want to change API provider someday
+
   @POST("models/{model_id}/outputs")
   fun processImageByGeneralModel(
     @Header("Authorization") key : String,
       @Path("model_id") modelId : String,
       @Body imagePredictRequest: ImagePredictRequest): Call<ImagePredictResponse>
+
 
 }

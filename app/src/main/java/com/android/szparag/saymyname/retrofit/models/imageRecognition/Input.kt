@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.retrofit.models
+package com.android.szparag.saymyname.retrofit.models.imageRecognition
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

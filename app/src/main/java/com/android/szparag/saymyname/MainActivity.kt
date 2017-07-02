@@ -2,14 +2,17 @@ package com.android.szparag.saymyname
 
 
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory
 import android.hardware.Camera
 import android.hardware.Camera.ShutterCallback
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.Handler
 import android.speech.tts.TextToSpeech
+import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.util.Base64
 import android.util.Log
@@ -21,11 +24,14 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import com.android.szparag.saymyname.retrofit.apis.ApiClarifai
-import com.android.szparag.saymyname.retrofit.models.DataInput
-import com.android.szparag.saymyname.retrofit.models.Image
-import com.android.szparag.saymyname.retrofit.models.ImagePredictRequest
-import com.android.szparag.saymyname.retrofit.models.ImagePredictResponse
-import com.android.szparag.saymyname.retrofit.models.Input
+import com.android.szparag.saymyname.retrofit.apis.ApiTranslate
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.DataInput
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.Image
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
+import com.android.szparag.saymyname.retrofit.models.imageRecognition.Input
+import com.android.szparag.saymyname.retrofit.models.translation.TranslateText
+import com.android.szparag.saymyname.retrofit.models.translation.TranslatedText
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
@@ -74,7 +80,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
 
     findViewById(R.id.button).setOnClickListener {
-      takePicture(cameraInstance)
+            takePicture(cameraInstance)
     }
 
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
@@ -86,6 +92,35 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
   }
 
+
+  private fun HANDLETRANSLATIONTEMPORARY(texts:List<String>) {
+    val BASE_URL_YANDEX = "https://translate.yandex.net/api/v1.5/"
+    val retrofitClientYandex = Retrofit.Builder()
+        .baseUrl(BASE_URL_YANDEX)
+        .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val apiServiceYandex = retrofitClientYandex.create(ApiTranslate::class.java)
+    val callTranslateText = apiServiceYandex.translate(
+        key = getString(R.string.yandex_api_key),
+        targetLanguagesPair = "en-it",
+        textToTranslate = texts)
+    callTranslateText.enqueue(object : Callback<TranslatedText> {
+      override fun onResponse(call: Call<TranslatedText>, response: Response<TranslatedText>?) {
+        Log.d("retrofit", "response, $call, $response")
+        response?.body()?.texts?.let {
+          (findViewById(R.id.translatedText1) as TextView).text = it.get(0)
+          (findViewById(R.id.translatedText2) as TextView).text = it.get(1)
+          (findViewById(R.id.translatedText3) as TextView).text = it.get(2)
+        }
+      }
+
+      override fun onFailure(call: Call<TranslatedText>, t: Throwable) {
+        Log.d("retrofit", "failure, $call, $t")
+      }
+    })
+  }
 
   private fun takePicture(cameraInstance: Camera?) {
     cameraInstance?.takePicture(
@@ -137,8 +172,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     val BASE_URL_CLARIFAI = "https://api.clarifai.com/v2/"
     val retrofitClientClarifai = Retrofit.Builder()
         .baseUrl(BASE_URL_CLARIFAI)
-        .client(
-            OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
+        .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -161,29 +195,57 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
       override fun onResponse(call: Call<ImagePredictResponse>?,
           response: Response<ImagePredictResponse>?) {
-        Log.d("retrofit", "failure, $call, $response")
+        Log.d("retrofit", "response, $call, $response")
         response?.body()?.let {
           val concepts = it.outputs?.get(0)?.dataOutput?.concepts
+
+          HANDLETRANSLATIONTEMPORARY(listOf(concepts?.get(0)!!.name, concepts?.get(1)!!.name, concepts?.get(2)!!.name))
           concepts?.get(0)?.name?.let {
-            (findViewById(R.id.englishText1) as TextView).text = it
-            textToSpeech(it)
+            conceptRenderToScreen(findViewById(R.id.englishText1) as TextView, it)
+//            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText1) as TextView, it)
+            conceptTextToSpeech(it)
           }
           concepts?.get(1)?.name?.let {
-            (findViewById(R.id.englishText2) as TextView).text = it
-            textToSpeech(it)
+            conceptRenderToScreen(findViewById(R.id.englishText2) as TextView, it)
+//            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText2) as TextView, it)
+            conceptTextToSpeech(it)
           }
           concepts?.get(2)?.name?.let {
-            (findViewById(R.id.englishText3) as TextView).text = it
-            textToSpeech(it)
+            conceptRenderToScreen(findViewById(R.id.englishText3) as TextView, it)
+//            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText3) as TextView, it)
+            conceptTextToSpeech(it)
           }
+
         }
       }
     })
 
   }
 
+  private fun conceptRenderToScreen(textView: TextView, englishText: CharSequence) {
+    textView.text = englishText
+  }
 
-  private fun textToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
+  //todo: must thow “Powered by Yandex.Translate”
+  //todo: verify if other apis doesnt have similar requests
+  //todo: add licences for open source libs
+
+  @RequiresApi(VERSION_CODES.M) //todo: this is a huge problem!
+  private fun conceptTranslateToItalianAndRenderToScreen(textView: TextView,
+      englishText: CharSequence) {
+    val processTextIntent = Intent()
+        .setAction(Intent.ACTION_PROCESS_TEXT)
+        .setType("text/plain")
+    val queryIntentActivities = applicationContext.packageManager.queryIntentActivities(
+        processTextIntent, 0)
+
+    val get = queryIntentActivities?.get(0)
+
+  }
+
+
+  //todo: different languages https://stackoverflow.com/a/12251794/6942800
+  private fun conceptTextToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
     textToSpeechClient.speak(
         text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
