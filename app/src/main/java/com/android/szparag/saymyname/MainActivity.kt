@@ -71,10 +71,9 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       holder.addCallback(this)
       holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
-//      findViewById(R.layout.layout_camera_preview_realtime).visibility = View.VISIBLE
-      cameraInstance = openBackCameraInstance()
-      startCameraRealtimePreview(cameraInstance)
-      setFocusMode(cameraInstance)
+//      cameraInstance = openBackCameraInstance()
+//      startCameraRealtimePreview(cameraInstance)
+//      setFocusMode(cameraInstance)
     }, 750)
 
 
@@ -82,12 +81,12 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
             takePicture(cameraInstance)
     }
 
-    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
-      status: Int ->
-      status.takeIf { it != TextToSpeech.ERROR }?.run {
-        textToSpeechClient.language = Locale.UK
-      }
-    })
+//    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
+//      status: Int ->
+//      status.takeIf { it != TextToSpeech.ERROR }?.run {
+//        textToSpeechClient.language = Locale.UK
+//      }
+//    })
 
   }
 
@@ -263,13 +262,13 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
 
   private fun openBackCameraInstance(): Camera? {
-    try {
-      return Camera.open()
-    } catch (exc: RuntimeException) {
-      //todo: ...logging, show error, whatever
-      exc.printStackTrace()
-    }
-    return null
+//    try {
+//      return Camera.open()
+//    } catch (exc: RuntimeException) {
+//      //todo: ...logging, show error, whatever
+//      exc.printStackTrace()
+//    }
+//    return null
   }
 
   fun startCameraRealtimePreview(cameraInstance: Camera?) {
@@ -283,6 +282,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         }
       } catch (exc: IOException) {
         exc.printStackTrace()
+        return
       }
 
       it.startPreview()
@@ -291,43 +291,43 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 //    cameraInstance?.let { it.startPreview() }
   }
 
-  private fun setFocusMode(cameraInstance: Camera?) {
-    //todo: implement system that handles case where cam doesnt have this FocusMode
-    cameraInstance?.let {
-      val parameters = it.parameters
-      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-      it.parameters = parameters
-    }
-  }
+//  private fun setFocusMode(cameraInstance: Camera?) {
+//    //todo: implement system that handles case where cam doesnt have this FocusMode
+//    cameraInstance?.let {
+//      val parameters = it.parameters
+//      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+//      it.parameters = parameters
+//    }
+//  }
 
-  fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
-      camera: android.hardware.Camera) {
-    val info = android.hardware.Camera.CameraInfo()
-    android.hardware.Camera.getCameraInfo(cameraId, info)
-    val parameters = camera.parameters;
-    val rotation = activity.windowManager.defaultDisplay.rotation
-    var degrees = 0
-    when (rotation) {
-      Surface.ROTATION_0 -> degrees = 0
-      Surface.ROTATION_90 -> degrees = 90
-      Surface.ROTATION_180 -> degrees = 180
-      Surface.ROTATION_270 -> degrees = 270
-    }
-
-    var result: Int
-    //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-    // do something for phones running an SDK before lollipop
-    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-      result = (info.orientation + degrees) % 360
-      result = (360 - result) % 360 // compensate the mirror
-    } else { // back-facing
-      result = (info.orientation - degrees + 360) % 360
-    }
-
-    parameters.setRotation(result)
-    camera.parameters = parameters
-    camera.setDisplayOrientation(result)
-  }
+//  fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
+//      camera: android.hardware.Camera) {
+//    val info = android.hardware.Camera.CameraInfo()
+//    android.hardware.Camera.getCameraInfo(cameraId, info)
+//    val parameters = camera.parameters;
+//    val rotation = activity.windowManager.defaultDisplay.rotation
+//    var degrees = 0
+//    when (rotation) {
+//      Surface.ROTATION_0 -> degrees = 0
+//      Surface.ROTATION_90 -> degrees = 90
+//      Surface.ROTATION_180 -> degrees = 180
+//      Surface.ROTATION_270 -> degrees = 270
+//    }
+//
+//    var result: Int
+//    //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+//    // do something for phones running an SDK before lollipop
+//    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+//      result = (info.orientation + degrees) % 360
+//      result = (360 - result) % 360 // compensate the mirror
+//    } else { // back-facing
+//      result = (info.orientation - degrees + 360) % 360
+//    }
+//
+//    parameters.setRotation(result)
+//    camera.parameters = parameters
+//    camera.setDisplayOrientation(result)
+//  }
 
   override fun surfaceDestroyed(holder: SurfaceHolder?) {
     //...
