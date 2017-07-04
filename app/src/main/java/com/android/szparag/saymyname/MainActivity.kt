@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceView)
   val buttonTakePhoto: Button by bindView(R.id.button)
-  var cameraInstance: Camera? = null
 
+  var cameraInstance: Camera? = null
   lateinit var textToSpeechClient: TextToSpeech
 
   //todo: remove this!
@@ -67,9 +67,9 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   override fun onResume() {
     super.onResume()
     Handler().postDelayed({
-      val holder = cameraSurfaceView.holder
-      holder.addCallback(this)
-      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+//      val holder = cameraSurfaceView.holder
+//      holder.addCallback(this)
+//      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
 //      cameraInstance = openBackCameraInstance()
 //      startCameraRealtimePreview(cameraInstance)
@@ -80,13 +80,6 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     findViewById(R.id.button).setOnClickListener {
             takePicture(cameraInstance)
     }
-
-//    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
-//      status: Int ->
-//      status.takeIf { it != TextToSpeech.ERROR }?.run {
-//        textToSpeechClient.language = Locale.UK
-//      }
-//    })
 
   }
 
@@ -201,17 +194,17 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
           concepts?.get(0)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText1) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText1) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
           concepts?.get(1)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText2) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText2) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
           concepts?.get(2)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText3) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText3) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
 
         }
@@ -243,10 +236,10 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
 
   //todo: different languages https://stackoverflow.com/a/12251794/6942800
-  private fun conceptTextToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
-    textToSpeechClient.speak(
-        text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
-  }
+//  private fun conceptTextToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
+//    textToSpeechClient.speak(
+//        text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
+//  }
 
   //todo: this kotlin syntax here really sucks, refactor!
   private fun rescaleImageRequestFactor(downScaleFactor: Int,
@@ -269,6 +262,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 //      exc.printStackTrace()
 //    }
 //    return null
+    return null
   }
 
   fun startCameraRealtimePreview(cameraInstance: Camera?) {
@@ -278,7 +272,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       try {
         cameraInstance.run {
           it.setPreviewDisplay(cameraSurfaceView.holder)
-          setCameraDisplayOrientation(this@MainActivity, 0, it)
+//          setCameraDisplayOrientation(this@MainActivity, 0, it)
         }
       } catch (exc: IOException) {
         exc.printStackTrace()
@@ -291,43 +285,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 //    cameraInstance?.let { it.startPreview() }
   }
 
-//  private fun setFocusMode(cameraInstance: Camera?) {
-//    //todo: implement system that handles case where cam doesnt have this FocusMode
-//    cameraInstance?.let {
-//      val parameters = it.parameters
-//      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-//      it.parameters = parameters
-//    }
-//  }
 
-//  fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
-//      camera: android.hardware.Camera) {
-//    val info = android.hardware.Camera.CameraInfo()
-//    android.hardware.Camera.getCameraInfo(cameraId, info)
-//    val parameters = camera.parameters;
-//    val rotation = activity.windowManager.defaultDisplay.rotation
-//    var degrees = 0
-//    when (rotation) {
-//      Surface.ROTATION_0 -> degrees = 0
-//      Surface.ROTATION_90 -> degrees = 90
-//      Surface.ROTATION_180 -> degrees = 180
-//      Surface.ROTATION_270 -> degrees = 270
-//    }
-//
-//    var result: Int
-//    //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-//    // do something for phones running an SDK before lollipop
-//    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-//      result = (info.orientation + degrees) % 360
-//      result = (360 - result) % 360 // compensate the mirror
-//    } else { // back-facing
-//      result = (info.orientation - degrees + 360) % 360
-//    }
-//
-//    parameters.setRotation(result)
-//    camera.parameters = parameters
-//    camera.setDisplayOrientation(result)
-//  }
 
   override fun surfaceDestroyed(holder: SurfaceHolder?) {
     //...

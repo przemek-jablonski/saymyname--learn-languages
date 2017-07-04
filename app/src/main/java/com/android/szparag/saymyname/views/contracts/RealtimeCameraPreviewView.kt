@@ -17,10 +17,8 @@ interface RealtimeCameraPreviewView : View {
 
   fun retrieveHardwareBackCamera()
   fun takePicture()
-  fun scaleCompressPictureByteData(shortestResolutionDimension : Int)
-  fun onTakePictureShutterTriggered()
-  fun onTakePictureByteDataReady(pictureDataArray : ByteArray) //todo: this should be in presenter?
-  fun onScaledCompressedPicgureByteDataReady(pictureDataArray: ByteArray)
+//  fun scaleCompressPictureByteData(shortestResolutionDimension : Int)
+//  fun onScaledCompressedPicgureByteDataReady(pictureDataArray: ByteArray)
 
   fun initializeCameraPreviewSurfaceView()
 
