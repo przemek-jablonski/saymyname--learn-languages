@@ -4,6 +4,7 @@ import android.hardware.Camera
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
@@ -11,11 +12,16 @@ import android.view.SurfaceView
 import android.widget.Button
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.bindView
+import com.android.szparag.saymyname.dagger.DaggerWrapper
+import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.contracts.CameraPresenter
+import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
+import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import hugo.weaving.DebugLog
 import java.io.IOException
 import java.util.Locale
+import javax.inject.Inject
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
@@ -28,63 +34,74 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   val buttonCameraShutter: Button by bindView(R.id.button_shutter)
 
   private lateinit var textToSpeechClient: TextToSpeech
-  private var presenter: CameraPresenter? = null //todo: remove ? later on, VERY IMPORTANT!
+  @Inject lateinit var presenter: RealtimeCameraPresenter //todo: remove ? later on, VERY IMPORTANT!
 
   private var cameraInstance: Camera? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    logMethod()
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_realtime_camera_preview)
   }
 
   override fun onStart() {
+    logMethod()
     super.onStart()
+    DaggerWrapper.component.inject(this)
     setupViews()
     presenter?.attach(this)
   }
 
   override fun onResume() {
+    logMethod()
     super.onResume()
   }
 
   override fun onWindowFocusChanged(hasFocus: Boolean) {
+    logMethod()
     super.onWindowFocusChanged(hasFocus)
-    if (hasFocus)
-      presenter?.onViewReady()
+    if (hasFocus) presenter.onViewReady()
 
   }
 
   override fun onPause() {
+    logMethod()
     super.onPause()
   }
 
   override fun onStop() {
-    presenter?.detach()
+    logMethod()
+    presenter.detach()
     super.onStop()
   }
 
   override fun onDestroy() {
+    logMethod()
     super.onDestroy()
   }
 
   override fun setupViews() {
-    buttonCameraShutter.setOnClickListener { presenter?.onUserTakePictureButtonClicked() }
+    logMethod()
+    buttonCameraShutter.setOnClickListener { presenter.onUserTakePictureButtonClicked() }
   }
 
   override fun initializeCameraPreviewSurfaceView() {
+    logMethod()
     val holder = cameraSurfaceView.holder
     holder.addCallback(this)
     holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
   }
 
   override fun retrieveHardwareBackCamera() {
+    logMethod()
     //todo: if opening camera failed (or succeeded), then CALL PRESENTER!
     cameraInstance = openHardwareBackCamera()
     if (cameraInstance == null)
-      presenter?.onCameraPreviewViewInitializationFailed()
+      presenter.onCameraPreviewViewInitializationFailed()
   }
 
   override fun renderRealtimeCameraPreview() {
+    logMethod()
     cameraInstance?.let {
       try {
         cameraInstance.run {
@@ -92,10 +109,10 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
           configureCameraDisplayOrientation(0)
           configureFocusMode(cameraInstance)
           it.startPreview()
-          presenter?.onCameraPreviewViewInitialized()
+          presenter.onCameraPreviewViewInitialized()
         }
       } catch (exc: IOException) {
-        presenter?.onCameraPreviewViewInitializationFailed()
+        presenter.onCameraPreviewViewInitializationFailed()
         exc.printStackTrace()
         return
       }
@@ -104,6 +121,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   //todo: get rid of cameraId, we only care about back-facing cam here
   private fun configureCameraDisplayOrientation(cameraId: Int) {
+    logMethod()
     cameraInstance?.let {
       val info = getCameraHardwareInfo(cameraId)
       val parameters = it.parameters
@@ -131,12 +149,14 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
   private fun getCameraHardwareInfo(cameraId: Int): Camera.CameraInfo {
+    logMethod()
     val info = android.hardware.Camera.CameraInfo()
     android.hardware.Camera.getCameraInfo(cameraId, info)
     return info
   }
 
   private fun configureFocusMode(cameraInstance: Camera?) {
+    logMethod()
     cameraInstance?.let {
       //todo: implement system that handles case where cam doesnt have this FocusMode
       val parameters = it.parameters
@@ -147,29 +167,36 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
 
   override fun stopRenderingRealtimeCameraPreview() {
+    logMethod()
 
   }
 
-  override fun renderLoadingAnimation() {//...
+  override fun renderLoadingAnimation() {
+    logMethod()
   }
 
-  override fun stopRenderingLoadingAnimation() {//...
+  override fun stopRenderingLoadingAnimation() {
+    logMethod()
   }
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
+    logMethod()
     //...
   }
 
   override fun renderTranslatedWords(translatedWords: List<String>) {
+    logMethod()
     //...
   }
 
   override fun stopRenderingWords() {
+    logMethod()
     //...
   }
 
 
   private fun openHardwareBackCamera(): Camera? {
+    logMethod()
     try {
       return Camera.open()
     } catch (exc: RuntimeException) {
@@ -180,15 +207,17 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
   override fun takePicture() {
+    logMethod()
     cameraInstance?.takePicture(
-        Camera.ShutterCallback { presenter?.onCameraPhotoTaken() },
+        Camera.ShutterCallback { presenter.onCameraPhotoTaken() },
         null,
-        Camera.PictureCallback { data, camera -> presenter?.onCameraPhotoByteArrayReady(data) }
+        Camera.PictureCallback { data, camera -> presenter.onCameraPhotoByteArrayReady(data) }
     )
   }
 
 
   override fun initializeTextToSpeechClient() {
+    logMethod()
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
       status: Int ->
       status.takeIf { it != TextToSpeech.ERROR }?.run {
@@ -198,6 +227,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
   override fun speakText(textToSpeak: String, flushSpeakingQueue: Boolean) {
+    logMethod()
     textToSpeechClient.speak(
         textToSpeak,
         if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD,
@@ -205,19 +235,24 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
 
-  override fun initializeSuddenMovementDetection() {//...
+  override fun initializeSuddenMovementDetection() {
+    logMethod()
   }
 
-  override fun onSuddenMovementDetected() {//...
+  override fun onSuddenMovementDetected() {
+    logMethod()
   }
 
 
-  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {//...
+  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+    logMethod()
   }
 
-  override fun surfaceDestroyed(holder: SurfaceHolder?) {//...
+  override fun surfaceDestroyed(holder: SurfaceHolder?) {
+    logMethod()
   }
 
-  override fun surfaceCreated(holder: SurfaceHolder?) {//...
+  override fun surfaceCreated(holder: SurfaceHolder?) {
+    logMethod()
   }
 }
