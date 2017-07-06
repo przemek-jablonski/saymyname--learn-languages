@@ -1,7 +1,6 @@
 package com.android.szparag.saymyname
 
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
@@ -16,22 +15,20 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.util.Base64
 import android.util.Log
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import com.android.szparag.saymyname.retrofit.apis.ApiClarifai
-import com.android.szparag.saymyname.retrofit.apis.ApiTranslate
+import com.android.szparag.saymyname.retrofit.apis.ApiImageRecognitionClarifai
+import com.android.szparag.saymyname.retrofit.apis.ApiTranslationYandex
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.DataInput
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Image
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Input
-import com.android.szparag.saymyname.retrofit.models.translation.TranslateText
-import com.android.szparag.saymyname.retrofit.models.translation.TranslatedText
+import com.android.szparag.saymyname.retrofit.models.translation.TranslatedTextResponse
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
@@ -42,7 +39,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.Locale
 
 
 @Suppress("DEPRECATION")
@@ -51,8 +47,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceView)
   val buttonTakePhoto: Button by bindView(R.id.button)
-  var cameraInstance: Camera? = null
 
+  var cameraInstance: Camera? = null
   lateinit var textToSpeechClient: TextToSpeech
 
   //todo: remove this!
@@ -68,27 +64,19 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   override fun onResume() {
     super.onResume()
     Handler().postDelayed({
-      val holder = cameraSurfaceView.holder
-      holder.addCallback(this)
-      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+//      val holder = cameraSurfaceView.holder
+//      holder.addCallback(this)
+//      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
 
-//      findViewById(R.layout.layout_camera_preview_realtime).visibility = View.VISIBLE
-      cameraInstance = openBackCameraInstance()
-      startCameraRealtimePreview(cameraInstance)
-      setFocusMode(cameraInstance)
+//      cameraInstance = openBackCameraInstance()
+//      startCameraRealtimePreview(cameraInstance)
+//      setFocusMode(cameraInstance)
     }, 750)
 
 
     findViewById(R.id.button).setOnClickListener {
             takePicture(cameraInstance)
     }
-
-    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
-      status: Int ->
-      status.takeIf { it != TextToSpeech.ERROR }?.run {
-        textToSpeechClient.language = Locale.UK
-      }
-    })
 
   }
 
@@ -101,13 +89,13 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiServiceYandex = retrofitClientYandex.create(ApiTranslate::class.java)
+    val apiServiceYandex = retrofitClientYandex.create(ApiTranslationYandex::class.java)
     val callTranslateText = apiServiceYandex.translate(
         key = getString(R.string.yandex_api_key),
         targetLanguagesPair = "en-it",
         textToTranslate = texts)
-    callTranslateText.enqueue(object : Callback<TranslatedText> {
-      override fun onResponse(call: Call<TranslatedText>, response: Response<TranslatedText>?) {
+    callTranslateText.enqueue(object : Callback<TranslatedTextResponse> {
+      override fun onResponse(call: Call<TranslatedTextResponse>, response: Response<TranslatedTextResponse>?) {
         Log.d("retrofit", "response, $call, $response")
         response?.body()?.texts?.let {
           (findViewById(R.id.translatedText1) as TextView).text = it.get(0)
@@ -116,7 +104,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         }
       }
 
-      override fun onFailure(call: Call<TranslatedText>, t: Throwable) {
+      override fun onFailure(call: Call<TranslatedTextResponse>, t: Throwable) {
         Log.d("retrofit", "failure, $call, $t")
       }
     })
@@ -168,7 +156,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   }
 
   private fun sendPictureToClarifai(pictureByteArray: ByteArray) {
-    //todo: put into dagger
+////    todo: put into dagger
     val BASE_URL_CLARIFAI = "https://api.clarifai.com/v2/"
     val retrofitClientClarifai = Retrofit.Builder()
         .baseUrl(BASE_URL_CLARIFAI)
@@ -176,8 +164,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiServiceClarifai = retrofitClientClarifai.create(ApiClarifai::class.java)
-    val callProcessImageByGeneralModel = apiServiceClarifai.processImageByGeneralModel(
+    val apiServiceClarifai = retrofitClientClarifai.create(ApiImageRecognitionClarifai::class.java)
+    val callProcessImageByGeneralModel = apiServiceClarifai.processImageByModel(
         key = "Key " + getString(R.string.clarifai_api_key),
         modelId = getString(R.string.clarifai_model_id),
         imagePredictRequest = ImagePredictRequest(
@@ -203,17 +191,17 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
           concepts?.get(0)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText1) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText1) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
           concepts?.get(1)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText2) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText2) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
           concepts?.get(2)?.name?.let {
             conceptRenderToScreen(findViewById(R.id.englishText3) as TextView, it)
 //            conceptTranslateToItalianAndRenderToScreen(findViewById(R.id.translatedText3) as TextView, it)
-            conceptTextToSpeech(it)
+//            conceptTextToSpeech(it)
           }
 
         }
@@ -245,10 +233,10 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
 
   //todo: different languages https://stackoverflow.com/a/12251794/6942800
-  private fun conceptTextToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
-    textToSpeechClient.speak(
-        text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
-  }
+//  private fun conceptTextToSpeech(text: String, flushSpeakingQueue: Boolean = false) {
+//    textToSpeechClient.speak(
+//        text, if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
+//  }
 
   //todo: this kotlin syntax here really sucks, refactor!
   private fun rescaleImageRequestFactor(downScaleFactor: Int,
@@ -264,12 +252,13 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
 
   private fun openBackCameraInstance(): Camera? {
-    try {
-      return Camera.open()
-    } catch (exc: RuntimeException) {
-      //todo: ...logging, show error, whatever
-      exc.printStackTrace()
-    }
+//    try {
+//      return Camera.open()
+//    } catch (exc: RuntimeException) {
+//      //todo: ...logging, show error, whatever
+//      exc.printStackTrace()
+//    }
+//    return null
     return null
   }
 
@@ -280,10 +269,11 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
       try {
         cameraInstance.run {
           it.setPreviewDisplay(cameraSurfaceView.holder)
-          setCameraDisplayOrientation(this@MainActivity, 0, it)
+//          setCameraDisplayOrientation(this@MainActivity, 0, it)
         }
       } catch (exc: IOException) {
         exc.printStackTrace()
+        return
       }
 
       it.startPreview()
@@ -292,43 +282,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 //    cameraInstance?.let { it.startPreview() }
   }
 
-  private fun setFocusMode(cameraInstance: Camera?) {
-    //todo: implement system that handles case where cam doesnt have this FocusMode
-    cameraInstance?.let {
-      val parameters = it.parameters
-      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-      it.parameters = parameters
-    }
-  }
 
-  fun setCameraDisplayOrientation(activity: Activity, cameraId: Int,
-      camera: android.hardware.Camera) {
-    val info = android.hardware.Camera.CameraInfo()
-    android.hardware.Camera.getCameraInfo(cameraId, info)
-    val parameters = camera.parameters;
-    val rotation = activity.windowManager.defaultDisplay.rotation
-    var degrees = 0
-    when (rotation) {
-      Surface.ROTATION_0 -> degrees = 0
-      Surface.ROTATION_90 -> degrees = 90
-      Surface.ROTATION_180 -> degrees = 180
-      Surface.ROTATION_270 -> degrees = 270
-    }
-
-    var result: Int
-    //int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-    // do something for phones running an SDK before lollipop
-    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-      result = (info.orientation + degrees) % 360
-      result = (360 - result) % 360 // compensate the mirror
-    } else { // back-facing
-      result = (info.orientation - degrees + 360) % 360
-    }
-
-    parameters.setRotation(result)
-    camera.parameters = parameters
-    camera.setDisplayOrientation(result)
-  }
 
   override fun surfaceDestroyed(holder: SurfaceHolder?) {
     //...

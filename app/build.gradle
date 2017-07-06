@@ -4,7 +4,7 @@ apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'realm-android'
 apply plugin: 'jacoco-android'
-
+apply plugin: 'kotlin-kapt'
 
 android {
   compileSdkVersion 25
@@ -23,6 +23,10 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
+}
+
+kapt {
+  generateStubs = true
 }
 
 dependencies {
@@ -49,7 +53,7 @@ dependencies {
 
   //    dagger2
   compile group: 'com.google.dagger', name: 'dagger', version: '2.9'
-  apt 'com.google.dagger:dagger-compiler:2.9'
+  kapt 'com.google.dagger:dagger-compiler:2.9'
 
   //    picasso
   compile 'com.squareup.picasso:picasso:2.5.2'
