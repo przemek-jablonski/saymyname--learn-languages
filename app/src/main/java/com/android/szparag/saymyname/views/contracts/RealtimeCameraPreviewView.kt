@@ -28,5 +28,6 @@ interface RealtimeCameraPreviewView : View {
   //todo: this is unimplemented yet
   fun initializeSuddenMovementDetection()
   fun onSuddenMovementDetected()
+  fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
 
 }

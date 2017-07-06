@@ -1,5 +1,7 @@
 package com.android.szparag.saymyname.views.activities
 
+import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.BitmapFactory
 import android.hardware.Camera
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -9,7 +11,9 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
+import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
@@ -19,6 +23,7 @@ import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresente
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import hugo.weaving.DebugLog
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -47,7 +52,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   override fun onStart() {
     logMethod()
     super.onStart()
-    DaggerWrapper.component.inject(this)
+    DaggerWrapper.getComponent(this).inject(this)
     setupViews()
     presenter?.attach(this)
   }
@@ -211,8 +216,47 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     cameraInstance?.takePicture(
         Camera.ShutterCallback { presenter.onCameraPhotoTaken() },
         null,
-        Camera.PictureCallback { data, camera -> presenter.onCameraPhotoByteArrayReady(data) }
+        Camera.PictureCallback { data, camera ->
+          presenter.onCameraPhotoByteArrayReady(data)
+          cameraInstance?.startPreview()
+        }
     )
+  }
+
+  override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray) {
+    val options = BitmapFactory.Options().apply {
+      //      this.inJustDecodeBounds = true
+      this.inPurgeable = true
+      //todo: refactor so that i can specify minimum res (600-720px) instead of scaling
+      //todo: because i do not know how powerful user camera is
+      rescaleImageRequestFactor(8, this)
+    }
+    val originalByteStream = pictureByteArray
+    val originalBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size)
+    val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
+        options)
+    val compressedByteStream = ByteArrayOutputStream()
+    scaledBitmap.compress(JPEG, 60, compressedByteStream)
+    val compressedBitmap = BitmapFactory.decodeByteArray(compressedByteStream.toByteArray(), 0,
+        compressedByteStream.toByteArray().size)
+
+//    compressedPictureBitmap = compressedBitmap
+//    compressedPictureByteArray = compressedByteStream.toByteArray()
+      presenter.onCameraCompressedPhotoByteArrayReady(compressedByteStream.toByteArray())
+
+//    Bitmap.createScaledBitmap()
+//    options.inPurgeable = false
+
+//    (findViewById(R.id.imageView) as ImageView).setImageBitmap(compressedBitmap)
+//    findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
+//    findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
+  }
+
+  //todo: this kotlin syntax here really sucks, refactor!
+  private fun rescaleImageRequestFactor(downScaleFactor: Int,
+      bitmapOptions: BitmapFactory.Options): BitmapFactory.Options {
+    bitmapOptions.inSampleSize = downScaleFactor
+    return bitmapOptions
   }
 
 

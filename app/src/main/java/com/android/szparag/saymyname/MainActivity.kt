@@ -1,7 +1,6 @@
 package com.android.szparag.saymyname
 
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
@@ -16,21 +15,20 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.util.Base64
 import android.util.Log
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import com.android.szparag.saymyname.retrofit.apis.ApiClarifai
-import com.android.szparag.saymyname.retrofit.apis.ApiTranslate
+import com.android.szparag.saymyname.retrofit.apis.ApiImageRecognitionClarifai
+import com.android.szparag.saymyname.retrofit.apis.ApiTranslationYandex
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.DataInput
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Image
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Input
-import com.android.szparag.saymyname.retrofit.models.translation.TranslatedText
+import com.android.szparag.saymyname.retrofit.models.translation.TranslatedTextResponse
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import hugo.weaving.DebugLog
 import okhttp3.OkHttpClient
@@ -41,7 +39,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.Locale
 
 
 @Suppress("DEPRECATION")
@@ -92,13 +89,13 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiServiceYandex = retrofitClientYandex.create(ApiTranslate::class.java)
+    val apiServiceYandex = retrofitClientYandex.create(ApiTranslationYandex::class.java)
     val callTranslateText = apiServiceYandex.translate(
         key = getString(R.string.yandex_api_key),
         targetLanguagesPair = "en-it",
         textToTranslate = texts)
-    callTranslateText.enqueue(object : Callback<TranslatedText> {
-      override fun onResponse(call: Call<TranslatedText>, response: Response<TranslatedText>?) {
+    callTranslateText.enqueue(object : Callback<TranslatedTextResponse> {
+      override fun onResponse(call: Call<TranslatedTextResponse>, response: Response<TranslatedTextResponse>?) {
         Log.d("retrofit", "response, $call, $response")
         response?.body()?.texts?.let {
           (findViewById(R.id.translatedText1) as TextView).text = it.get(0)
@@ -107,7 +104,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         }
       }
 
-      override fun onFailure(call: Call<TranslatedText>, t: Throwable) {
+      override fun onFailure(call: Call<TranslatedTextResponse>, t: Throwable) {
         Log.d("retrofit", "failure, $call, $t")
       }
     })
@@ -159,7 +156,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
   }
 
   private fun sendPictureToClarifai(pictureByteArray: ByteArray) {
-    //todo: put into dagger
+////    todo: put into dagger
     val BASE_URL_CLARIFAI = "https://api.clarifai.com/v2/"
     val retrofitClientClarifai = Retrofit.Builder()
         .baseUrl(BASE_URL_CLARIFAI)
@@ -167,8 +164,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiServiceClarifai = retrofitClientClarifai.create(ApiClarifai::class.java)
-    val callProcessImageByGeneralModel = apiServiceClarifai.processImageByGeneralModel(
+    val apiServiceClarifai = retrofitClientClarifai.create(ApiImageRecognitionClarifai::class.java)
+    val callProcessImageByGeneralModel = apiServiceClarifai.processImageByModel(
         key = "Key " + getString(R.string.clarifai_api_key),
         modelId = getString(R.string.clarifai_model_id),
         imagePredictRequest = ImagePredictRequest(

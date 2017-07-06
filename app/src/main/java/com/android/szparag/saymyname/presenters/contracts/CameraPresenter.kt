@@ -1,14 +1,11 @@
 package com.android.szparag.saymyname.presenters.contracts
 
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Model
-import com.android.szparag.saymyname.retrofit.models.translation.TranslatedText
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
-interface CameraPresenter : Presenter<RealtimeCameraPreviewView> {
+interface CameraPresenter : Presenter {
 
   //todo: move it to model
   //todo: change to Int, not Enum

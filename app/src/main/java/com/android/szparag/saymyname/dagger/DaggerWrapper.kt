@@ -1,5 +1,6 @@
 package com.android.szparag.saymyname.dagger
 
+import android.content.Context
 import com.android.szparag.saymyname.dagger.components.DaggerSaymynameMainComponent
 import com.android.szparag.saymyname.dagger.components.SaymynameMainComponent
 import com.android.szparag.saymyname.dagger.modules.SaymynameMainModule
@@ -9,11 +10,15 @@ import com.android.szparag.saymyname.dagger.modules.SaymynameMainModule
  */
 class DaggerWrapper {
   companion object {
-    val component: SaymynameMainComponent by lazy { constructComponent() }
-    private fun constructComponent(): SaymynameMainComponent {
-      return DaggerSaymynameMainComponent.builder()
-          .saymynameMainModule(SaymynameMainModule())
+    private var component: SaymynameMainComponent? = null
+    fun getComponent(context: Context) : SaymynameMainComponent{
+      if (component == null) return constructComponent(context) else return component!!
+    }
+    private fun constructComponent(context: Context): SaymynameMainComponent {
+      component = DaggerSaymynameMainComponent.builder()
+          .saymynameMainModule(SaymynameMainModule(context))
           .build()
+      return component!!
     }
   }
 
