@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="colorPrimary">#f5f5f5</color>
-  <color name="colorPrimaryDark">#e0e0e0</color>
-  <color name="colorAccent">#3d5aff</color>
+  <color name="colorPrimary">@color/saymyname_white_primary</color>
+  <color name="colorPrimaryDark">@color/saymyname_white_dark</color>
+  <color name="colorAccent">@color/saymyname_blue_primary</color>
+
+  <color name="button_hud_primary">@color/saymyname_blue_light</color>
+  <color name="button_hud_primary_alpha">@color/saymyname_blue_alpha_light</color>
 
   <color name="colorPrimary_alpha">#4bf5f5f5</color>
+
+  <color name="saymyname_white_primary">#f9f9f9</color>
+  <color name="saymyname_white_light">#ffffff</color>
+  <color name="saymyname_white_dark">#c6c6c6</color>
+  <color name="saymyname_white_alpha">#7dffffff</color>
+
+  <color name="saymyname_blue_primary">#2962ff</color>
+  <color name="saymyname_blue_light">#768fff</color>
+  <color name="saymyname_blue_dark">#0039cb</color>
+  <color name="saymyname_blue_alpha_light">#7d768fff</color>
+  <color name="saymyname_blue_alpha_primary">#7d2962ff</color>
+
 </resources>
