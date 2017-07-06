@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.presenters
 
 import android.os.Handler
 import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
+import com.android.szparag.saymyname.models.contracts.TranslationModel
 import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
@@ -10,7 +11,9 @@ import com.android.szparag.saymyname.retrofit.models.imageRecognition.ModelVersi
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.OutputInfo
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Status
 import com.android.szparag.saymyname.services.contracts.ImageRecognitionNetworkService.ImageRecognitionNetworkResult
+import com.android.szparag.saymyname.utils.filterOutStupidWords
 import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View
 import java.util.LinkedList
@@ -18,7 +21,8 @@ import java.util.LinkedList
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
-class RealtimeCameraPreviewPresenter(override val model: ImageRecognitionModel)
+class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRecognitionModel,
+    override val translationModel: TranslationModel)
   : BasePresenter(), RealtimeCameraPresenter {
 
 
@@ -28,7 +32,9 @@ class RealtimeCameraPreviewPresenter(override val model: ImageRecognitionModel)
 
   override fun onAttached() {
     super.onAttached()
-    model.attach(this)
+    imageRecognitionModel.attach(this)
+    translationModel.attach(this)
+    initializeTextToSpeechClient()
   }
 
   override fun onViewReady() {
@@ -106,16 +112,39 @@ class RealtimeCameraPreviewPresenter(override val model: ImageRecognitionModel)
   override fun requestImageVisionData(photoByteArray: ByteArray) {
     logMethod()
     //todo: from presenter i can access presenter, service and repository, THATS BAD
-    model.requestImageProcessing(
+    imageRecognitionModel.requestImageProcessing(
         "aaa03c23b3724a16a56b629203edc62c",
         photoByteArray)
   }
 
+
   override fun onImageVisionDataReceived(visionConcepts: List<Concept>) {
     logMethod()
     //todo: move it to model
-    val textsToTranslate = visionConcepts.mapTo(LinkedList<String>()) { it.name }
-    requestTranslation(textsToTranslate)
+    var textsToTranslate : LinkedList<String> = visionConcepts.mapTo(LinkedList<String>()) { it.name }
+    getView()?.let {
+      val subList = textsToTranslate.subList(0, 7)
+          .filterNot {
+            it == ("no person") ||
+                it == "horizontal" ||
+                it == ("vertical") ||
+                it == ("control") ||
+                it == ("offense") ||
+                it == ("one") ||
+                it == ("two") ||
+                it == ("container") ||
+                it == ("abstract") ||
+                it == ("Luna") ||
+                it == ("crescent") ||
+                it == ("background") ||
+                it == ("insubstantial")
+          }
+          .subList(0, 3)
+      it.renderNonTranslatedWords(subList)
+      requestTranslation(subList)
+      for (text in subList)
+        getView()?.speakText(text)
+    }
   }
 
   override fun onImageVisionDataFailed(requestStatus: NetworkRequestStatus) {
@@ -125,13 +154,12 @@ class RealtimeCameraPreviewPresenter(override val model: ImageRecognitionModel)
 
   override fun requestTranslation(textsToTranslate: List<String>) {
     logMethod()
-    Handler().postDelayed({
-      onTranslationDataReceived(listOf("asdadasd", "a", "adadasdasdas", "ad"))
-    }, 2500)
+    translationModel.requestTranslation("en-it", textsToTranslate.subListSafe(0, 4))
   }
 
   override fun onTranslationDataReceived(translatedText: List<String>) {
     logMethod()
+    getView()?.renderTranslatedWords(translatedText)
   }
 
   override fun onTranslationDataFailed(requestStatus: NetworkRequestStatus) {

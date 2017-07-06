@@ -4,6 +4,8 @@ import android.content.Context
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.SaymynameImageRecognitionModel
 import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
+import com.android.szparag.saymyname.models.contracts.SaymynameTranslationModel
+import com.android.szparag.saymyname.models.contracts.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.services.SaymynameImageRecognitionNetworkService
@@ -25,14 +27,10 @@ import javax.inject.Singleton
 
 @Module class SaymynameMainModule(private val context: Context) {
 
-  @Named(
-      "ImageRecognition.NetworkService.BaseUrl") val IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL = "https://api.clarifai.com/v2/"
-  @Named(
-      "ImageRecognition.NetworkService.ApiKey") lateinit var IMAGE_RECOGNITION_NETWORK_SERVICE_APIKEY: String
-  @Named(
-      "Translation.NetworkService.BaseUrl") val TRANSLATION_NETWORK_SERVICE_BASEURL = "https://translate.yandex.net/api/v1.5/"
-  @Named(
-      "Translation.NetworkService.ApiKey") lateinit var TRANSLATION_NETWORK_SERVICE_APIKEY: String
+  @Named("ImageRecognition.NetworkService.BaseUrl")
+  val IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL = "https://api.clarifai.com/v2/"
+  @Named("Translation.NetworkService.BaseUrl")
+  val TRANSLATION_NETWORK_SERVICE_BASEURL = "https://translate.yandex.net/api/v1.5/"
 
 
   @Provides @Singleton fun provideContext(): Context {
@@ -40,8 +38,8 @@ import javax.inject.Singleton
   }
 
   @Provides @Singleton fun provideRealtimeCameraPresenter(
-      model: ImageRecognitionModel): RealtimeCameraPresenter {
-    return RealtimeCameraPreviewPresenter(model)
+      imageRecognitionModel: ImageRecognitionModel, translationModel : TranslationModel): RealtimeCameraPresenter {
+    return RealtimeCameraPreviewPresenter(imageRecognitionModel, translationModel)
   }
 
   @Provides @Singleton fun provideImageRecognitionNetworkService(
@@ -62,6 +60,11 @@ import javax.inject.Singleton
     return SaymynameImageRecognitionModel(service)
   }
 
+  @Provides @Singleton fun provideTranslationModel(
+      service: TranslationNetworkService): TranslationModel{
+    return SaymynameTranslationModel(service)
+  }
+
   @Provides @Singleton @Named(
       "Translation.NetworkService.ApiKey") fun provideTranslationNetworkServiceApiKey(
       context: Context): String {
@@ -80,7 +83,7 @@ import javax.inject.Singleton
   }
 
   @Provides @Singleton @Named("Translation.NetworkService.BaseUrl") fun provideTranslationNetworkServiceBaseUrl() :String {
-    return IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL
+    return TRANSLATION_NETWORK_SERVICE_BASEURL
   }
 
   @Provides @Singleton fun provideNetworkServiceRestClient(

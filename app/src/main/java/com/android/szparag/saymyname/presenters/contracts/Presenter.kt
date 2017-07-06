@@ -9,7 +9,6 @@ import com.android.szparag.saymyname.views.contracts.View
  */
 interface Presenter {
 
-  val model : Model
 
   fun attach(view: View)
 

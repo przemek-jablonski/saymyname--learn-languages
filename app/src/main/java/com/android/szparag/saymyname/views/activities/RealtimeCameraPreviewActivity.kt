@@ -22,6 +22,8 @@ import com.android.szparag.saymyname.presenters.contracts.CameraPresenter
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import com.android.szparag.saymyname.views.widgets.SaymynameFloatingWordsView
+import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
 import hugo.weaving.DebugLog
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -37,6 +39,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
   val buttonCameraShutter: Button by bindView(R.id.button_shutter)
+  val floatingWordsView : SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
   private lateinit var textToSpeechClient: TextToSpeech
   @Inject lateinit var presenter: RealtimeCameraPresenter //todo: remove ? later on, VERY IMPORTANT!
@@ -186,12 +189,12 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
     logMethod()
-    //...
+    floatingWordsView.renderAuxiliaryWords(nonTranslatedWords)
   }
 
   override fun renderTranslatedWords(translatedWords: List<String>) {
     logMethod()
-    //...
+    floatingWordsView.renderPrimaryWords(translatedWords)
   }
 
   override fun stopRenderingWords() {

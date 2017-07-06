@@ -18,7 +18,7 @@ class SaymynameTranslationNetworkService(private val retrofit: Retrofit,
   private val networkApiClient: ApiTranslationYandex by lazy { initializeNetworkApiClient() }
 
   private fun initializeNetworkApiClient(): ApiTranslationYandex {
-    return retrofit.create(networkApiClient::class.java)
+    return retrofit.create(ApiTranslationYandex::class.java)
   }
 
   //todo: languagesPair should be handled here somehow

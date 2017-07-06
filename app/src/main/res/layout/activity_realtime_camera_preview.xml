@@ -12,6 +12,12 @@
       />
 
   <include
+      layout="@layout/view_floating_words"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      />
+
+  <include
       layout="@layout/layout_realtime_camera_preview_hud_overlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
