@@ -17,7 +17,7 @@
       android:layout_marginLeft="0dp"
       android:layout_marginRight="0dp"
       android:layout_marginTop="450dp"
-      android:background="@color/saymyname_white_alpha"
+      android:background="@android:color/transparent"
       android:orientation="vertical"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintLeft_toLeftOf="parent"
