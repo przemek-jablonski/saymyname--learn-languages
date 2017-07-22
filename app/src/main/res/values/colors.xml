@@ -14,6 +14,11 @@
   <color name="saymyname_white_dark">#c6c6c6</color>
   <color name="saymyname_white_alpha">#7dffffff</color>
 
+  <color name="saymyname_black_light">#757575</color>
+  <color name="saymyname_black_dark">#757575</color>
+  <color name="saymyname_black_dark_alpha">#7d757575</color>
+  <color name="saymyname_black_dark_alpha2">#46757575</color>
+
   <color name="saymyname_blue_primary">#2962ff</color>
   <color name="saymyname_blue_light">#768fff</color>
   <color name="saymyname_blue_dark">#0039cb</color>

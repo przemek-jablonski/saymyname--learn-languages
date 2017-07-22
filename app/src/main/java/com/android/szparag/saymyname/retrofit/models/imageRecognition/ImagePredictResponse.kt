@@ -16,6 +16,7 @@ data class ImagePredictResponse(@SerializedName("status") @Expose var status: St
       for (output in it) {
         combinedConcepts.addAll(output.getConcepts()!!.toList())
       }
+      return combinedConcepts
     }
     return emptyList()
   }
