@@ -22,7 +22,9 @@ import com.android.szparag.saymyname.presenters.contracts.CameraPresenter
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
 import com.android.szparag.saymyname.views.widgets.SaymynameFloatingWordsView
+import com.android.szparag.saymyname.views.widgets.contracts.CameraShutterButton
 import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
 import hugo.weaving.DebugLog
 import java.io.ByteArrayOutputStream
@@ -38,7 +40,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
-  val buttonCameraShutter: Button by bindView(R.id.button_shutter)
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView : SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
   private lateinit var textToSpeechClient: TextToSpeech
