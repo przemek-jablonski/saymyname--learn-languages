@@ -15,6 +15,7 @@ interface ImageProcessingPresenter : Presenter {
   fun onImageVisionDataReceived(visionConcepts: List<Concept>)
   fun onImageVisionDataFailed(requestStatus: NetworkRequestStatus)
 
+  //todo: split that into another presenter!
   fun requestTranslation(textsToTranslate: List<String>)
   fun onTranslationDataReceived(translatedText: List<String>)
   fun onTranslationDataFailed(requestStatus: NetworkRequestStatus)

@@ -1,16 +1,19 @@
 <resources>
 
-  <dimen name="hud_margin_vertical_big">@dimen/margin_big</dimen>
-  <dimen name="hud_margin_uniform_normal">@dimen/margin_small</dimen>
+  <dimen name="hud_margin_vertical_big">@dimen/saymyname_dimen_big</dimen>
+  <dimen name="hud_margin_uniform_normal">@dimen/saymyname_dimen_normal</dimen>
+  <dimen name="hud_shutter_size">@dimen/saymyname_dimen_huge</dimen>
+  <dimen name="floating_words_margin_vertical">@dimen/saymyname_dimen_tiny</dimen>
+  <dimen name="hud_lang_model_selector_corners">@dimen/saymyname_dimen_small</dimen>
 
   <!-- android standard -->
   <dimen name="fab_margin">16dp</dimen>
 
   <!-- generic -->
-  <dimen name="margin_tiny">4dp</dimen>
-  <dimen name="margin_small">8dp</dimen>
-  <dimen name="margin_normal">@dimen/fab_margin</dimen>
-  <dimen name="margin_big">32dp</dimen>
-  <dimen name="margin_huge">64dp</dimen>
+  <dimen name="saymyname_dimen_tiny">4dp</dimen>
+  <dimen name="saymyname_dimen_small">8dp</dimen>
+  <dimen name="saymyname_dimen_normal">@dimen/fab_margin</dimen>
+  <dimen name="saymyname_dimen_big">32dp</dimen>
+  <dimen name="saymyname_dimen_huge">64dp</dimen>
 
 </resources>
