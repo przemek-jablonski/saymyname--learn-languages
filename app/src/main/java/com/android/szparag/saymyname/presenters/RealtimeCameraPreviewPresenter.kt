@@ -6,16 +6,9 @@ import com.android.szparag.saymyname.models.contracts.TranslationModel
 import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Model
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.ModelVersion
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.OutputInfo
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Status
-import com.android.szparag.saymyname.services.contracts.ImageRecognitionNetworkService.ImageRecognitionNetworkResult
-import com.android.szparag.saymyname.utils.filterOutStupidWords
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
-import com.android.szparag.saymyname.views.contracts.View
 import java.util.LinkedList
 
 /**
@@ -39,9 +32,7 @@ class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRe
 
   override fun onViewReady() {
     logMethod()
-//    Handler().postDelayed(
     initializeCameraPreviewView()
-//        1000)
   }
 
   override fun onBeforeDetached() {

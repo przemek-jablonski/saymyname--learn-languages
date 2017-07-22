@@ -15,6 +15,8 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
 
+  val FLOATING_WORD_TEXT_TAG_PREFIX : String = "#"
+
   val auxiliaryWord1 : TextView by bindView(R.id.textview_word_1)
   val auxiliaryWord2: TextView by bindView(R.id.textview_word_2)
   val auxiliaryWord3 : TextView by bindView(R.id.textview_word_3)
@@ -24,15 +26,15 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
 
 
   override fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>) {
-    auxiliaryWord1.text = auxiliaryWords[0]
-    auxiliaryWord2.text = auxiliaryWords[1]
-    auxiliaryWord3.text = auxiliaryWords[2]
+    auxiliaryWord1.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(auxiliaryWords[0])
+    auxiliaryWord2.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(auxiliaryWords[1])
+    auxiliaryWord3.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(auxiliaryWords[2])
   }
 
   override fun renderPrimaryWords(primaryWords : List<CharSequence?>) {
-    primaryWord1.text = primaryWords[0]
-    primaryWord2.text = primaryWords[1]
-    primaryWord3.text = primaryWords[2]
+    primaryWord1.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[0])
+    primaryWord2.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[1])
+    primaryWord3.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[2])
   }
 
 }
