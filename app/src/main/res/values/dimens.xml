@@ -6,6 +6,9 @@
   <dimen name="floating_words_margin_vertical">@dimen/saymyname_dimen_tiny</dimen>
   <dimen name="hud_lang_model_selector_corners">@dimen/saymyname_dimen_small</dimen>
 
+  <dimen name="floating_words_font_normal">@dimen/saymyname_dimen_font_big</dimen>
+  <dimen name="floating_words_font_big">@dimen/saymyname_dimen_font_huge</dimen>
+
   <!-- android standard -->
   <dimen name="fab_margin">16dp</dimen>
 
@@ -15,5 +18,8 @@
   <dimen name="saymyname_dimen_normal">@dimen/fab_margin</dimen>
   <dimen name="saymyname_dimen_big">32dp</dimen>
   <dimen name="saymyname_dimen_huge">64dp</dimen>
+
+  <dimen name="saymyname_dimen_font_big">18sp</dimen>
+  <dimen name="saymyname_dimen_font_huge">24sp</dimen>
 
 </resources>

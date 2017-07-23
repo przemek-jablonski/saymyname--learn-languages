@@ -3,6 +3,7 @@ package com.android.szparag.saymyname.views.widgets.overlays
 import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
+import android.view.View
 import android.widget.TextView
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.bindView
@@ -61,7 +62,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   override fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>) {
-    renderAuxilliaryWord(
+    renderWord(
         auxiliaryWord1,
         auxiliaryWords[0],
         generateViewPosition(
@@ -73,7 +74,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
             floatingWordsSpawnDimensionMinY,
             floatingWordsSpawnDimensionMaxY)
     )
-    renderAuxilliaryWord(
+    renderWord(
         auxiliaryWord2,
         auxiliaryWords[1],
         generateViewPosition(
@@ -85,7 +86,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
             floatingWordsSpawnDimensionMinY,
             floatingWordsSpawnDimensionMaxY)
     )
-    renderAuxilliaryWord(
+    renderWord(
         auxiliaryWord3,
         auxiliaryWords[2],
         generateViewPosition(
@@ -100,17 +101,61 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   override fun renderPrimaryWords(primaryWords: List<CharSequence?>) {
-    primaryWord1.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[0])
-    primaryWord2.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[1])
-    primaryWord3.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(primaryWords[2])
+    primaryWords[0]?.let {
+      renderWord(
+          primaryWord1,
+          it,
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinX,
+              floatingWordsSpawnDimensionMaxX),
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinY,
+              floatingWordsSpawnDimensionMaxY)
+      )
+    }
+    primaryWords[1]?.let {
+      renderWord(
+          primaryWord2,
+          it,
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinX,
+              floatingWordsSpawnDimensionMaxX),
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinY,
+              floatingWordsSpawnDimensionMaxY)
+      )
+    }
+    primaryWords[2]?.let {
+      renderWord(
+          primaryWord3,
+          it,
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinX,
+              floatingWordsSpawnDimensionMaxX),
+          generateViewPosition(
+              random,
+              floatingWordsSpawnDimensionMinY,
+              floatingWordsSpawnDimensionMaxY)
+      )
+    }
   }
 
-  private fun renderAuxilliaryWord(wordView: TextView, word: CharSequence, coordX: Float,
+
+  private fun renderWord(wordView: TextView?, word: CharSequence, coordX: Float,
       coordY: Float) {
-    logMethod(optionalString = "wordView : $wordView, word: $word, (x,y): ($coordX, $coordY)")
-    wordView.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
-    wordView.x = coordX
-    wordView.y = coordY
+    logMethod(  optionalString = "wordView : $wordView, word: $word, (x,y): ($coordX, $coordY)") //todo: isnt it going to cause crash if wordview is null? just logging it?
+    wordView?.let {
+      if (it.visibility != View.VISIBLE)
+        it.visibility = View.VISIBLE
+      it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
+      it.x = coordX
+      it.y = coordY
+    }
   }
 
   private fun generateViewPosition(random: Random, dimensionMinVal: Int,
@@ -119,11 +164,15 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   override fun clearAuxillaryWords() {
-
+    auxiliaryWord1.visibility = View.GONE
+    auxiliaryWord2.visibility = View.GONE
+    auxiliaryWord3.visibility = View.GONE
   }
 
   override fun clearPrimaryWords() {
-
+    primaryWord1.visibility = View.GONE
+    primaryWord2.visibility = View.GONE
+    primaryWord3.visibility = View.GONE
   }
 
   override fun clearWords() {

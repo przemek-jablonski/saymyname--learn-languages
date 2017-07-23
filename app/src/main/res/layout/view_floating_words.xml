@@ -15,8 +15,6 @@
     tools:background="@android:color/holo_blue_dark"
     >
 
-  <!--tools:visibility="visible"-->
-  <!--android:visibility="gone"-->
   <TextView
       android:id="@+id/textview_word_auxilliary_1"
       android:layout_width="wrap_content"
@@ -31,9 +29,11 @@
       android:shadowRadius="25.0"
       android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
-      android:textSize="14sp"
+      android:textSize="@dimen/floating_words_font_normal"
       android:textStyle="bold"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
   <TextView
       android:id="@+id/textview_word_auxilliary_2"
@@ -49,9 +49,11 @@
       android:shadowRadius="25.0"
       android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
-      android:textSize="14sp"
+      android:textSize="@dimen/floating_words_font_normal"
       android:textStyle="bold"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
   <TextView
       android:id="@+id/textview_word_auxilliary_3"
@@ -67,9 +69,11 @@
       android:shadowRadius="25.0"
       android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
-      android:textSize="14sp"
+      android:textSize="@dimen/floating_words_font_normal"
       android:textStyle="bold"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
 
   <TextView
@@ -86,12 +90,10 @@
       android:shadowRadius="25.0"
       android:textAllCaps="true"
       android:textColor="@color/saymyname_blue_dark"
-      android:textSize="18sp"
-      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_primary_2"
-      app:layout_constraintHorizontal_bias="0.513"
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toLeftOf="@+id/textview_word_primary_2"
+      android:textSize="@dimen/floating_words_font_big"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
 
   <TextView
@@ -107,11 +109,10 @@
       android:shadowRadius="25.0"
       android:textAllCaps="true"
       android:textColor="@color/saymyname_blue_dark"
-      android:textSize="18sp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintLeft_toRightOf="@+id/textview_word_primary_1"
-      app:layout_constraintRight_toLeftOf="@+id/textview_word_primary_3"
+      android:textSize="@dimen/floating_words_font_big"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
 
   <TextView
@@ -128,11 +129,10 @@
       android:shadowRadius="25.0"
       android:textAllCaps="true"
       android:textColor="@color/saymyname_blue_dark"
-      android:textSize="18sp"
-      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_primary_2"
-      app:layout_constraintLeft_toRightOf="@+id/textview_word_primary_2"
-      app:layout_constraintRight_toRightOf="parent"
+      android:textSize="@dimen/floating_words_font_big"
       tools:text="testtext"
+      tools:visibility="visible"
+      android:visibility="gone"
       />
 
 </com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView>
