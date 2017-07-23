@@ -15,8 +15,10 @@
     tools:background="@android:color/holo_blue_dark"
     >
 
+  <!--tools:visibility="visible"-->
+  <!--android:visibility="gone"-->
   <TextView
-      android:id="@+id/textview_word_1"
+      android:id="@+id/textview_word_auxilliary_1"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/floating_words_margin_vertical"
@@ -27,14 +29,14 @@
       android:shadowDx="0.0"
       android:shadowDy="0.0"
       android:shadowRadius="25.0"
-      android:textAllCaps="true"
+      android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
       android:textSize="14sp"
       android:textStyle="bold"
       tools:text="testtext"
       />
   <TextView
-      android:id="@+id/textview_word_2"
+      android:id="@+id/textview_word_auxilliary_2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/floating_words_margin_vertical"
@@ -45,14 +47,14 @@
       android:shadowDx="0.0"
       android:shadowDy="0.0"
       android:shadowRadius="25.0"
-      android:textAllCaps="true"
+      android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
       android:textSize="14sp"
       android:textStyle="bold"
       tools:text="testtext"
       />
   <TextView
-      android:id="@+id/textview_word_3"
+      android:id="@+id/textview_word_auxilliary_3"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/floating_words_margin_vertical"
@@ -63,7 +65,7 @@
       android:shadowDx="0.0"
       android:shadowDy="0.0"
       android:shadowRadius="25.0"
-      android:textAllCaps="true"
+      android:textAllCaps="false"
       android:textColor="@color/button_hud_primary_alpha"
       android:textSize="14sp"
       android:textStyle="bold"
@@ -71,7 +73,7 @@
       />
 
   <TextView
-      android:id="@+id/textview_word_4"
+      android:id="@+id/textview_word_primary_1"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginLeft="8dp"
@@ -85,15 +87,15 @@
       android:textAllCaps="true"
       android:textColor="@color/saymyname_blue_dark"
       android:textSize="18sp"
-      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_5"
+      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_primary_2"
       app:layout_constraintHorizontal_bias="0.513"
       app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintRight_toLeftOf="@+id/textview_word_5"
+      app:layout_constraintRight_toLeftOf="@+id/textview_word_primary_2"
       tools:text="testtext"
       />
 
   <TextView
-      android:id="@+id/textview_word_5"
+      android:id="@+id/textview_word_primary_2"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
@@ -107,13 +109,13 @@
       android:textColor="@color/saymyname_blue_dark"
       android:textSize="18sp"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintLeft_toRightOf="@+id/textview_word_4"
-      app:layout_constraintRight_toLeftOf="@+id/textview_word_6"
+      app:layout_constraintLeft_toRightOf="@+id/textview_word_primary_1"
+      app:layout_constraintRight_toLeftOf="@+id/textview_word_primary_3"
       tools:text="testtext"
       />
 
   <TextView
-      android:id="@+id/textview_word_6"
+      android:id="@+id/textview_word_primary_3"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_marginLeft="8dp"
@@ -127,8 +129,8 @@
       android:textAllCaps="true"
       android:textColor="@color/saymyname_blue_dark"
       android:textSize="18sp"
-      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_5"
-      app:layout_constraintLeft_toRightOf="@+id/textview_word_5"
+      app:layout_constraintBaseline_toBaselineOf="@+id/textview_word_primary_2"
+      app:layout_constraintLeft_toRightOf="@+id/textview_word_primary_2"
       app:layout_constraintRight_toRightOf="parent"
       tools:text="testtext"
       />

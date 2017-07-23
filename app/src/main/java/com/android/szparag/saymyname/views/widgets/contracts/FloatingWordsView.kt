@@ -6,4 +6,8 @@ package com.android.szparag.saymyname.views.widgets.contracts
 interface FloatingWordsView {
   fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>)
   fun renderPrimaryWords(primaryWords : List<CharSequence?>)
+
+  fun clearAuxillaryWords()
+  fun clearPrimaryWords()
+  fun clearWords()
 }

@@ -19,12 +19,12 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
 
   val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
 
-  val auxiliaryWord1: TextView by bindView(R.id.textview_word_1)
-  val auxiliaryWord2: TextView by bindView(R.id.textview_word_2)
-  val auxiliaryWord3: TextView by bindView(R.id.textview_word_3)
-  val primaryWord1: TextView by bindView(R.id.textview_word_4)
-  val primaryWord2: TextView by bindView(R.id.textview_word_5)
-  val primaryWord3: TextView by bindView(R.id.textview_word_6)
+  val auxiliaryWord1: TextView by bindView(R.id.textview_word_auxilliary_1)
+  val auxiliaryWord2: TextView by bindView(R.id.textview_word_auxilliary_2)
+  val auxiliaryWord3: TextView by bindView(R.id.textview_word_auxilliary_3)
+  val primaryWord1: TextView by bindView(R.id.textview_word_primary_1)
+  val primaryWord2: TextView by bindView(R.id.textview_word_primary_2)
+  val primaryWord3: TextView by bindView(R.id.textview_word_primary_3)
 
   var screenWidth: Int? = null
   var screenHeight: Int? = null
@@ -116,6 +116,19 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   private fun generateViewPosition(random: Random, dimensionMinVal: Int,
       dimensionMaxVal: Int): Float {
     return (random.nextInt(dimensionMaxVal - dimensionMinVal) + dimensionMinVal).toFloat()
+  }
+
+  override fun clearAuxillaryWords() {
+
+  }
+
+  override fun clearPrimaryWords() {
+
+  }
+
+  override fun clearWords() {
+    clearAuxillaryWords()
+    clearPrimaryWords()
   }
 
 }
