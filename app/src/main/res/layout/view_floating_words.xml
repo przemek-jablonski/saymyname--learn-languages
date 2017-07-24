@@ -12,15 +12,13 @@
     android:orientation="vertical"
     android:soundEffectsEnabled="true"
     android:splitMotionEvents="false"
-    tools:background="@android:color/holo_blue_dark"
+    tools:background="@android:color/holo_orange_dark"
     >
 
   <com.android.szparag.saymyname.views.widgets.FloatingWordTextView
       android:id="@+id/textview_word_auxilliary_1"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:visibility="gone"
       app:type="auxiliary"
       tools:text="testtext"
       tools:visibility="visible"
@@ -29,8 +27,6 @@
       android:id="@+id/textview_word_auxilliary_2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:visibility="gone"
       app:type="auxiliary"
       tools:text="testtext"
       tools:visibility="visible"
@@ -39,7 +35,6 @@
       android:id="@+id/textview_word_auxilliary_3"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
       android:visibility="gone"
       app:type="auxiliary"
       tools:text="testtext"
@@ -50,9 +45,7 @@
       android:id="@+id/textview_word_primary_1"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
       app:type="primary"
-      android:visibility="gone"
       tools:text="testtext"
       tools:visibility="visible"
       />
@@ -61,9 +54,7 @@
       android:id="@+id/textview_word_primary_2"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
       app:type="primary"
-      android:visibility="gone"
       tools:text="testtext"
       tools:visibility="visible"
       />
@@ -72,9 +63,7 @@
       android:id="@+id/textview_word_primary_3"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
       app:type="primary"
-      android:visibility="gone"
       tools:text="testtext"
       tools:visibility="visible"
       />

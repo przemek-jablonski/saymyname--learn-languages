@@ -1,6 +1,7 @@
 package com.android.szparag.saymyname.views.widgets
 
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
@@ -32,21 +33,24 @@ class FloatingWordTextView : TextView {
 
 
   constructor(context: Context?) : super(context)
+
   constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-    val a = context?.theme?.obtainStyledAttributes(
-        attrs,
-        R.styleable.FloatingWordTextView,
-        0, 0)
-    a?.let {
-      wordType = it.getInt(R.styleable.FloatingWordTextView_type, FLOATINGWORD_TYPE_AUXILLIARY)
-    }
+    context
+        ?.theme
+        ?.obtainStyledAttributes(
+            attrs, R.styleable.FloatingWordTextView, 0, 0)
+        ?.let {
+          wordType = it.getInteger(
+              R.styleable.FloatingWordTextView_type, FLOATINGWORD_TYPE_AUXILLIARY)
+        }
+    applyWordType(wordType)
   }
 
-  init {
+  private fun applyWordType(wordType : Int?) {
     when (wordType) {
       FLOATINGWORD_TYPE_AUXILLIARY -> {
         setAllCaps(AUXILIARY_TEXTALLCAPS)
-        setTextColor(AUXILIARY_TEXTCOLOR)
+        setTextColor(ContextCompat.getColor(context, AUXILIARY_TEXTCOLOR))
         textSize = context.resources.getDimension(AUXILIARY_TEXTSIZE)
         setShadowLayer(
             AUXILIARY_SHADOWRADIUS,
@@ -57,7 +61,7 @@ class FloatingWordTextView : TextView {
       }
       FLOATINGWORD_TYPE_PRIMARY -> {
         setAllCaps(PRIMARY_TEXTALLCAPS)
-        setTextColor(PRIMARY_TEXTCOLOR)
+        setTextColor(ContextCompat.getColor(context, PRIMARY_TEXTCOLOR))
         textSize = context.resources.getDimension(PRIMARY_TEXTSIZE)
         setShadowLayer(
             PRIMARY_SHADOWRADIUS,
