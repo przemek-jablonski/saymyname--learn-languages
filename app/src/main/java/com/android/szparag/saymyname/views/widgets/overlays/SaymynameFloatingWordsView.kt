@@ -1,13 +1,22 @@
 package com.android.szparag.saymyname.views.widgets.overlays
 
 import android.content.Context
+import android.graphics.Point
+import android.graphics.Rect
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.bindView
+import com.android.szparag.saymyname.utils.bindViews
+import com.android.szparag.saymyname.utils.getBoundingBox
+import com.android.szparag.saymyname.utils.getBoundingBoxSpread
+import com.android.szparag.saymyname.utils.getCoordinatesCenter
 import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.min
+import com.android.szparag.saymyname.utils.setCoordinatesCenter
+import com.android.szparag.saymyname.views.widgets.FloatingWordTextView
 import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
 import java.util.Random
 
@@ -17,162 +26,141 @@ import java.util.Random
 class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
-
   val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
+  val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
 
-  val auxiliaryWord1: TextView by bindView(R.id.textview_word_auxilliary_1)
-  val auxiliaryWord2: TextView by bindView(R.id.textview_word_auxilliary_2)
-  val auxiliaryWord3: TextView by bindView(R.id.textview_word_auxilliary_3)
-  val primaryWord1: TextView by bindView(R.id.textview_word_primary_1)
-  val primaryWord2: TextView by bindView(R.id.textview_word_primary_2)
-  val primaryWord3: TextView by bindView(R.id.textview_word_primary_3)
+  val auxiliaryWordsViews: List<FloatingWordTextView> by bindViews(
+      R.id.textview_word_auxilliary_1,
+      R.id.textview_word_auxilliary_2,
+      R.id.textview_word_auxilliary_3)
+  val primaryWordsViews: List<FloatingWordTextView> by bindViews(
+      R.id.textview_word_primary_1,
+      R.id.textview_word_primary_2,
+      R.id.textview_word_primary_3)
 
-  var screenWidth: Int? = null
-  var screenHeight: Int? = null
-  var floatingWordsSpawnDimensionMinX: Int = 0
-  var floatingWordsSpawnDimensionMaxX: Int = 0
-  var floatingWordsSpawnDimensionMinY: Int = 0
-  var floatingWordsSpawnDimensionMaxY: Int = 0
+  var viewCenter: Point? = null
+  var viewBoundingBox: Rect? = null
+  var viewBoundingBoxSpawnSpread: Pair<Int, Int>? = null
 
   lateinit var random: Random
 
 
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    logMethod()
-  }
-
   override fun onFinishInflate() {
     super.onFinishInflate()
     logMethod()
-    screenWidth = context.resources.displayMetrics.widthPixels
-    screenWidth?.let {
-      floatingWordsSpawnDimensionMinX = (it * 0.20).toInt()
-      floatingWordsSpawnDimensionMaxX = (it * 0.60).toInt()
-    }
-    screenHeight = context.resources.displayMetrics.heightPixels
-    screenHeight?.let {
-      floatingWordsSpawnDimensionMinY = (it * 0.20).toInt()
-      floatingWordsSpawnDimensionMaxY = (it * 0.60).toInt()
-    }
-
     random = Random()
-    logMethod(
-        optionalString = "screenWidth: $screenWidth, screenHeight: $screenHeight, DimensionsX: <$floatingWordsSpawnDimensionMinX, $floatingWordsSpawnDimensionMaxX>, DimensionsY: <$floatingWordsSpawnDimensionMinY, $floatingWordsSpawnDimensionMaxY>)")
+  }
+
+  override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+    super.onWindowFocusChanged(hasWindowFocus)
+    logMethod(optionalString = "hasWindowFocus: $hasWindowFocus")
+    obtainRenderDimensions()
+  }
+
+  private fun obtainRenderDimensions() {
+    logMethod()
+    viewCenter = getCoordinatesCenter()
+    viewBoundingBox = getBoundingBox()
+    viewBoundingBox?.let {
+      viewBoundingBoxSpawnSpread = getBoundingBoxSpread(
+          it, 2f + FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF)
+    }
   }
 
   override fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>) {
-    renderWord(
-        auxiliaryWord1,
-        auxiliaryWords[0],
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinX,
-            floatingWordsSpawnDimensionMaxX),
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinY,
-            floatingWordsSpawnDimensionMaxY)
-    )
-    renderWord(
-        auxiliaryWord2,
-        auxiliaryWords[1],
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinX,
-            floatingWordsSpawnDimensionMaxX),
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinY,
-            floatingWordsSpawnDimensionMaxY)
-    )
-    renderWord(
-        auxiliaryWord3,
-        auxiliaryWords[2],
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinX,
-            floatingWordsSpawnDimensionMaxX),
-        generateViewPosition(
-            random,
-            floatingWordsSpawnDimensionMinY,
-            floatingWordsSpawnDimensionMaxY)
-    )
+    logMethod(optionalString = auxiliaryWords.toString())
+    logMethod(
+        optionalString = "viewCenter: $viewCenter, viewBoundingBox: $viewBoundingBox, viewBoundingBoxSpawnSpread: $viewBoundingBoxSpawnSpread")
+
+    if (viewBoundingBoxSpawnSpread == null || viewCenter == null) {
+      logMethod(level = Log.ERROR,
+          optionalString = "Render Dimensions are nulled out, returning...")
+      return
+    }
+
+    val boundingBoxQuarters = (0..3).toMutableList()
+    val iterationCount = IntRange(0, auxiliaryWords.size.min(auxiliaryWordsViews.size) - 1)
+    logMethod(
+        optionalString = "boundingBoxQuarters: $boundingBoxQuarters, iterationCount: $iterationCount")
+
+    for (i in iterationCount) {
+      boundingBoxQuarters
+          .takeIf { it.isNotEmpty() }
+          ?.let {
+            val spawnQuarterId = it.removeAt(random.nextInt(it.size))
+            val spawnCoordX = random.nextInt(viewBoundingBoxSpawnSpread!!.first)
+            val spawnCoordY = random.nextInt(viewBoundingBoxSpawnSpread!!.second)
+            logMethod(
+                optionalString = "spawnQuarterId: $spawnQuarterId, spawn (x,y): $spawnCoordX, $spawnCoordY")
+            when (spawnQuarterId) {
+              0 -> {
+                renderWord(
+                    auxiliaryWordsViews[i],
+                    auxiliaryWords[i],
+                    (viewCenter!!.x - spawnCoordX).toFloat(),
+                    (viewCenter!!.y + spawnCoordY).toFloat()
+                )
+              }
+              1 -> {
+                renderWord(
+                    auxiliaryWordsViews[i],
+                    auxiliaryWords[i],
+                    (viewCenter!!.x - spawnCoordX).toFloat(),
+                    (viewCenter!!.y - spawnCoordY).toFloat()
+                )
+              }
+              2 -> {
+                renderWord(
+                    auxiliaryWordsViews[i],
+                    auxiliaryWords[i],
+                    (viewCenter!!.x + spawnCoordX).toFloat(),
+                    (viewCenter!!.y + spawnCoordY).toFloat()
+                )
+              }
+              3 -> {
+                renderWord(
+                    auxiliaryWordsViews[i],
+                    auxiliaryWords[i],
+                    (viewCenter!!.x + spawnCoordX).toFloat(),
+                    (viewCenter!!.y - spawnCoordY).toFloat()
+                )
+              }
+            }
+          }
+    }
   }
+
 
   override fun renderPrimaryWords(primaryWords: List<CharSequence?>) {
-    primaryWords[0]?.let {
-      renderWord(
-          primaryWord1,
-          it,
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinX,
-              floatingWordsSpawnDimensionMaxX),
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinY,
-              floatingWordsSpawnDimensionMaxY)
-      )
-    }
-    primaryWords[1]?.let {
-      renderWord(
-          primaryWord2,
-          it,
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinX,
-              floatingWordsSpawnDimensionMaxX),
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinY,
-              floatingWordsSpawnDimensionMaxY)
-      )
-    }
-    primaryWords[2]?.let {
-      renderWord(
-          primaryWord3,
-          it,
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinX,
-              floatingWordsSpawnDimensionMaxX),
-          generateViewPosition(
-              random,
-              floatingWordsSpawnDimensionMinY,
-              floatingWordsSpawnDimensionMaxY)
-      )
+    auxiliaryWordsViews.forEach {
+      it.takeIf { it.visibility != GONE }
+          ?.let {
+
+          }
     }
   }
 
-
-  private fun renderWord(wordView: TextView?, word: CharSequence, coordX: Float,
-      coordY: Float) {
-    logMethod(  optionalString = "wordView : $wordView, word: $word, (x,y): ($coordX, $coordY)") //todo: isnt it going to cause crash if wordview is null? just logging it?
+  private fun renderWord(wordView: TextView?, word: CharSequence, coordX: Float, coordY: Float) {
+    logMethod(
+        optionalString =
+        "wordView : ${wordView?.let { it.resources.getResourceName(it.id) }}, " +
+            "word: $word, " +
+            "(x,y): ($coordX, $coordY)"
+    )
     wordView?.let {
       if (it.visibility != View.VISIBLE)
         it.visibility = View.VISIBLE
       it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
-      it.x = coordX
-      it.y = coordY
+      it.setCoordinatesCenter(coordX, coordY)
     }
   }
 
-  private fun generateViewPosition(random: Random, dimensionMinVal: Int,
-      dimensionMaxVal: Int): Float {
-    return (random.nextInt(dimensionMaxVal - dimensionMinVal) + dimensionMinVal).toFloat()
-  }
-
   override fun clearAuxillaryWords() {
-    auxiliaryWord1.visibility = View.GONE
-    auxiliaryWord2.visibility = View.GONE
-    auxiliaryWord3.visibility = View.GONE
+    auxiliaryWordsViews.forEach { it.visibility = GONE }
   }
 
   override fun clearPrimaryWords() {
-    primaryWord1.visibility = View.GONE
-    primaryWord2.visibility = View.GONE
-    primaryWord3.visibility = View.GONE
+    primaryWordsViews.forEach { it.visibility = GONE }
   }
 
   override fun clearWords() {

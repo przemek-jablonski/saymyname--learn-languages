@@ -8,10 +8,10 @@ import com.android.szparag.saymyname.models.contracts.SaymynameTranslationModel
 import com.android.szparag.saymyname.models.contracts.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
-import com.android.szparag.saymyname.services.SaymynameImageRecognitionNetworkService
-import com.android.szparag.saymyname.services.SaymynameTranslationNetworkService
-import com.android.szparag.saymyname.services.contracts.ImageRecognitionNetworkService
-import com.android.szparag.saymyname.services.contracts.TranslationNetworkService
+import com.android.szparag.saymyname.retrofit.services.SaymynameImageRecognitionNetworkService
+import com.android.szparag.saymyname.retrofit.services.SaymynameTranslationNetworkService
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides

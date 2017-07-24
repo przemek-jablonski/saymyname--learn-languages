@@ -1,16 +1,57 @@
-package com.android.szparag.saymyname
+@file:Suppress("NOTHING_TO_INLINE")
+
+package com.android.szparag.saymyname.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.Point
+import android.graphics.PointF
+import android.graphics.Rect
 import android.hardware.Camera
 import android.hardware.Camera.ShutterCallback
-import java.io.ByteArrayOutputStream
-
+import android.view.View
 
 /**
- * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/1/2017.
+ * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/24/2017.
  */
+
+inline fun View.getCoordinatesLeftTop() : Point {
+  val outLocation : IntArray = kotlin.IntArray(2)
+  this.getLocationOnScreen(outLocation)
+  return Point(outLocation[0], outLocation[1])
+}
+
+inline fun View.getBoundingBox() : Rect {
+  val rect = Rect()
+  this.getGlobalVisibleRect(rect)
+  return rect
+}
+
+inline fun View.getBoundingBoxSpread(boundingBox: Rect, divider : Float = 1f) : Pair<Int, Int> {
+  return Pair(
+      boundingBox.width().div(divider).toInt(),
+      boundingBox.height().div(divider).toInt()
+  )
+}
+
+
+fun View.getCoordinatesCenter() : Point {
+  return Point(pivotX.toInt(), pivotY.toInt())
+}
+
+fun View.getCoordinatesCenterF() : PointF {
+  return PointF(pivotX, pivotY)
+}
+
+fun View.setCoordinatesCenter(coordX : Int, coordY : Int) {
+  this.setCoordinatesCenter(coordX.toFloat(), coordY.toFloat())
+}
+
+fun View.setCoordinatesCenter(coordX : Float, coordY : Float) {
+  this.translationX = coordX
+  this.translationY = coordY
+}
 
 //todo: this is memory inneficient, think about different implementation
 public fun Bitmap.createBitmap(source: Bitmap, angle: Float): Bitmap {
@@ -24,7 +65,7 @@ fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: Pictur
   this.takePicture(
       shutterCallback,
       null,
-      android.hardware.Camera.PictureCallback {
+      Camera.PictureCallback {
         data, camera ->
         pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data, camera)
       })

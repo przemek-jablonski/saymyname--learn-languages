@@ -1,7 +1,8 @@
-package com.android.szparag.saymyname.services.contracts
+package com.android.szparag.saymyname.retrofit.services.contracts
 
-import com.android.szparag.saymyname.retrofit.apis.ApiImageRecognitionClarifai
+import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
+import com.android.szparag.saymyname.utils.logMethod
 
 
 /**
@@ -10,8 +11,11 @@ import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
 interface ImageRecognitionNetworkService : NetworkService {
 
   interface ImageRecognitionNetworkResult {
-    fun onSucceeded(concepts: List<Concept>)
-    fun onFailed()
+    @CallSuper fun onSucceeded(concepts: List<Concept>) {
+      logMethod(optionalString = concepts.toString())
+    }
+
+    @CallSuper fun onFailed() { logMethod() }
   }
 
   fun requestImageProcessing(

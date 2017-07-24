@@ -7,11 +7,11 @@ import android.util.Log
  */
 
 val APPLICATION_TAG = "saymyname"
-val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4;
+val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
 fun logMethod(level: Int = Log.DEBUG, optionalString: String? = null) {
   //TODO: refactor that so that it uses kapt and generating code, this approach is CPU heavy
-  Thread.currentThread().stackTrace.get(LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH)
+  Thread.currentThread().stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
       ?.takeIf {
         true
         //todo: check if NOT in debug
@@ -20,6 +20,6 @@ fun logMethod(level: Int = Log.DEBUG, optionalString: String? = null) {
         val className = it.className
         val methodName = it.methodName
         val lineNumber = it.lineNumber
-        Log.println(level, APPLICATION_TAG, "$className.$methodName [$lineNumber]" + (optionalString ?: ""))
+        Log.println(level, APPLICATION_TAG, "$className.$methodName [$lineNumber] | " + (optionalString ?: ""))
       }
 }

@@ -13,6 +13,7 @@
     android:soundEffectsEnabled="true"
     android:splitMotionEvents="false"
     tools:background="@android:color/holo_orange_dark"
+    android:layout_marginTop="100dp"
     >
 
   <com.android.szparag.saymyname.views.widgets.FloatingWordTextView

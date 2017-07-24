@@ -8,8 +8,8 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical"
-    tools:background="@android:color/holo_red_dark"
     >
+  <!--tools:background="@android:color/"-->
 
   <ImageButton
       android:id="@+id/button_menu_hamburger"

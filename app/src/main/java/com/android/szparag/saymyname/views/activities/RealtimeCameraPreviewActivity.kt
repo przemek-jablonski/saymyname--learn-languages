@@ -12,7 +12,7 @@ import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
 import android.widget.Button
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.bindView
+import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.utils.logMethod
