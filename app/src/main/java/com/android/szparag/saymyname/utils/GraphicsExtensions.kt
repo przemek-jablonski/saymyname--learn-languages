@@ -67,6 +67,7 @@ fun View.fadeOut(toAlpha: Float = 0f, interpolator : Interpolator = LinearInterp
 }
 
 fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500, animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+  this.visibility = VISIBLE
   fade(fromAlpha, 1f, interpolator, durationMillis, animationStartCallback, animationEndCallback)
 }
 
@@ -78,7 +79,7 @@ private fun View.fade(fromAlpha: Float, toAlpha: Float, interpolator: Interpolat
 
   fade.setAnimationListener(object : AnimationListener {
     override fun onAnimationStart(animation: Animation) {
-      if (fromAlpha == 0f && this@fade.visibility != VISIBLE) this@fade.visibility = VISIBLE
+//      if (this@fade.visibility != VISIBLE) this@fade.visibility = VISIBLE
       animationStartCallback.invoke()
     }
     override fun onAnimationRepeat(animation: Animation) {}
