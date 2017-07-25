@@ -8,7 +8,7 @@
   <color name="button_hud_primary">@color/saymyname_blue_light</color>
   <color name="button_hud_primary_alpha">@color/saymyname_blue_alpha_light</color>
 
-  <color name="floatingwords_auxilliary_text_font">@color/saymyname_black_dark_alpha2</color>
+  <color name="floatingwords_auxilliary_text_font">@color/saymyname_white_dark</color>
   <color name="floatingwords_auxilliary_text_shadow">@color/saymyname_white_primary</color>
   <color name="floatingwords_primary_text_font">@color/saymyname_blue_light</color>
   <color name="floatingwords_primary_text_shadow">@color/saymyname_white_primary</color>

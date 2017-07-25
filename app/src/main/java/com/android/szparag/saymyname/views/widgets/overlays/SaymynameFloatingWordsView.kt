@@ -6,10 +6,11 @@ import android.graphics.Rect
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.Log
-import android.view.View
 import android.widget.TextView
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.utils.bindViews
+import com.android.szparag.saymyname.utils.fadeIn
+import com.android.szparag.saymyname.utils.fadeOut
 import com.android.szparag.saymyname.utils.getBoundingBox
 import com.android.szparag.saymyname.utils.getBoundingBoxSpread
 import com.android.szparag.saymyname.utils.getCoordinatesCenter
@@ -132,9 +133,22 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
 
 
   override fun renderPrimaryWords(primaryWords: List<CharSequence?>) {
-    auxiliaryWordsViews.forEach {
-      it.takeIf { it.visibility != GONE }
+    auxiliaryWordsViews.forEachIndexed { i, auxiliaryWordView ->
+      auxiliaryWordView.takeIf { it.visibility != GONE }
           ?.let {
+            if (primaryWords[i] == null) return
+            auxiliaryWordView.fadeOut(
+                toAlpha = 35f,
+                durationMillis = 2000,
+                animationStartCallback = {
+                  renderWord(
+                      primaryWordsViews[i],
+                      primaryWords[i]!!,
+                      auxiliaryWordView.x,
+                      auxiliaryWordView.y + auxiliaryWordView.getBoundingBox().height() * 0.40f)
+                },
+                animationEndCallback = {
+                })
 
           }
     }
@@ -148,19 +162,23 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
             "(x,y): ($coordX, $coordY)"
     )
     wordView?.let {
-      if (it.visibility != View.VISIBLE)
-        it.visibility = View.VISIBLE
-      it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
-      it.setCoordinatesCenter(coordX, coordY)
+      it.fadeIn(
+          animationStartCallback = {
+            it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
+            it.setCoordinatesCenter(coordX, coordY)
+          },
+          animationEndCallback = {
+
+          })
     }
   }
 
   override fun clearAuxillaryWords() {
-    auxiliaryWordsViews.forEach { it.visibility = GONE }
+    auxiliaryWordsViews.forEach { it.fadeOut(animationStartCallback = {}, animationEndCallback = {})}
   }
 
   override fun clearPrimaryWords() {
-    primaryWordsViews.forEach { it.visibility = GONE }
+    primaryWordsViews.forEach { it.fadeOut(durationMillis = 1350, animationStartCallback = {}, animationEndCallback = {}) }
   }
 
   override fun clearWords() {

@@ -194,7 +194,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   override fun stopRenderingWords() {
     logMethod()
-    //...
+    floatingWordsView.clearWords()
   }
 
 

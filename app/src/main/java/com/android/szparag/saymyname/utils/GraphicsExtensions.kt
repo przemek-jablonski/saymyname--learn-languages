@@ -11,6 +11,14 @@ import android.graphics.Rect
 import android.hardware.Camera
 import android.hardware.Camera.ShutterCallback
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
+import android.view.animation.AlphaAnimation
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
+
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/24/2017.
@@ -52,6 +60,37 @@ fun View.setCoordinatesCenter(coordX : Float, coordY : Float) {
   this.translationX = coordX
   this.translationY = coordY
 }
+
+
+fun View.fadeOut(toAlpha: Float = 0f, interpolator : Interpolator = LinearInterpolator(), durationMillis : Long = 500, animationStartCallback : () -> Unit, animationEndCallback: () -> Unit) {
+  fade(1f, toAlpha, interpolator, durationMillis, animationStartCallback, animationEndCallback)
+}
+
+fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500, animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+  fade(fromAlpha, 1f, interpolator, durationMillis, animationStartCallback, animationEndCallback)
+}
+
+private fun View.fade(fromAlpha: Float, toAlpha: Float, interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500, animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+  val fade = AlphaAnimation(fromAlpha, toAlpha)
+  fade.interpolator = interpolator
+  fade.duration = durationMillis
+  if (toAlpha != 1f) fade.fillAfter = true
+
+  fade.setAnimationListener(object : AnimationListener {
+    override fun onAnimationStart(animation: Animation) {
+      if (fromAlpha == 0f && this@fade.visibility != VISIBLE) this@fade.visibility = VISIBLE
+      animationStartCallback.invoke()
+    }
+    override fun onAnimationRepeat(animation: Animation) {}
+    override fun onAnimationEnd(animation: Animation) {
+      animationEndCallback.invoke()
+      if (toAlpha == 0f) this@fade.visibility = GONE
+    }
+  })
+
+  this.startAnimation(fade)
+}
+
 
 //todo: this is memory inneficient, think about different implementation
 public fun Bitmap.createBitmap(source: Bitmap, angle: Float): Bitmap {
