@@ -27,17 +27,21 @@ import java.util.Random
 class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
+
   val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
   val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
+  val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
 
   val auxiliaryWordsViews: List<FloatingWordTextView> by bindViews(
       R.id.textview_word_auxilliary_1,
       R.id.textview_word_auxilliary_2,
-      R.id.textview_word_auxilliary_3)
+      R.id.textview_word_auxilliary_3
+  )
   val primaryWordsViews: List<FloatingWordTextView> by bindViews(
       R.id.textview_word_primary_1,
       R.id.textview_word_primary_2,
-      R.id.textview_word_primary_3)
+      R.id.textview_word_primary_3
+  )
 
   var viewCenter: Point? = null
   var viewBoundingBox: Rect? = null
@@ -145,7 +149,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
                       primaryWordsViews[i],
                       primaryWords[i]!!,
                       auxiliaryWordView.x,
-                      auxiliaryWordView.y + auxiliaryWordView.getBoundingBox().height() * 0.40f)
+                      auxiliaryWordView.y + auxiliaryWordView.getBoundingBox().height() * PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR)
                 },
                 animationEndCallback = {
                 })

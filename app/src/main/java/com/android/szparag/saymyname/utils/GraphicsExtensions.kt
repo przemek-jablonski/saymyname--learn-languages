@@ -13,9 +13,9 @@ import android.hardware.Camera.ShutterCallback
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
-import android.view.animation.AlphaAnimation
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 
@@ -24,54 +24,145 @@ import android.view.animation.LinearInterpolator
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/24/2017.
  */
 
-inline fun View.getCoordinatesLeftTop() : Point {
-  val outLocation : IntArray = kotlin.IntArray(2)
+/**
+ * @return Point that contains coordinates (x, y) / (width, height) for the top-left corner
+ * of views Bounding Box.
+ *
+ * To get bottom-right corner as well, use {@link #getBoundingBox()}
+ */
+inline fun View.getCoordinatesLeftTop(): Point {
+  val outLocation: IntArray = kotlin.IntArray(2)
   this.getLocationOnScreen(outLocation)
   return Point(outLocation[0], outLocation[1])
 }
 
-inline fun View.getBoundingBox() : Rect {
+/**
+ * @return Rectangle containing coordinates of top-left and bottom-right corners
+ * of view's Bounding Box.
+ *
+ * Typically, if view is positioned so that it's part is outside of the screen space
+ * (screen is clipping the view), returning Rectangle values will be clipped to the screens
+ * or parent view dimensions.
+ *
+ * Eg. Rect(120,20 - 240,190), when view is not clipped by the screen
+ * Eg. Rect(120,20 - 1920,1080), when view is clipped by the screen with FullHD resolution.
+ * Amount of clipping can be obtained with #getClipping()
+ *
+ */
+inline fun View.getBoundingBox(): Rect {
   val rect = Rect()
   this.getGlobalVisibleRect(rect)
   return rect
 }
 
-inline fun View.getBoundingBoxSpread(boundingBox: Rect, divider : Float = 1f) : Pair<Int, Int> {
+/**
+ *  @return Pair of BoundingBoxSpread dimensions (x,y) / (width,height), which is basically
+ *  measurement of how much pixels does the Views Bounding Box take in X and Y axis.
+ */
+inline fun View.getBoundingBoxSpread(boundingBox: Rect = this.getBoundingBox(),
+    divider: Float = 1f): Pair<Int, Int> {
   return Pair(
       boundingBox.width().div(divider).toInt(),
       boundingBox.height().div(divider).toInt()
   )
 }
 
+/**
+ * Sisterly method to {@see #getBoundingBox()}, but the Bounding Box coordinates are not susceptible
+ * to being modified or cut due to the parent / screen clipping.
+ *
+ * Eg. Rect(120,20 - 240,190), when view is not clipped by the screen
+ * Eg. Rect(120,20 - 2220,1400), EVEN IF view is being clipped by the screen with FullHD resolution.
+ *
+ * @return Rectangle containing coordinates of top-left and bottom-right corners
+ * of view's raw Bounding Box.
+ */
+inline fun View.getRawBoundingBox(boundingBox: Rect = this.getBoundingBox()): Rect {
+  val rawBoundingBoxSpread = this.getRawBoundingBoxSpread()
+  val rawBoundingBox = Rect(boundingBox)
+  rawBoundingBox.right = boundingBox.left + rawBoundingBoxSpread.first
+  rawBoundingBox.bottom = boundingBox.top + rawBoundingBoxSpread.second
+  return rawBoundingBox
+}
 
-fun View.getCoordinatesCenter() : Point {
+/**
+ * Similar to @see #getBoundingBoxSpread(), but the calculations are done based on RAW (original)
+ * Bounding Box.
+ *
+ * @return Pair of BoundingBoxSpread dimensions (x,y) / (width,height).
+ */
+inline fun View.getRawBoundingBoxSpread(): Pair<Int, Int> {
+  return Pair(measuredWidth, measuredHeight)
+}
+
+/**
+ * Calculates how much of the view is clipped (how much of it is not actually visible for the user),
+ * either because of the view is positioned to close to screen or parent view borders.
+ *
+ * @return Pair of coordinates in both dimensions, determines how many pixels in X and Y axis
+ * are clipped for whatever reason (Pair<Int,Int> / Pair<x,y> / Pair<width,height>).
+ */
+//todo: what if view is clipped not from the right BUT FROM THE LEFT, TOP AND BOTTOM?
+inline fun View.getClippingSpread(): Pair<Int, Int> {
+  val rawBoundingBoxSpread = getRawBoundingBoxSpread()
+  val boundingBoxSpread = getBoundingBoxSpread()
+  return Pair(
+      rawBoundingBoxSpread.first - boundingBoxSpread.first,
+      rawBoundingBoxSpread.second - boundingBoxSpread.second
+  )
+}
+
+/**
+ * Calculates how much of the view is clipped (how much of it is not actually visible for the user),
+ * either because of the view is positioned to close to screen or parent view borders.
+ *
+ * @return Clipping rectangle - Rect showing how many pixels of the View are being clipped,
+ * from each of the four sides.
+ */
+inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect {
+  val rawBoundingBox = getRawBoundingBox(boundingBox)
+  return Rect(
+      rawBoundingBox.left - boundingBox.left,
+      rawBoundingBox.top - boundingBox.top,
+      rawBoundingBox.right - boundingBox.right,
+      rawBoundingBox.bottom - boundingBox.bottom
+  )
+}
+
+inline fun View.getCoordinatesCenter(): Point {
   return Point(pivotX.toInt(), pivotY.toInt())
 }
 
-fun View.getCoordinatesCenterF() : PointF {
+inline fun View.getCoordinatesCenterF(): PointF {
   return PointF(pivotX, pivotY)
 }
 
-fun View.setCoordinatesCenter(coordX : Int, coordY : Int) {
+inline fun View.setCoordinatesCenter(coordX: Int, coordY: Int) {
   this.setCoordinatesCenter(coordX.toFloat(), coordY.toFloat())
 }
 
-fun View.setCoordinatesCenter(coordX : Float, coordY : Float) {
+inline fun View.setCoordinatesCenter(coordX: Float, coordY: Float) {
   this.translationX = coordX
   this.translationY = coordY
 }
 
 
-fun View.fadeOut(toAlpha: Float = 0f, interpolator : Interpolator = LinearInterpolator(), durationMillis : Long = 500, animationStartCallback : () -> Unit, animationEndCallback: () -> Unit) {
+fun View.fadeOut(toAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(),
+    durationMillis: Long = 500, animationStartCallback: () -> Unit,
+    animationEndCallback: () -> Unit) {
   fade(1f, toAlpha, interpolator, durationMillis, animationStartCallback, animationEndCallback)
 }
 
-fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500, animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(),
+    durationMillis: Long = 500, animationStartCallback: () -> Unit,
+    animationEndCallback: () -> Unit) {
   this.visibility = VISIBLE
   fade(fromAlpha, 1f, interpolator, durationMillis, animationStartCallback, animationEndCallback)
 }
 
-private fun View.fade(fromAlpha: Float, toAlpha: Float, interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500, animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+private fun View.fade(fromAlpha: Float, toAlpha: Float,
+    interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500,
+    animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
   val fade = AlphaAnimation(fromAlpha, toAlpha)
   fade.interpolator = interpolator
   fade.duration = durationMillis
@@ -82,6 +173,7 @@ private fun View.fade(fromAlpha: Float, toAlpha: Float, interpolator: Interpolat
 //      if (this@fade.visibility != VISIBLE) this@fade.visibility = VISIBLE
       animationStartCallback.invoke()
     }
+
     override fun onAnimationRepeat(animation: Animation) {}
     override fun onAnimationEnd(animation: Animation) {
       animationEndCallback.invoke()
@@ -107,7 +199,8 @@ fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: Pictur
       null,
       Camera.PictureCallback {
         data, camera ->
-        pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data, camera)
+        pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data,
+            camera)
       })
 }
 
@@ -159,4 +252,28 @@ fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: Pictur
 
 interface PictureBitmapCallback {
   fun onPictureTaken(bitmap: Bitmap?, pictureBytesArray: ByteArray, camera: Camera)
+}
+
+
+//____________references:
+
+/**
+ * @see View.getGlobalVisibleRect
+ * Extension / Reference for View original method, which is encapsulating outValues in itself.
+ *
+ * Reference for @see getBoundingBox method.
+ */
+inline fun View.getGlobalVisibleRect(): Rect {
+  return getBoundingBox()
+}
+
+
+/**
+ * @see View.getLocationOnScreen
+ * Extension / Reference for View original method, which is encapsulating outValues in itself.
+ *
+ * Reference for @see getCoordinatesLeftTop method.
+ */
+inline fun View.getLocationOnScreen(): Point {
+  return getCoordinatesLeftTop()
 }
