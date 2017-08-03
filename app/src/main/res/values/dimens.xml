@@ -1,16 +1,18 @@
 <resources>
 
+  <!-- specifics -->
+  <!-- overlay interface (hud) -->
   <dimen name="hud_margin_vertical_big">@dimen/saymyname_dimen_big</dimen>
   <dimen name="hud_margin_uniform_normal">@dimen/saymyname_dimen_normal</dimen>
+  <dimen name="hud_margin_uniform_big">@dimen/saymyname_dimen_big</dimen>
   <dimen name="hud_shutter_size">@dimen/saymyname_dimen_huge</dimen>
-  <dimen name="floating_words_margin_vertical">@dimen/saymyname_dimen_tiny</dimen>
   <dimen name="hud_lang_model_selector_corners">@dimen/saymyname_dimen_small</dimen>
 
+  <!-- floating words -->
+  <dimen name="floating_words_margin_vertical">@dimen/saymyname_dimen_tiny</dimen>
   <dimen name="floating_words_font_normal">@dimen/saymyname_dimen_font_big</dimen>
   <dimen name="floating_words_font_big">@dimen/saymyname_dimen_font_huge</dimen>
 
-  <!-- android standard -->
-  <dimen name="fab_margin">16dp</dimen>
 
   <!-- generic -->
   <dimen name="saymyname_dimen_tiny">4dp</dimen>
@@ -21,5 +23,9 @@
 
   <dimen name="saymyname_dimen_font_big">10sp</dimen>
   <dimen name="saymyname_dimen_font_huge">13sp</dimen>
+
+
+  <!-- android standard -->
+  <dimen name="fab_margin">16dp</dimen>
 
 </resources>

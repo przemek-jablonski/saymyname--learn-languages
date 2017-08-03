@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="horizontal"
+    tools:background="@android:color/holo_orange_light"
+    >
+
+  <ImageButton
+      android:id="@+id/button_menu_hamburger"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal|top"
+      android:layout_margin="@dimen/hud_margin_uniform_normal"
+      android:layout_weight="1"
+      android:background="?attr/selectableItemBackground"
+      android:src="@drawable/ic_action_menu_hamburger"
+      />
+
+
+  <LinearLayout
+      android:id="@+id/linearLayout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom"
+      android:layout_marginBottom="@dimen/hud_margin_vertical_big"
+      android:layout_marginLeft="@dimen/hud_margin_uniform_normal"
+      android:layout_marginRight="@dimen/hud_margin_uniform_normal"
+      android:layout_marginTop="@dimen/hud_margin_vertical_big"
+      android:layout_weight="3"
+      android:background="@drawable/drawable_lang_model_selector_background"
+      android:orientation="horizontal"
+      >
+
+    <Button
+        android:id="@+id/button_switch_language"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.25"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingLeft="@dimen/saymyname_dimen_small"
+        android:paddingRight="@dimen/saymyname_dimen_tiny"
+        android:text="lng"
+        />
+
+    <Button
+        android:id="@+id/button_switch_model"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingLeft="@dimen/saymyname_dimen_tiny"
+        android:paddingRight="@dimen/saymyname_dimen_small"
+        android:text="modelmodel"
+        />
+
+  </LinearLayout>
+
+  <ImageButton
+      android:id="@+id/button_menu_charts"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal|top"
+      android:layout_margin="@dimen/hud_margin_uniform_normal"
+      android:layout_weight="1"
+      android:background="?attr/selectableItemBackground"
+      android:src="@drawable/ic_action_menu_charts"
+      />
+
+</LinearLayout>
