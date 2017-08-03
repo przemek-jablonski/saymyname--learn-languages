@@ -13,11 +13,14 @@ import android.hardware.Camera.ShutterCallback
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
+import android.view.animation.AnimationSet
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
+import android.view.animation.TranslateAnimation
 
 
 /**
@@ -34,6 +37,13 @@ inline fun View.getCoordinatesLeftTop(): Point {
   val outLocation: IntArray = kotlin.IntArray(2)
   this.getLocationOnScreen(outLocation)
   return Point(outLocation[0], outLocation[1])
+}
+
+inline fun View.getCoordinatesCenter(): Point {
+  val coordsCenter = Point(getCoordinatesLeftTop())
+  coordsCenter.x += width/2
+  coordsCenter.y += height/2
+  return coordsCenter
 }
 
 /**
@@ -121,6 +131,7 @@ inline fun View.getClippingSpread(): Pair<Int, Int> {
  */
 inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect {
   val rawBoundingBox = getRawBoundingBox(boundingBox)
+  logMethod("boundingBox: $boundingBox, rawBoundingBox: $rawBoundingBox")
   return Rect(
       rawBoundingBox.left - boundingBox.left,
       rawBoundingBox.top - boundingBox.top,
@@ -129,21 +140,38 @@ inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect
   )
 }
 
-inline fun View.getCoordinatesCenter(): Point {
-  return Point(pivotX.toInt(), pivotY.toInt())
-}
-
-inline fun View.getCoordinatesCenterF(): PointF {
-  return PointF(pivotX, pivotY)
-}
-
-inline fun View.setCoordinatesCenter(coordX: Int, coordY: Int) {
-  this.setCoordinatesCenter(coordX.toFloat(), coordY.toFloat())
-}
+//inline fun View.getCoordinatesCenterF(): PointF {
+//  return PointF(pivotX, pivotY)
+//}
+//
+//inline fun View.setCoordinatesCenter(coordX: Int, coordY: Int) {
+//  this.setCoordinatesCenter(coordX.toFloat(), coordY.toFloat())
+//}
 
 inline fun View.setCoordinatesCenter(coordX: Float, coordY: Float) {
-  this.translationX = coordX
-  this.translationY = coordY
+  logMethod("(x,y): $coordX, $coordY, translationBefore (x,y): $translationX, $translationY")
+  this.translationX = coordX - (left/2f)
+  this.translationY = coordY - (top/2f)
+  logMethod("translationAfter (x,y): $translationX, $translationY")
+}
+
+fun View.setCoordinatesCenterNoclip(coordX: Float, coordY: Float) {
+  logMethod("view: (x,y): $coordX, $coordY")
+  setCoordinatesCenter(coordX, coordY)
+  val clippingRect = this.getClippingRect()
+  translate(clippingRect.width(), clippingRect.height())
+}
+
+inline fun View.translate(moveByPxAxisX: Float, moveByPxAxisY: Float) {
+  logMethod("moveByPxAxisX,Y: $moveByPxAxisX, $moveByPxAxisY, before: $x, $y")
+  this.x += moveByPxAxisX
+  this.y += moveByPxAxisY
+  logMethod("after: $x, $y")
+}
+
+inline fun View.translate(moveByPxAxisX: Int, moveByPxAxisY: Int) {
+  logMethod("moveByPxAxisX,Y: $moveByPxAxisX, $moveByPxAxisY")
+  translate(moveByPxAxisX.toFloat(), moveByPxAxisY.toFloat())
 }
 
 
@@ -160,9 +188,34 @@ fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterp
   fade(fromAlpha, 1f, interpolator, durationMillis, animationStartCallback, animationEndCallback)
 }
 
+fun View.fadeInTranslate(toXDelta: Float, toYDelta: Float, fromAlpha: Float = 0f,
+    interpolator: Interpolator = LinearInterpolator(),
+    durationMillis: Long = 3000, animationStartCallback: () -> Unit,
+    animationEndCallback: () -> Unit) {
+  val animationSet: AnimationSet = AnimationSet(true)
+  animationSet.interpolator = AccelerateDecelerateInterpolator()
+  val alphaAnimation = AlphaAnimation(fromAlpha, 1f).apply { this.duration = durationMillis }
+  val translateAnimation = TranslateAnimation(0f, toXDelta, 0f, toYDelta)
+  animationSet.addAnimation(alphaAnimation)
+  animationSet.addAnimation(translateAnimation)
+  animationSet.setAnimationListener(object : AnimationListener {
+    override fun onAnimationStart(animation: Animation?) {
+      animationStartCallback.invoke()
+    }
+    override fun onAnimationEnd(animation: Animation?) {
+      animationEndCallback.invoke()
+    }
+    override fun onAnimationRepeat(animation: Animation?) {
+
+    }
+  })
+  animationSet.start()
+}
+
 private fun View.fade(fromAlpha: Float, toAlpha: Float,
     interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500,
     animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
+  logMethod("fromAlpha: $fromAlpha, toAlpha: $toAlpha, $interpolator, duration: $durationMillis")
   val fade = AlphaAnimation(fromAlpha, toAlpha)
   fade.interpolator = interpolator
   fade.duration = durationMillis

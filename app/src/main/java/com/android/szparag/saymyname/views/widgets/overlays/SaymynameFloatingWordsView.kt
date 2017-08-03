@@ -6,17 +6,26 @@ import android.graphics.Rect
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.Log
+import android.view.View
+import android.view.animation.Animation.INFINITE
+import android.view.animation.Animation.REVERSE
+import android.view.animation.AnimationUtils
+import android.view.animation.AnticipateInterpolator
+import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.utils.bindViews
 import com.android.szparag.saymyname.utils.fadeIn
+import com.android.szparag.saymyname.utils.fadeInTranslate
 import com.android.szparag.saymyname.utils.fadeOut
 import com.android.szparag.saymyname.utils.getBoundingBox
 import com.android.szparag.saymyname.utils.getBoundingBoxSpread
 import com.android.szparag.saymyname.utils.getCoordinatesCenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.min
+import com.android.szparag.saymyname.utils.nextFloat
 import com.android.szparag.saymyname.utils.setCoordinatesCenter
+import com.android.szparag.saymyname.utils.setCoordinatesCenterNoclip
 import com.android.szparag.saymyname.views.widgets.FloatingWordTextView
 import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
 import java.util.Random
@@ -165,14 +174,22 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
             "word: $word, " +
             "(x,y): ($coordX, $coordY)"
     )
+
     wordView?.let {
+      it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
       it.fadeIn(
           animationStartCallback = {
-            it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
-            it.setCoordinatesCenter(coordX, coordY)
+            it.visibility = View.VISIBLE
+            it.setCoordinatesCenterNoclip(coordX, coordY)
           },
           animationEndCallback = {
-
+//            val anim = TranslateAnimation(-10 * random.nextFloat(0.5f, 10f), 10 * random.nextFloat(0.5f, 20f), -1f, 1f)
+//            anim.repeatMode = REVERSE
+//            anim.repeatCount = INFINITE
+//            anim.interpolator = AnticipateInterpolator(random.nextFloat(0.5f, 2.0f))
+//            anim.duration = (3000 * (random.nextFloat(0.1f, 1.25f)).toLong())
+//            anim.startTime = 0
+//            it.animation = anim
           })
     }
   }

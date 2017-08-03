@@ -9,7 +9,7 @@ import android.util.Log
 val APPLICATION_TAG = "saymyname"
 val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
-fun logMethod(level: Int = Log.DEBUG, optionalString: String? = null) {
+fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG ) {
   //TODO: refactor that so that it uses kapt and generating code, this approach is CPU heavy
   Thread.currentThread().stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
       ?.takeIf {
