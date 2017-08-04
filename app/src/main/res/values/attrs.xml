@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="FloatingWordTextView">
+    <attr format="enum" name="type">
+      <enum name="auxiliary" value="0"/>
+      <enum name="primary" value="1"/>
+    </attr>
+  </declare-styleable>
+</resources>

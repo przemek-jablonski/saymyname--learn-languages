@@ -34,42 +34,42 @@ dependencies {
   androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
+
+  //  support libs
   compile 'com.android.support:appcompat-v7:25.3.1'
   compile 'com.android.support.constraint:constraint-layout:1.0.2'
   compile 'com.android.support:design:25.3.1'
+
+  //  testing
   testCompile 'junit:junit:4.12'
+
+  //  kotlin
   compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
 
-  //    retrofit
+  //  retrofit
   compile 'com.google.code.gson:gson:2.7'
   compile 'com.squareup.retrofit2:retrofit:2.3.0'
   compile 'com.squareup.retrofit2:converter-gson:2.0.2'
 
-  //    butterknife
-//  compile 'com.jakewharton:butterknife:8.4.0'
-//  apt 'com.jakewharton:butterknife-compiler:8.4.0'
-//  compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
-
-  //    dagger2
+  //  dagger2
   compile group: 'com.google.dagger', name: 'dagger', version: '2.9'
   kapt 'com.google.dagger:dagger-compiler:2.9'
 
-  //    picasso
+  //  picasso
   compile 'com.squareup.picasso:picasso:2.5.2'
 
-  //dexter
+  //  dexter
   compile 'com.karumi:dexter:4.1.0'
 
-  // rxjava
+  //  rxjava
   compile 'io.reactivex.rxjava2:rxjava:2.1.1'
   compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
   compile 'io.reactivex.rxjava2:rxkotlin:2.0.3'
 
+  //  stetho
   compile 'com.facebook.stetho:stetho:1.5.0'
   compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
-
-
 
 }
 repositories {
