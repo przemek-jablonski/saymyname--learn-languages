@@ -1,9 +1,8 @@
 package com.android.szparag.saymyname.models
 
-import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
-import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC
-import com.android.szparag.saymyname.presenters.contracts.ImageProcessingPresenter
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
+import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC
+import com.android.szparag.saymyname.presenters.ImageProcessingPresenter
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionNetworkResult
 import com.android.szparag.saymyname.utils.logMethod

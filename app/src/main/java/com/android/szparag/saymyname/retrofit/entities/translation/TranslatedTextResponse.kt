@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.retrofit.models.translation
+package com.android.szparag.saymyname.retrofit.entities.translation
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

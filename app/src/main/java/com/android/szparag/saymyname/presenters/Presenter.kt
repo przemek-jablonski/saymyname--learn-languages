@@ -1,7 +1,5 @@
-package com.android.szparag.saymyname.presenters.contracts
+package com.android.szparag.saymyname.presenters
 
-import android.support.annotation.CallSuper
-import com.android.szparag.saymyname.models.contracts.Model
 import com.android.szparag.saymyname.views.contracts.View
 
 /**

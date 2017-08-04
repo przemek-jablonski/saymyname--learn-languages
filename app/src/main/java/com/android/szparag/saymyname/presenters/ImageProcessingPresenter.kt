@@ -1,9 +1,7 @@
-package com.android.szparag.saymyname.presenters.contracts
+package com.android.szparag.saymyname.presenters
 
-import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Model
-import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.

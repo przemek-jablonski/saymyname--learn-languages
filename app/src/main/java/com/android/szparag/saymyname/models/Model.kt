@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.models.contracts
+package com.android.szparag.saymyname.models
 
 import com.android.szparag.saymyname.retrofit.services.contracts.NetworkService
 
@@ -10,7 +10,7 @@ interface Model {
 //  fun attach(presenter: P)
 //
 //  val presenter : P?
-  val service : NetworkService
+  val service : com.android.szparag.saymyname.retrofit.services.contracts.NetworkService
 //  val repository : Repository
 
 }

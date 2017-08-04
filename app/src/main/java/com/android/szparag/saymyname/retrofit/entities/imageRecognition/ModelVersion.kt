@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.retrofit.models.imageRecognition
+package com.android.szparag.saymyname.retrofit.entities.imageRecognition
 
 
 /**

@@ -14,7 +14,7 @@ import android.widget.Button
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
-import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
+import com.android.szparag.saymyname.presenters.RealtimeCameraPresenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton

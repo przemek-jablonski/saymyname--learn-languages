@@ -1,11 +1,9 @@
 package com.android.szparag.saymyname.presenters
 
-import android.os.Handler
-import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
-import com.android.szparag.saymyname.models.contracts.TranslationModel
-import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus
-import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
+import com.android.szparag.saymyname.models.ImageRecognitionModel
+import com.android.szparag.saymyname.models.TranslationModel
+import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView

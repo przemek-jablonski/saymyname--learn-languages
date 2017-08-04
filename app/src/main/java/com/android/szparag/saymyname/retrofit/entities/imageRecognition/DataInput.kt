@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.retrofit.models.imageRecognition
+package com.android.szparag.saymyname.retrofit.entities.imageRecognition
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/2/2017.

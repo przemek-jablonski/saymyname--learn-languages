@@ -3,11 +3,11 @@ package com.android.szparag.saymyname.dagger.modules
 import android.content.Context
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.SaymynameImageRecognitionModel
-import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
-import com.android.szparag.saymyname.models.contracts.SaymynameTranslationModel
-import com.android.szparag.saymyname.models.contracts.TranslationModel
+import com.android.szparag.saymyname.models.ImageRecognitionModel
+import com.android.szparag.saymyname.models.SaymynameTranslationModel
+import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
-import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
+import com.android.szparag.saymyname.presenters.RealtimeCameraPresenter
 import com.android.szparag.saymyname.retrofit.services.SaymynameImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.SaymynameTranslationNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
@@ -61,7 +61,7 @@ import javax.inject.Singleton
   }
 
   @Provides @Singleton fun provideTranslationModel(
-      service: TranslationNetworkService): TranslationModel{
+      service: TranslationNetworkService): TranslationModel {
     return SaymynameTranslationModel(service)
   }
 

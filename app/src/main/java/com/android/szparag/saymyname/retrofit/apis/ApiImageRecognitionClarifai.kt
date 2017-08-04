@@ -1,7 +1,7 @@
 package com.android.szparag.saymyname.retrofit.apis
 
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictRequest
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header

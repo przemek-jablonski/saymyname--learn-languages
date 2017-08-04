@@ -1,8 +1,7 @@
-package com.android.szparag.saymyname.presenters.contracts
+package com.android.szparag.saymyname.presenters
 
-import com.android.szparag.saymyname.models.contracts.ImageRecognitionModel
-import com.android.szparag.saymyname.models.contracts.Model
-import com.android.szparag.saymyname.models.contracts.TranslationModel
+import com.android.szparag.saymyname.models.ImageRecognitionModel
+import com.android.szparag.saymyname.models.TranslationModel
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/5/2017.
