@@ -1,8 +1,13 @@
 package com.android.szparag.saymyname.retrofit.entities.imageRecognition
 
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/1/2017.
  */
-data class Status(@com.google.gson.annotations.SerializedName("code") @com.google.gson.annotations.Expose val code: Int,
-    @com.google.gson.annotations.SerializedName("description") @com.google.gson.annotations.Expose var description: String)
+data class Status(
+    @SerializedName("code") @Expose val code: Int,
+    @SerializedName("description") @Expose var description: String
+)
