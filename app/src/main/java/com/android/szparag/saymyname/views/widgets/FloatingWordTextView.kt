@@ -6,11 +6,13 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
 import com.android.szparag.saymyname.R
+import com.szparag.kugo.KugoLog
 
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/23/2017.
  */
+@KugoLog
 class FloatingWordTextView : TextView {
   private val INITIAL_VISIBILITY = GONE
   private val GRAVITY = Gravity.CENTER
@@ -35,6 +37,7 @@ class FloatingWordTextView : TextView {
   constructor(context: Context?) : super(context)
 
   constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+
     context
         ?.theme
         ?.obtainStyledAttributes(
@@ -46,6 +49,7 @@ class FloatingWordTextView : TextView {
     applyWordType(wordType)
   }
 
+  @KugoLog
   private fun applyWordType(wordType : Int?) {
     when (wordType) {
       FLOATINGWORD_TYPE_AUXILLIARY -> {

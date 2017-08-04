@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kugo-annotation/kugo-annotation.iml" filepath="$PROJECT_DIR$/kugo-annotation/kugo-annotation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kugo-processing/kugo-processing.iml" filepath="$PROJECT_DIR$/kugo-processing/kugo-processing.iml" />
       <module fileurl="file://$PROJECT_DIR$/saymyname.iml" filepath="$PROJECT_DIR$/saymyname.iml" />
     </modules>
   </component>

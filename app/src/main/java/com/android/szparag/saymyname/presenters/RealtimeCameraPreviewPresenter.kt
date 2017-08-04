@@ -9,6 +9,7 @@ import com.android.szparag.saymyname.retrofit.models.imageRecognition.Concept
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import com.szparag.kugo.KugoLog
 import java.util.LinkedList
 
 /**
@@ -23,6 +24,7 @@ class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRe
     return this.view as RealtimeCameraPreviewView?
   }
 
+  @KugoLog
   override fun onAttached() {
     super.onAttached()
     imageRecognitionModel.attach(this)
@@ -30,6 +32,7 @@ class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRe
     initializeTextToSpeechClient()
   }
 
+  @KugoLog
   override fun onViewReady() {
     logMethod()
     initializeCameraPreviewView()
