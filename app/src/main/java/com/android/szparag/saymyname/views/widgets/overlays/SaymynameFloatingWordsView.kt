@@ -180,7 +180,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
       it.fadeIn(
           animationStartCallback = {
             it.visibility = View.VISIBLE
-            it.setCoordinatesCenterNoclip(coordX, coordY)
+//            it.setCoordinatesCenterNoclip(coordX, coordY)
           },
           animationEndCallback = {
 //            val anim = TranslateAnimation(-10 * random.nextFloat(0.5f, 10f), 10 * random.nextFloat(0.5f, 20f), -1f, 1f)

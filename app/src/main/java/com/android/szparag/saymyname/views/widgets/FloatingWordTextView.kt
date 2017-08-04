@@ -72,7 +72,7 @@ class FloatingWordTextView : TextView {
       }
     }
     gravity = GRAVITY
-    visibility = INITIAL_VISIBILITY
+//    visibility = INITIAL_VISIBILITY
   }
 
 }
