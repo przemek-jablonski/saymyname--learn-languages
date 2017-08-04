@@ -2,8 +2,8 @@ package com.android.szparag.saymyname.models.contracts
 
 import com.android.szparag.saymyname.presenters.contracts.CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC
 import com.android.szparag.saymyname.presenters.contracts.ImageProcessingPresenter
-import com.android.szparag.saymyname.services.contracts.TranslationNetworkService
-import com.android.szparag.saymyname.services.contracts.TranslationNetworkService.TranslationNetworkResult
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationNetworkResult
 import com.android.szparag.saymyname.utils.logMethod
 
 /**
@@ -22,10 +22,12 @@ class SaymynameTranslationModel(override val service : TranslationNetworkService
     logMethod()
     service.requestTextTranslation(textsToTranslate, languagePair, object : TranslationNetworkResult {
       override fun onSucceeded(translatedTexts: List<String>) {
+        super.onSucceeded(translatedTexts)
         presenter?.onTranslationDataReceived(translatedTexts)
       }
 
       override fun onFailed() {
+        super.onFailed()
         presenter?.onTranslationDataFailed(FAILURE_GENERIC)
       }
     })

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/saymyname_white_alpha"
+    android:orientation="horizontal"
+    android:paddingBottom="@dimen/hud_margin_uniform_big"
+    tools:background="@android:color/holo_red_light"
+    >
+
+  <ImageButton
+      android:id="@+id/button_camera_switch"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_gravity="center"
+      android:layout_weight="1"
+      android:background="?attr/selectableItemBackground"
+      android:hapticFeedbackEnabled="true"
+      android:src="@drawable/ic_action_camera_front"
+      />
+  <com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
+      android:id="@+id/button_shutter"
+      android:layout_width="@dimen/hud_shutter_size"
+      android:layout_height="@dimen/hud_shutter_size"
+      android:layout_gravity="center"
+      android:layout_margin="@dimen/hud_margin_uniform_normal"
+      android:adjustViewBounds="true"
+      android:clickable="true"
+      android:foreground="@drawable/drawable_camera_shutter_top"
+      android:hapticFeedbackEnabled="true"
+      />
+  <ImageButton
+      android:id="@+id/button_camera_settings"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_gravity="center"
+      android:layout_weight="1"
+      android:background="?attr/selectableItemBackground"
+      android:hapticFeedbackEnabled="true"
+      android:src="@drawable/ic_action_menu_settings"
+      />
+
+</LinearLayout>
