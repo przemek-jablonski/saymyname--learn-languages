@@ -1,4 +1,4 @@
-package com.android.szparag.saymyname.services.contracts
+package com.android.szparag.saymyname.retrofit.services.contracts
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/5/2017.

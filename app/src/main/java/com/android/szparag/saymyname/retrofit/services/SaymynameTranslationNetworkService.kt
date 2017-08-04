@@ -1,9 +1,9 @@
-package com.android.szparag.saymyname.services
+package com.android.szparag.saymyname.retrofit.services
 
 import com.android.szparag.saymyname.retrofit.apis.ApiTranslationYandex
 import com.android.szparag.saymyname.retrofit.models.translation.TranslatedTextResponse
-import com.android.szparag.saymyname.services.contracts.TranslationNetworkService
-import com.android.szparag.saymyname.services.contracts.TranslationNetworkService.TranslationNetworkResult
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationNetworkResult
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

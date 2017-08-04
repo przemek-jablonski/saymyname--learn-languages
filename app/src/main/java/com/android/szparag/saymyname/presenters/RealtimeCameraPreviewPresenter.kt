@@ -70,6 +70,7 @@ class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRe
 
   override fun onUserTakePictureButtonClicked() {
     logMethod()
+    getView()?.stopRenderingWords()
     takeCameraPicture()
   }
 

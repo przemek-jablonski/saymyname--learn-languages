@@ -6,26 +6,19 @@ import android.hardware.Camera
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
-import android.view.View
 import android.widget.Button
-import android.widget.ImageView
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.bindView
+import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
-import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
-import com.android.szparag.saymyname.presenters.contracts.CameraPresenter
 import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
-import com.android.szparag.saymyname.views.widgets.SaymynameFloatingWordsView
-import com.android.szparag.saymyname.views.widgets.contracts.CameraShutterButton
-import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
+import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import hugo.weaving.DebugLog
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -201,7 +194,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   override fun stopRenderingWords() {
     logMethod()
-    //...
+    floatingWordsView.clearWords()
   }
 
 

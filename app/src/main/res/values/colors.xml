@@ -3,11 +3,16 @@
   <color name="colorPrimary">@color/saymyname_white_primary</color>
   <color name="colorPrimaryDark">@color/saymyname_white_dark</color>
   <color name="colorAccent">@color/saymyname_blue_primary</color>
+  <color name="colorPrimary_alpha">#4bf5f5f5</color>
 
   <color name="button_hud_primary">@color/saymyname_blue_light</color>
   <color name="button_hud_primary_alpha">@color/saymyname_blue_alpha_light</color>
 
-  <color name="colorPrimary_alpha">#4bf5f5f5</color>
+  <color name="floatingwords_auxilliary_text_font">@color/saymyname_white_dark</color>
+  <color name="floatingwords_auxilliary_text_shadow">@color/saymyname_white_primary</color>
+  <color name="floatingwords_primary_text_font">@color/saymyname_blue_light</color>
+  <color name="floatingwords_primary_text_shadow">@color/saymyname_white_primary</color>
+
 
   <color name="saymyname_white_primary">#f9f9f9</color>
   <color name="saymyname_white_light">#ffffff</color>
