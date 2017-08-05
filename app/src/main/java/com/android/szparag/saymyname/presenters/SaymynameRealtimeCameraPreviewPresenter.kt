@@ -109,26 +109,9 @@ class SaymynameRealtimeCameraPreviewPresenter(
   override fun onImageVisionDataReceived(visionConcepts: List<String>) {
     logMethod()
     getView()?.let {
-      val subList = visionConcepts.subList(0, 7)
-          .filterNot {
-            it == ("no person") ||
-                it == "horizontal" ||
-                it == ("vertical") ||
-                it == ("control") ||
-                it == ("offense") ||
-                it == ("one") ||
-                it == ("two") ||
-                it == ("container") ||
-                it == ("abstract") ||
-                it == ("Luna") ||
-                it == ("crescent") ||
-                it == ("background") ||
-                it == ("insubstantial")
-          }
-          .subList(0, 3)
-      it.renderNonTranslatedWords(subList)
-      requestTranslation(subList)
-      for (text in subList)
+      it.renderNonTranslatedWords(visionConcepts)
+      requestTranslation(visionConcepts)
+      for (text in visionConcepts)
         getView()?.speakText(text)
     }
   }

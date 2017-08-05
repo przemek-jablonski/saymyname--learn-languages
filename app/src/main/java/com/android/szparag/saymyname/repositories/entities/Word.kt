@@ -10,7 +10,7 @@ import io.realm.annotations.RealmClass
  */
 @RealmClass
 open class Word(
-    @PrimaryKey var id: Long? = -1,
+    var id: Long? = -1,
     var original: String = String(),
     var translated: String = String(),
     var wordOccurences: Int? = -1

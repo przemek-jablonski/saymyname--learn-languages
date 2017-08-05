@@ -10,7 +10,7 @@ import io.realm.annotations.RealmClass
  */
 @RealmClass
 open class Image(
-    @PrimaryKey var dateTime: Long = -1,
+    var dateTime: Long = -1,
     var imageBase64: ByteArray? = null,
     var words: RealmList<Word> = RealmList(),
     var languageFrom: Int? = null,

@@ -41,7 +41,25 @@ class SaymynameRealtimeCameraPreviewModel(
           override fun onSucceeded(concepts: List<Concept>) {
             super.onSucceeded(concepts)
             repository.pushWordsOriginal(
-                wordsOriginal = concepts.map { it -> it.name }.toTypedArray(),
+                wordsOriginal = concepts
+                    .map { it -> it.name }
+                    .filterNot {
+                      it == ("no person") ||
+                        it == "horizontal" ||
+                        it == ("vertical") ||
+                        it == ("control") ||
+                        it == ("offense") ||
+                        it == ("one") ||
+                        it == ("two") ||
+                        it == ("container") ||
+                        it == ("abstract") ||
+                        it == ("Luna") ||
+                        it == ("crescent") ||
+                        it == ("background") ||
+                        it == ("insubstantial")
+                    }
+                    .subList(0, 3)
+                    .toTypedArray(),
                 callback = object : DataCallback<Image> {
                   override fun onChange(data: Image) {
                     presenter.onImageVisionDataReceived(data.words.map { it -> it.original })

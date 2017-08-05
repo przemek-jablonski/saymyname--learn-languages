@@ -32,8 +32,11 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   }
 
   protected fun logRealmChanges() {
-    Log.d("ImagesWordsRepository", "[Images]: $allImages")
-    Log.d("ImagesWordsRepository", "[Images]: $allWords")
+    allImages.forEachIndexed { index, image ->
+      Log.d("ImagesWordsRepository", "[Image ($index)]: {${image.dateTime}},{${image.languageFrom}},{${image.languageTo}},{${image.model}}")
+      image.words.forEachIndexed { i, word -> Log.d("ImagesWordsRepository", "[Words $i][@image $index]: $word") }
+
+    }
   }
 
   //  registering database queries:
@@ -75,7 +78,23 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
       callback: DataCallback<Image>?) {
     logMethod()
-    realm.executeTransactionAsync({
+//    realm.executeTransactionAsync({
+//      logMethod()
+//      val elem = realm.createObject(Image::class.java)
+//      elem.dateTime = System.currentTimeMillis()
+//      elem.imageBase64 = imageBase64
+//      elem.languageFrom = languageFrom
+//      elem.languageTo = languageTo
+//      elem.model = model
+//    }, {
+//      logMethod()
+//      callback?.onChange(fetchLatestImage())
+//      logRealmChanges()
+//    }, {
+//      logMethod()
+//      logRealmChanges()
+//    })
+    realm.executeTransaction({
       logMethod()
       val elem = realm.createObject(Image::class.java)
       elem.dateTime = System.currentTimeMillis()
@@ -83,19 +102,31 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       elem.languageFrom = languageFrom
       elem.languageTo = languageTo
       elem.model = model
-    }, {
-      logMethod()
+      logRealmChanges()
       callback?.onChange(fetchLatestImage())
-      logRealmChanges()
-    }, {
-      logMethod()
-      logRealmChanges()
     })
   }
 
   override fun pushWordsOriginal(wordsOriginal: Array<String>,
       callback: DataCallback<Image>?) {
-    realm.executeTransactionAsync({
+//    realm.executeTransactionAsync({
+//      logMethod()
+//      val latestImage = fetchLatestImage() //todo: use asynchronous!
+//      wordsOriginal.forEach {
+//        val elem = realm.createObject(Word::class.java)
+//        elem.id = System.currentTimeMillis() //todo: what if user changes its system time?
+//        elem.original = it
+//        latestImage.words.add(elem)
+//      }
+//    }, {
+//      logMethod()
+//      callback?.onChange(fetchLatestImage())
+//      logRealmChanges()
+//    }, {
+//      logMethod()
+//      logRealmChanges()
+//    })
+    realm.executeTransaction({
       logMethod()
       val latestImage = fetchLatestImage() //todo: use asynchronous!
       wordsOriginal.forEach {
@@ -104,13 +135,8 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
         elem.original = it
         latestImage.words.add(elem)
       }
-    }, {
-      logMethod()
+      logRealmChanges()
       callback?.onChange(fetchLatestImage())
-      logRealmChanges()
-    }, {
-      logMethod()
-      logRealmChanges()
     })
 
   }
@@ -118,17 +144,24 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   override fun pushWordsTranslated(wordsTranslated: Array<String>,
       callback: DataCallback<Image>?) {
     logMethod()
-    realm.executeTransactionAsync({
+//    realm.executeTransaction({
+//      logMethod()
+//      val latestImage = fetchLatestImage() //todo: use asynchronous!
+//      latestImage.words.forEachIndexed { i, word -> word.translated = wordsTranslated[i] }
+//    }, {
+//      logMethod()
+//      callback?.onChange(fetchLatestImage())
+//      logRealmChanges()
+//    }, {
+//      logMethod()
+//      logRealmChanges()
+//    })
+    realm.executeTransaction({
       logMethod()
       val latestImage = fetchLatestImage() //todo: use asynchronous!
       latestImage.words.forEachIndexed { i, word -> word.translated = wordsTranslated[i] }
-    }, {
-      logMethod()
+      logRealmChanges()
       callback?.onChange(fetchLatestImage())
-      logRealmChanges()
-    }, {
-      logMethod()
-      logRealmChanges()
     })
   }
 
