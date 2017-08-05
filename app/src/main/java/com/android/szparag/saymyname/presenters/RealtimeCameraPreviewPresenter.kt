@@ -3,6 +3,7 @@ package com.android.szparag.saymyname.presenters
 import com.android.szparag.saymyname.models.ImageRecognitionModel
 import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus
+import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
@@ -12,12 +13,15 @@ import java.util.LinkedList
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
-class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRecognitionModel,
-    override val translationModel: TranslationModel)
-  : BasePresenter(), RealtimeCameraPresenter {
+class RealtimeCameraPreviewPresenter(
+    override val imageRecognitionModel: ImageRecognitionModel,
+    override val translationModel: TranslationModel,
+    override val imagesWordsRepository: ImagesWordsRepository
+) : BasePresenter(), RealtimeCameraPresenter {
 
 
-  fun getView() : RealtimeCameraPreviewView? {
+  //todo: this is fucked up
+  fun getView(): RealtimeCameraPreviewView? {
     return this.view as RealtimeCameraPreviewView?
   }
 
@@ -111,7 +115,8 @@ class RealtimeCameraPreviewPresenter(override val imageRecognitionModel: ImageRe
   override fun onImageVisionDataReceived(visionConcepts: List<Concept>) {
     logMethod()
     //todo: move it to model
-    var textsToTranslate : LinkedList<String> = visionConcepts.mapTo(LinkedList<String>()) { it.name }
+    var textsToTranslate: LinkedList<String> = visionConcepts.mapTo(
+        LinkedList<String>()) { it.name }
     getView()?.let {
       val subList = textsToTranslate.subList(0, 7)
           .filterNot {

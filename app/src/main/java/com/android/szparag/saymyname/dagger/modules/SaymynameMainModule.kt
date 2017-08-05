@@ -8,6 +8,8 @@ import com.android.szparag.saymyname.models.SaymynameTranslationModel
 import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.RealtimeCameraPresenter
+import com.android.szparag.saymyname.repositories.ImagesWordsRepository
+import com.android.szparag.saymyname.repositories.SaymynameImagesWordsRepository
 import com.android.szparag.saymyname.retrofit.services.SaymynameImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.SaymynameTranslationNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
@@ -38,8 +40,8 @@ import javax.inject.Singleton
   }
 
   @Provides @Singleton fun provideRealtimeCameraPresenter(
-      imageRecognitionModel: ImageRecognitionModel, translationModel : TranslationModel): RealtimeCameraPresenter {
-    return RealtimeCameraPreviewPresenter(imageRecognitionModel, translationModel)
+      imageRecognitionModel: ImageRecognitionModel, translationModel : TranslationModel, imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPresenter {
+    return RealtimeCameraPreviewPresenter(imageRecognitionModel, translationModel, imagesWordsRepository)
   }
 
   @Provides @Singleton fun provideImageRecognitionNetworkService(
@@ -63,6 +65,10 @@ import javax.inject.Singleton
   @Provides @Singleton fun provideTranslationModel(
       service: TranslationNetworkService): TranslationModel {
     return SaymynameTranslationModel(service)
+  }
+
+  @Provides @Singleton fun provideImagesWordsRepository(): ImagesWordsRepository {
+    return SaymynameImagesWordsRepository()
   }
 
   @Provides @Singleton @Named(

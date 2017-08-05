@@ -30,9 +30,6 @@ class SaymynameImageRecognitionModel(
 
           override fun onSucceeded(concepts: List<Concept>) {
             super.onSucceeded(concepts)
-            //todo: persist to Realm first
-            //todo: then query for the data (or not?)
-            //todo: AND ONLY THEN:
             presenter?.onImageVisionDataReceived(concepts)
           }
 

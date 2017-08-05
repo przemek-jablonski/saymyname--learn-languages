@@ -8,6 +8,7 @@ import com.android.szparag.saymyname.utils.logMethod
  */
 interface TranslationNetworkService : NetworkService {
 
+  //todo: this should be generic with generic types
   interface TranslationNetworkResult {
     @CallSuper
     fun onSucceeded(translatedTexts: List<String>) {

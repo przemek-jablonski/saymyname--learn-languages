@@ -26,8 +26,7 @@ class SaymynameTranslationModel(override val service : TranslationNetworkService
 
       override fun onFailed() {
         super.onFailed()
-        presenter?.onTranslationDataFailed(
-            CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC)
+        presenter?.onTranslationDataFailed(CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC)
       }
     })
   }
