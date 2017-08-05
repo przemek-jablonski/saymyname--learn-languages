@@ -9,7 +9,6 @@ import hugo.weaving.DebugLog
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 6/23/2017.
  */
-@DebugLog
 class CameraRealtimePreview : ViewGroup, SurfaceHolder.Callback {
 
   var cameraSurfaceView : SurfaceView? = null
@@ -26,22 +25,14 @@ class CameraRealtimePreview : ViewGroup, SurfaceHolder.Callback {
   }
 
   override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder?) {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun surfaceCreated(holder: SurfaceHolder?) {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

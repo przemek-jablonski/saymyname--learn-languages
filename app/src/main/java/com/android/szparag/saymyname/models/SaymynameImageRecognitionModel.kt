@@ -21,23 +21,29 @@ class SaymynameImageRecognitionModel(
   }
 
   //todo: modelIds should be handled here somehow, not from outside
-  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray) {
+//  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray) {
+//    logMethod()
+//    service.requestImageProcessing(
+//        modelId,
+//        imageByteArray,
+//        object : ImageRecognitionNetworkResult {
+//
+//          override fun onSucceeded(concepts: List<Concept>) {
+//            super.onSucceeded(concepts)
+//            presenter?.onImageVisionDataReceived(concepts)
+//          }
+//
+//          override fun onFailed() {
+//            super.onFailed()
+//            presenter?.onImageVisionDataFailed(FAILURE_GENERIC)
+//          }
+//        })
+//  }
+
+  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray,
+      callback: ImageRecognitionNetworkResult) {
     logMethod()
-    service.requestImageProcessing(
-        modelId,
-        imageByteArray,
-        object : ImageRecognitionNetworkResult {
-
-          override fun onSucceeded(concepts: List<Concept>) {
-            super.onSucceeded(concepts)
-            presenter?.onImageVisionDataReceived(concepts)
-          }
-
-          override fun onFailed() {
-            super.onFailed()
-            presenter?.onImageVisionDataFailed(FAILURE_GENERIC)
-          }
-        })
+    service.requestImageProcessing(modelId, imageByteArray, callback)
   }
 
 }

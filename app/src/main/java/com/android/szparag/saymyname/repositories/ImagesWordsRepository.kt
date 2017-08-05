@@ -14,15 +14,15 @@ interface ImagesWordsRepository {
    * Pushing image captured by the camera to the storage.
    * Primary intention for this method should be {@see com.android.szparag.saymyname.repositories.entities.Image} object creation.
    */
-  fun pushImage(imageBase64: String, languageFrom: Int, languageTo: Int, model: Int)
+  fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String)
 
   /**
    * Pushing image captured by the camera to the storage.
    * Primary intention for this method should be @see com.android.szparag.saymyname.repositories.entities.Image object creation.
    * Receives callback as a parameter to inform about push completion.
    */
-  fun pushImage(imageBase64: String, languageFrom: Int, languageTo: Int, model: Int,
-      callback: Action?)
+  fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
+      callback: DataCallback<Image>?)
 
   /**
    * Pushing retrieved words to the storage.
@@ -35,7 +35,7 @@ interface ImagesWordsRepository {
    * By default, this should write (or overwrite) data stored in the last Image object, if exists in the storage.
    * Receives callback as a parameter to inform about push completion.
    */
-  fun pushWordsOriginal(wordsOriginal: Array<String>, callback: Action?)
+  fun pushWordsOriginal(wordsOriginal: Array<String>, callback: DataCallback<Image>?)
 
   /**
    * Pushing retrieved translated words to the storage.
@@ -48,7 +48,7 @@ interface ImagesWordsRepository {
    * By default, this should write (or overwrite) data stored in the last Image object, if exists in the storage.
    * Receives callback as a parameter to inform about push completion.
    */
-  fun pushWordsTranslated(wordsTranslated: Array<String>, callback: Action?)
+  fun pushWordsTranslated(wordsTranslated: Array<String>, callback: DataCallback<Image>?)
 
 
   fun fetchAllImages(): List<Image>
@@ -62,6 +62,10 @@ interface ImagesWordsRepository {
 
   fun fetchLatestImageWords(): List<Word>
   fun fetchLatestImageWords(changeListener: DataCallback<List<Word>>): List<Word>
+  //  lifecycle:
+  fun create()
+
+  fun destroy()
 
 
 }

@@ -2,12 +2,14 @@ package com.android.szparag.saymyname.dagger.modules
 
 import android.content.Context
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.models.SaymynameImageRecognitionModel
 import com.android.szparag.saymyname.models.ImageRecognitionModel
+import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
+import com.android.szparag.saymyname.models.SaymynameImageRecognitionModel
+import com.android.szparag.saymyname.models.SaymynameRealtimeCameraPreviewModel
 import com.android.szparag.saymyname.models.SaymynameTranslationModel
 import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
-import com.android.szparag.saymyname.presenters.RealtimeCameraPresenter
+import com.android.szparag.saymyname.presenters.SaymynameRealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.repositories.SaymynameImagesWordsRepository
 import com.android.szparag.saymyname.retrofit.services.SaymynameImageRecognitionNetworkService
@@ -40,8 +42,8 @@ import javax.inject.Singleton
   }
 
   @Provides @Singleton fun provideRealtimeCameraPresenter(
-      imageRecognitionModel: ImageRecognitionModel, translationModel : TranslationModel, imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPresenter {
-    return RealtimeCameraPreviewPresenter(imageRecognitionModel, translationModel, imagesWordsRepository)
+      realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter {
+    return SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
   }
 
   @Provides @Singleton fun provideImageRecognitionNetworkService(
@@ -55,6 +57,13 @@ import javax.inject.Singleton
       @Named("Translation.NetworkService.BaseUrl") baseUrl: String,
       @Named("Translation.NetworkService.ApiKey") apiKey: String): TranslationNetworkService {
     return SaymynameTranslationNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
+  }
+
+  @Provides @Singleton fun provideRealtimeCameraPreviewModel(
+      imageRecognitionNetworkService: ImageRecognitionNetworkService,
+      translationNetworkService: TranslationNetworkService,
+      imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPreviewModel {
+    return SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService, imagesWordsRepository)
   }
 
   @Provides @Singleton fun provideImageRecognitionModel(
@@ -84,11 +93,13 @@ import javax.inject.Singleton
   }
 
   //todo: unify naming - Translation not Translate, ImageRecognition not ImageProcessing etc
-  @Provides @Singleton @Named("ImageRecognition.NetworkService.BaseUrl") fun provideImageRecognitionNetworkServiceBaseUrl() :String {
+  @Provides @Singleton @Named(
+      "ImageRecognition.NetworkService.BaseUrl") fun provideImageRecognitionNetworkServiceBaseUrl(): String {
     return IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL
   }
 
-  @Provides @Singleton @Named("Translation.NetworkService.BaseUrl") fun provideTranslationNetworkServiceBaseUrl() :String {
+  @Provides @Singleton @Named(
+      "Translation.NetworkService.BaseUrl") fun provideTranslationNetworkServiceBaseUrl(): String {
     return TRANSLATION_NETWORK_SERVICE_BASEURL
   }
 

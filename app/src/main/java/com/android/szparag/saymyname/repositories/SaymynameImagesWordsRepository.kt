@@ -6,7 +6,6 @@ import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.repositories.entities.Word
 import com.android.szparag.saymyname.utils.DataCallback
 import com.android.szparag.saymyname.utils.logMethod
-import io.reactivex.functions.Action
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
@@ -22,12 +21,12 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   private lateinit var allWords: RealmResults<Word>
 
   //  lifecycle:
-  fun create() {
+  override fun create() {
     logMethod()
     registerQueries()
   }
 
-  fun destroy() {
+  override fun destroy() {
     logMethod()
     realm.close()
   }
@@ -41,8 +40,8 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   @CallSuper
   protected open fun registerQueries() {
     logMethod()
-    registerFetchAllImagesQuery()
-    registerFetchAllWordsQuery()
+    allImages = registerFetchAllImagesQuery()
+    allWords = registerFetchAllWordsQuery()
   }
 
   protected open fun registerFetchAllImagesQuery(): RealmResults<Image>
@@ -54,7 +53,8 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
 
 
   //  push operations:
-  override fun pushImage(imageBase64: String, languageFrom: Int, languageTo: Int, model: Int) {
+  override fun pushImage(
+      imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String) {
     logMethod()
     pushImage(imageBase64, languageFrom, languageTo, model, null)
   }
@@ -71,8 +71,9 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
     pushWordsTranslated(wordsTranslated, null)
   }
 
-  override fun pushImage(imageBase64: String, languageFrom: Int, languageTo: Int, model: Int,
-      callback: Action?) {
+  override fun pushImage(
+      imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
+      callback: DataCallback<Image>?) {
     logMethod()
     realm.executeTransactionAsync({
       logMethod()
@@ -84,7 +85,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       elem.model = model
     }, {
       logMethod()
-      callback?.run()
+      callback?.onChange(fetchLatestImage())
       logRealmChanges()
     }, {
       logMethod()
@@ -93,7 +94,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   }
 
   override fun pushWordsOriginal(wordsOriginal: Array<String>,
-      callback: Action?) {
+      callback: DataCallback<Image>?) {
     realm.executeTransactionAsync({
       logMethod()
       val latestImage = fetchLatestImage() //todo: use asynchronous!
@@ -105,7 +106,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       }
     }, {
       logMethod()
-      callback?.run()
+      callback?.onChange(fetchLatestImage())
       logRealmChanges()
     }, {
       logMethod()
@@ -115,7 +116,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   }
 
   override fun pushWordsTranslated(wordsTranslated: Array<String>,
-      callback: Action?) {
+      callback: DataCallback<Image>?) {
     logMethod()
     realm.executeTransactionAsync({
       logMethod()
@@ -123,7 +124,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       latestImage.words.forEachIndexed { i, word -> word.translated = wordsTranslated[i] }
     }, {
       logMethod()
-      callback?.run()
+      callback?.onChange(fetchLatestImage())
       logRealmChanges()
     }, {
       logMethod()
@@ -145,6 +146,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   override fun fetchLatestImageWords(): List<Word> = allImages.first().words
 
 
+  //todo: needs method unsubscribeFetchAllImages and so on, this will leak memory
   override fun fetchAllImages(changeListener: DataCallback<List<Image>>): List<Image> {
     logMethod()
     allImages.addChangeListener(changeListener::onChange)
@@ -159,13 +161,13 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
 
   override fun fetchLatestImage(changeListener: DataCallback<Image>): Image {
     logMethod()
-    allImages.addChangeListener { changeListener.onChange(allImages.first()) }
+    allImages.addChangeListener { t -> changeListener.onChange(allImages.first()) }
     return allImages.first()
   }
 
   override fun fetchLatestImageWords(changeListener: DataCallback<List<Word>>): List<Word> {
     logMethod()
-    allWords.addChangeListener { changeListener.onChange(allImages.first().words) }
+    allWords.addChangeListener { t -> changeListener.onChange(allImages.first().words) }
     return allImages.first().words
   }
 }
