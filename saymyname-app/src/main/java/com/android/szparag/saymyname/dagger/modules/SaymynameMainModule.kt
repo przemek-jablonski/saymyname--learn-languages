@@ -21,6 +21,7 @@ import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
@@ -108,6 +109,7 @@ import javax.inject.Singleton
     return Retrofit.Builder()
         .baseUrl(networkServiceBaseString)
         .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
   }

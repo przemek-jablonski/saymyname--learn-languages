@@ -2,9 +2,11 @@ package com.android.szparag.saymyname.presenters
 
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus
+import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
@@ -13,6 +15,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
     override val model: RealtimeCameraPreviewModel
 ) : BasePresenter(), RealtimeCameraPreviewPresenter {
 
+  val realtimeCameraViewSubsciption : CompositeDisposable = CompositeDisposable()
 
   //todo: this is fucked up
   fun getView(): RealtimeCameraPreviewView? {
@@ -25,17 +28,25 @@ class SaymynameRealtimeCameraPreviewPresenter(
     initializeTextToSpeechClient()
   }
 
-  override fun onViewReady() {
-    logMethod()
-    initializeCameraPreviewView()
+  private fun subscribeForView() {
+    realtimeCameraViewSubsciption.add(getView()?.onUserTakePictureButtonClicked()?.subscribe {
+      onUserTakePictureButtonClicked()
+    })
   }
 
   override fun onBeforeDetached() {
     logMethod()
     super.onBeforeDetached()
+    realtimeCameraViewSubsciption.clear()
     getView()?.stopRenderingLoadingAnimation()
     getView()?.stopRenderingRealtimeCameraPreview()
   }
+
+  override fun onViewReady() {
+    logMethod()
+    initializeCameraPreviewView()
+  }
+
 
   override fun initializeCameraPreviewView() {
     logMethod()

@@ -19,7 +19,9 @@ import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
+import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
+import io.reactivex.Observable
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Locale
@@ -85,7 +87,10 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   override fun setupViews() {
     logMethod()
-    buttonCameraShutter.setOnClickListener { presenter.onUserTakePictureButtonClicked() }
+  }
+
+  override fun onUserTakePictureButtonClicked(): Observable<Any> {
+    return RxView.clicks(buttonCameraShutter)
   }
 
   override fun initializeCameraPreviewSurfaceView() {

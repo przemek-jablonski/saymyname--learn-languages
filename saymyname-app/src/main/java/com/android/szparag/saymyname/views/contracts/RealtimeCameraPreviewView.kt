@@ -1,5 +1,7 @@
 package com.android.szparag.saymyname.views.contracts
 
+import io.reactivex.Observable
+
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/3/2017.
  */
@@ -29,5 +31,6 @@ interface RealtimeCameraPreviewView : View {
   fun initializeSuddenMovementDetection()
   fun onSuddenMovementDetected()
   fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
+  fun onUserTakePictureButtonClicked(): Observable<Any>
 
 }

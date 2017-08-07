@@ -35,7 +35,6 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
     allImages.forEachIndexed { index, image ->
       Log.d("ImagesWordsRepository", "[Image ($index)]: {${image.dateTime}},{${image.languageFrom}},{${image.languageTo}},{${image.model}}")
       image.words.forEachIndexed { i, word -> Log.d("ImagesWordsRepository", "[Words $i][@image $index]: $word") }
-
     }
   }
 
