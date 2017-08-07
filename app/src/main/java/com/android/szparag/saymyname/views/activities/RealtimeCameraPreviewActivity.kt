@@ -14,7 +14,7 @@ import android.widget.Button
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
-import com.android.szparag.saymyname.presenters.contracts.RealtimeCameraPresenter
+import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
@@ -37,7 +37,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   val floatingWordsView : SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
   private lateinit var textToSpeechClient: TextToSpeech
-  @Inject lateinit var presenter: RealtimeCameraPresenter //todo: remove ? later on, VERY IMPORTANT!
+  @Inject lateinit var presenter: RealtimeCameraPreviewPresenter //todo: remove ? later on, VERY IMPORTANT!
 
   private var cameraInstance: Camera? = null
 

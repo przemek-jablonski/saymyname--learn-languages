@@ -1,7 +1,7 @@
 package com.android.szparag.saymyname.retrofit.apis
 
-import com.android.szparag.saymyname.retrofit.models.translation.AvailableLanguages
-import com.android.szparag.saymyname.retrofit.models.translation.TranslatedTextResponse
+import com.android.szparag.saymyname.retrofit.entities.translation.AvailableLanguages
+import com.android.szparag.saymyname.retrofit.entities.translation.TranslatedTextResponse
 import retrofit2.Call
 import retrofit2.http.Headers
 import retrofit2.http.POST
