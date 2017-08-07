@@ -2,11 +2,11 @@ package com.android.szparag.saymyname.retrofit.services
 
 import android.util.Base64
 import com.android.szparag.saymyname.retrofit.apis.ApiImageRecognitionClarifai
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.DataInput
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Image
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictRequest
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.ImagePredictResponse
-import com.android.szparag.saymyname.retrofit.models.imageRecognition.Input
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.DataInput
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Image
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictRequest
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictResponse
+import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Input
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionNetworkResult
 import com.android.szparag.saymyname.utils.logMethod
