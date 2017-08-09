@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.retrofit.apis
 
 import com.android.szparag.saymyname.retrofit.entities.translation.AvailableLanguages
 import com.android.szparag.saymyname.retrofit.entities.translation.TranslatedTextResponse
+import io.reactivex.Flowable
 import retrofit2.Call
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -16,7 +17,7 @@ interface ApiTranslationYandex {
   fun getLanguages(
       @Query("key") key: String,
       @Query("ui") languageCode: String
-  ): Call<AvailableLanguages>
+  ): Flowable<AvailableLanguages>
 
   @Headers("Content-Type: application/x-www-form-urlencoded")
   @POST("tr.json/translate")
@@ -27,7 +28,7 @@ interface ApiTranslationYandex {
       @Query("lang") targetLanguagesPair: String,
       @Query("format") textFormat: String = "plain",
       @Query("text") textToTranslate: List<String>
-  ): Call<TranslatedTextResponse>
+  ): Flowable<TranslatedTextResponse>
 
 //  @Headers("Content-Type: application/x-www-form-urlencoded")
 //  @POST("tr.json/translate")

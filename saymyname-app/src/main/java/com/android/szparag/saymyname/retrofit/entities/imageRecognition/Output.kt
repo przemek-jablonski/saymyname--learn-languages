@@ -13,9 +13,5 @@ data class Output(
     @SerializedName("created_at") @Expose val createdAt: String?,
     @SerializedName("model") @Expose val model: Model?,
     @SerializedName("input") @Expose val input: Input?,
-    @SerializedName("data") @Expose val dataOutput: DataOutput?
-) {
-  fun getConcepts(): List<Concept>? {
-    return dataOutput?.concepts
-  }
-}
+    @SerializedName("data") @Expose val dataOutput: DataOutput
+)

@@ -43,7 +43,7 @@ class SaymynameImageRecognitionModel(
   override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray,
       callback: ImageRecognitionNetworkResult) {
     logMethod()
-    service.requestImageProcessing(modelId, imageByteArray, callback)
+//    service.requestImageProcessing(modelId, imageByteArray, callback)
   }
 
 }
