@@ -26,6 +26,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
     super.onAttached()
     model.attach(this)
     initializeTextToSpeechClient()
+    subscribeForView()
   }
 
   private fun subscribeForView() {

@@ -6,6 +6,8 @@ import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePre
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 
 /**
@@ -31,10 +33,14 @@ class SaymynameImageRecognitionNetworkService(
         key = AUTHORIZATION_KEY_PREFIX + NETWORK_SERVICE_API_KEY,
         modelId = model,
         imagePredictRequest = ImagePredictRequest(image)
-    ).doOnEach {
-      // todo: logging here
-    }.map {
-      response -> response.outputs.map { output -> output.dataOutput.concepts }.flatten()
+    )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnEach {
+          logMethod()
+        }.map {
+      response ->
+      response.outputs.map { output -> output.dataOutput.concepts }.flatten()
     }
   }
 

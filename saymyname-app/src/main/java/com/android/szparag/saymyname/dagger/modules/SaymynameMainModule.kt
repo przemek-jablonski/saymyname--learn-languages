@@ -4,9 +4,7 @@ import android.content.Context
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.ImageRecognitionModel
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
-import com.android.szparag.saymyname.models.SaymynameImageRecognitionModel
 import com.android.szparag.saymyname.models.SaymynameRealtimeCameraPreviewModel
-import com.android.szparag.saymyname.models.SaymynameTranslationModel
 import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.SaymynameRealtimeCameraPreviewPresenter
@@ -65,16 +63,6 @@ import javax.inject.Singleton
       translationNetworkService: TranslationNetworkService,
       imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPreviewModel {
     return SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService, imagesWordsRepository)
-  }
-
-  @Provides @Singleton fun provideImageRecognitionModel(
-      service: ImageRecognitionNetworkService): ImageRecognitionModel {
-    return SaymynameImageRecognitionModel(service)
-  }
-
-  @Provides @Singleton fun provideTranslationModel(
-      service: TranslationNetworkService): TranslationModel {
-    return SaymynameTranslationModel(service)
   }
 
   @Provides @Singleton fun provideImagesWordsRepository(): ImagesWordsRepository {

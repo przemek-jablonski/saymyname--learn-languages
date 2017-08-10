@@ -1,13 +1,11 @@
 package com.android.szparag.saymyname.retrofit.services
 
 import com.android.szparag.saymyname.retrofit.apis.ApiTranslationYandex
-import com.android.szparag.saymyname.retrofit.entities.translation.TranslatedTextResponse
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
-import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationNetworkResult
+import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Observable
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 
 /**
@@ -25,37 +23,21 @@ class SaymynameTranslationNetworkService(
   }
 
   //todo: languagesPair should be handled here somehow
-  override fun requestTextTranslation(texts: List<String>, languagePair: String): Observable<List<String>> {
-    networkApiClient.translate(
+  override fun requestTextTranslation(texts: List<String>,
+      languagePair: String): Observable<List<String>> {
+    logMethod()
+    return networkApiClient.translate(
         key = NETWORK_SERVICE_API_KEY,
         textToTranslate = texts,
         targetLanguagesPair = languagePair
-    ).doOnEach {
-      //todo: logging here
-    }.map {
-      response -> response.
-    }
-//        .enqueue(object : Callback<TranslatedTextResponse> {
-//      override fun onResponse(
-//          call: Call<TranslatedTextResponse>?,
-//          response: Response<TranslatedTextResponse>?)
-//          = processSuccessfulResponse(response, callback)
-//
-//      override fun onFailure(
-//          call: Call<TranslatedTextResponse>?,
-//          t: Throwable?)
-//          = callback.onFailed()
-//    })
-  }
-
-  private fun processSuccessfulResponse(
-      response: Response<TranslatedTextResponse>?,
-      callback: TranslationNetworkResult) {
-    val texts = response?.body()?.texts
-    if (texts != null && texts.isNotEmpty()) {
-      callback.onSucceeded(texts)
-    } else {
-      callback.onFailed()
+    )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnEach {
+          logMethod()
+        }.map {
+      response ->
+      response.texts
     }
   }
 
