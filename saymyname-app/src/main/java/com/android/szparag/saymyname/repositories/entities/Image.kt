@@ -18,7 +18,12 @@ open class Image(
     var model: String? = null
 ) : RealmObject() {
 
-  override fun toString(): String {
-    return super.toString()
+  fun set(dateTime: Long, imageBase64: ByteArray?, languageFrom: Int?, languageTo: Int?, model: String?) {
+    this.dateTime = dateTime
+    this.imageBase64 = imageBase64
+    this.languageFrom = languageFrom
+    this.languageTo = languageTo
+    this.model = model
   }
+
 }

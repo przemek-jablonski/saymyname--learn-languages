@@ -2,9 +2,7 @@ package com.android.szparag.saymyname.retrofit.services
 
 import com.android.szparag.saymyname.retrofit.apis.ApiTranslationYandex
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
-import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 
@@ -25,20 +23,12 @@ class SaymynameTranslationNetworkService(
   //todo: languagesPair should be handled here somehow
   override fun requestTextTranslation(texts: List<String>,
       languagePair: String): Observable<List<String>> {
-    logMethod()
     return networkApiClient.translate(
         key = NETWORK_SERVICE_API_KEY,
         textToTranslate = texts,
-        targetLanguagesPair = languagePair
-    )
+        targetLanguagesPair = languagePair)
         .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doOnEach {
-          logMethod()
-        }.map {
-      response ->
-      response.texts
-    }
+        .map { response -> response.texts }
   }
 
 }

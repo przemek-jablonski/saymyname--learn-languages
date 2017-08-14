@@ -1,11 +1,12 @@
 package com.android.szparag.saymyname.models
 
-import com.android.szparag.saymyname.presenters.CameraPresenter.NetworkRequestStatus.FAILURE_GENERIC
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.ImagesWordsRepository
+import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
-import com.android.szparag.saymyname.utils.logMethod
+import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 
@@ -23,60 +24,45 @@ class SaymynameRealtimeCameraPreviewModel(
 
   override fun attach(presenter: RealtimeCameraPreviewPresenter) {
     this.presenter = presenter
-    repository.create()
+    repository.attach()
   }
 
   override fun detach() {
-    repository.destroy()
+    repository.detach()
     networkSubscriptions.clear()
   }
 
-  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int,
-      languageFrom: Int) {
-    repository.pushImage(imageByteArray, languageFrom, languageTo, modelId)
-    imageRecognitionService.requestImageProcessing(model = modelId, image = imageByteArray)
-        .map { conceptList ->
-          conceptList.map { it -> it.name }.filterNot {
-            it == ("no person") ||
-                it == "horizontal" ||
-                it == ("vertical") ||
-                it == ("control") ||
-                it == ("offense") ||
-                it == ("one") ||
-                it == ("two") ||
-                it == ("container") ||
-                it == ("abstract") ||
-                it == ("Luna") ||
-                it == ("crescent") ||
-                it == ("background") ||
-                it == ("insubstantial")
-          }.subList(0, 3)
-        }.subscribeBy(
-        onNext = {
-          logMethod()
-          if (it != null)
-            presenter.onImageVisionDataReceived(
-                it) //todo: refactor that so that is passing observable to presenter and subscribe there
-          else
-            presenter.onImageVisionDataFailed(FAILURE_GENERIC)
-        },
-        onError = {
-          logMethod()
-          presenter.onImageVisionDataFailed(FAILURE_GENERIC)
-        }
-    )
+  override fun observeNewWords(): Flowable<Image> {
+    return repository.fetchLastImage().skip(1)
   }
 
-  override fun requestTranslation(languagePair: String, textsToTranslate: List<String>) {
-    translationService.requestTextTranslation(texts = textsToTranslate, languagePair = languagePair)
-        .subscribeBy(
-            onNext = {
-              translatedList ->
-              presenter.onTranslationDataReceived(translatedList)
-            },
-            onError = {
-              presenter.onTranslationDataFailed(FAILURE_GENERIC)
-            }
-        )
+  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int, languageFrom: Int): Completable {
+    return Completable.create {
+      imageRecognitionService.requestImageProcessing(model = modelId, image = imageByteArray)
+          .map { it.map { it -> it.name }.subList(0, 3) }
+          .subscribeBy(
+              onNext = {
+                repository.pushImage(imageByteArray, languageFrom, languageTo, modelId).subscribe()
+                repository.pushWordsOriginal(it).subscribe()
+              },
+              onError = {
+                //todo: tutej jakies eventbusowanie ON_NETWORK_ERROR
+              }
+          )
+    }
+  }
+
+  override fun requestTranslation(languagePair: String,
+      textsToTranslate: List<String>): Completable {
+    return Completable.create {
+      translationService.requestTextTranslation(texts = textsToTranslate,
+          languagePair = languagePair)
+          .subscribeBy(
+              onNext = { repository.pushWordsTranslated(it) },
+              onError = {
+                //todo: tutej jakies eventbusowanie ON_NETWORK_ERROR
+              }
+          )
+    }
   }
 }

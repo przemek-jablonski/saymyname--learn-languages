@@ -11,4 +11,6 @@ import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 interface RealtimeCameraPreviewPresenter : CameraPresenter, ImageProcessingPresenter {
 
   val model : RealtimeCameraPreviewModel
+
+  fun observeNewWords()
 }

@@ -10,12 +10,8 @@ import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 interface ImageProcessingPresenter : Presenter {
 
   fun requestImageVisionData(imageByteArray: ByteArray)
-  fun onImageVisionDataReceived(visionConcepts: List<String>)
-  fun onImageVisionDataFailed(requestStatus: NetworkRequestStatus)
 
   //todo: split that into another presenter!
   fun requestTranslation(textsToTranslate: List<String>)
-  fun onTranslationDataReceived(translatedText: List<String>)
-  fun onTranslationDataFailed(requestStatus: NetworkRequestStatus)
-  fun onCameraCompressedPhotoByteArrayReady(compressedPhotoByteArray: ByteArray)
+
 }

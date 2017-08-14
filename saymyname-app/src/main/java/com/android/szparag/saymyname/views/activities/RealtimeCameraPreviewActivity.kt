@@ -12,9 +12,9 @@ import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
 import android.widget.Button
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.dagger.DaggerWrapper
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
+import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
@@ -35,8 +35,10 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
-  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
-  val floatingWordsView : SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(
+      R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
+  val floatingWordsView: SaymynameFloatingWordsView by bindView(
+      R.id.view_floating_words) //todo: refactor so that there is only interface here
 
   private lateinit var textToSpeechClient: TextToSpeech
   @Inject lateinit var presenter: RealtimeCameraPreviewPresenter //todo: remove ? later on, VERY IMPORTANT!
@@ -219,40 +221,32 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     cameraInstance?.takePicture(
         Camera.ShutterCallback { presenter.onCameraPhotoTaken() },
         null,
-        Camera.PictureCallback { data, camera ->
+        Camera.PictureCallback { data, _ ->
           presenter.onCameraPhotoByteArrayReady(data)
           cameraInstance?.startPreview()
         }
     )
   }
 
-  override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray) {
-    val options = BitmapFactory.Options().apply {
-      //      this.inJustDecodeBounds = true
-      this.inPurgeable = true
-      //todo: refactor so that i can specify minimum res (600-720px) instead of scaling
-      //todo: because i do not know how powerful user camera is
-      rescaleImageRequestFactor(8, this)
+  override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
+      : Observable<ByteArray> {
+    return Observable.create { emitter ->
+      try {
+        val options = BitmapFactory.Options().apply {
+          this.inPurgeable = true
+          //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
+          rescaleImageRequestFactor(8, this)
+        }
+        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
+            options)
+        val compressedByteStream = ByteArrayOutputStream()
+        scaledBitmap.compress(JPEG, 60, compressedByteStream)
+        if (compressedByteStream.size() == 0) emitter.onError(Throwable())
+        else emitter.onNext(compressedByteStream.toByteArray())
+      } catch (exc: Throwable) {
+        emitter.onError(exc)
+      }
     }
-    val originalByteStream = pictureByteArray
-    val originalBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size)
-    val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
-        options)
-    val compressedByteStream = ByteArrayOutputStream()
-    scaledBitmap.compress(JPEG, 60, compressedByteStream)
-    val compressedBitmap = BitmapFactory.decodeByteArray(compressedByteStream.toByteArray(), 0,
-        compressedByteStream.toByteArray().size)
-
-//    compressedPictureBitmap = compressedBitmap
-//    compressedPictureByteArray = compressedByteStream.toByteArray()
-      presenter.onCameraCompressedPhotoByteArrayReady(compressedByteStream.toByteArray())
-
-//    Bitmap.createScaledBitmap()
-//    options.inPurgeable = false
-
-//    (findViewById(R.id.imageView) as ImageView).setImageBitmap(compressedBitmap)
-//    findViewById(R.id.layout_camera_preview_realtime).visibility = View.GONE
-//    findViewById(R.id.layout_camera_photo_taken).visibility = View.VISIBLE
   }
 
   //todo: this kotlin syntax here really sucks, refactor!
