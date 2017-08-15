@@ -4,6 +4,7 @@ import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEven
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
+import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
@@ -36,6 +37,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
     observeNewWords()
   }
 
+  @Suppress("NON_EXHAUSTIVE_WHEN")
   private fun observeView() {
     viewSubscription.add(
         getView()?.onUserTakePictureButtonClicked()
@@ -44,12 +46,13 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.doOnNext {
               when (it.type) {
                 CAMERA_SHUTTER_EVENT -> onCameraShutterEvent()
-//              CAMERA_BYTES_RETRIEVED -> onCameraBytesRetrieved() //todo: ?
-//              CAMERA_BYTES_PROCESSED -> TODO()
+                CAMERA_BYTES_RETRIEVED -> onCameraBytesRetrieved()
               }
             }
             ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
-            ?.flatMap { it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation()) }
+            ?.flatMap {
+              it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation())
+            }
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
@@ -58,7 +61,6 @@ class SaymynameRealtimeCameraPreviewPresenter(
                 onError = {
 
                 }
-//              onUserTakePictureButtonClicked()
             )
     )
   }
