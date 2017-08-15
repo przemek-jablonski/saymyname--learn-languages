@@ -1,5 +1,8 @@
 package com.android.szparag.saymyname.presenters
 
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_PROCESSED
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
@@ -37,16 +40,36 @@ class SaymynameRealtimeCameraPreviewPresenter(
     viewSubscription.add(
         getView()?.onUserTakePictureButtonClicked()
             ?.subscribeOn(AndroidSchedulers.mainThread())
-            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.flatMap { _ -> getView()?.takePicture()?.subscribeOn(AndroidSchedulers.mainThread()) }
             ?.doOnNext {
-              getView()?.stopRenderingWords()
+              when (it.type) {
+                CAMERA_SHUTTER_EVENT -> onCameraShutterEvent()
+//              CAMERA_BYTES_RETRIEVED -> onCameraBytesRetrieved() //todo: ?
+//              CAMERA_BYTES_PROCESSED -> TODO()
+              }
             }
-            ?.subscribe {
-              onUserTakePictureButtonClicked()
-            }
+            ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
+            ?.flatMap { it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation()) }
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribeBy(
+                onNext = {
+
+                },
+                onError = {
+
+                }
+//              onUserTakePictureButtonClicked()
+            )
     )
   }
 
+  fun onCameraShutterEvent() {
+    getView()?.stopRenderingWords()
+  }
+
+  fun onCameraBytesRetrieved() {
+    //...
+  }
 
   override fun observeNewWords() {
     model.observeNewWords()
@@ -127,17 +150,17 @@ class SaymynameRealtimeCameraPreviewPresenter(
     //todo: make user feel that he is (almost) half of the way in image processing
     //todo: (take photo -> process -> send to clarifai -> send to translator)
     //todo: change loading bar colour maybe
-    getView()?.scaleCompressEncodePictureByteArray(photoByteArray)
-        ?.subscribeOn(Schedulers.computation())
-        ?.observeOn(AndroidSchedulers.mainThread())
-        ?.subscribeBy(
-            onNext = {
-
-            },
-            onError = {
-
-            }
-        )
+//    getView()?.scaleCompressEncodePictureByteArray(photoByteArray)
+//        ?.subscribeOn(Schedulers.computation())
+//        ?.observeOn(AndroidSchedulers.mainThread())
+//        ?.subscribeBy(
+//            onNext = {
+//
+//            },
+//            onError = {
+//
+//            }
+//        )
   }
 
   override fun requestImageVisionData(imageByteArray: ByteArray) {

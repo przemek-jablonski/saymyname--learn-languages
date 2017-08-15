@@ -13,6 +13,9 @@ import android.view.SurfaceView
 import android.widget.Button
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.dagger.DaggerWrapper
+import com.android.szparag.saymyname.events.CameraPictureEvent
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.logMethod
@@ -216,20 +219,34 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     return null
   }
 
-  override fun takePicture() {
+  override fun takePicture(): Observable<CameraPictureEvent> {
     logMethod()
-    cameraInstance?.takePicture(
-        Camera.ShutterCallback { presenter.onCameraPhotoTaken() },
-        null,
-        Camera.PictureCallback { data, _ ->
-          presenter.onCameraPhotoByteArrayReady(data)
-          cameraInstance?.startPreview()
-        }
-    )
+    return Observable.create({ emitter ->
+      cameraInstance?.takePicture(
+          Camera.ShutterCallback { emitter.onNext(CameraPictureEvent(CAMERA_SHUTTER_EVENT)) },
+          null,
+          Camera.PictureCallback { data, _ ->
+            cameraInstance?.startPreview()
+            emitter.onNext(CameraPictureEvent(CAMERA_BYTES_RETRIEVED, data))
+
+            presenter.onCameraPhotoByteArrayReady(data) //==> view.scaleCompressEncodePictureByteArray -> pres.requetImageVisionData
+
+          }
+      )
+    })
+
+//    cameraInstance?.takePicture(
+//        Camera.ShutterCallback { presenter.onCameraPhotoTaken() },
+//        null,
+//        Camera.PictureCallback { data, _ ->
+//          presenter.onCameraPhotoByteArrayReady(data) //==> view.scaleCompressEncodePictureByteArray -> pres.requetImageVisionData
+//          cameraInstance?.startPreview()
+//        }
+//    )
   }
 
   override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
-      : Observable<ByteArray> {
+      : Observable<CameraPictureEvent> {
     return Observable.create { emitter ->
       try {
         val options = BitmapFactory.Options().apply {
@@ -242,7 +259,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
         val compressedByteStream = ByteArrayOutputStream()
         scaledBitmap.compress(JPEG, 60, compressedByteStream)
         if (compressedByteStream.size() == 0) emitter.onError(Throwable())
-        else emitter.onNext(compressedByteStream.toByteArray())
+        else emitter.onNext(CameraPictureEvent(compressedByteStream.toByteArray()))
       } catch (exc: Throwable) {
         emitter.onError(exc)
       }

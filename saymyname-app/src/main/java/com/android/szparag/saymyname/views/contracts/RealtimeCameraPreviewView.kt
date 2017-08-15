@@ -1,5 +1,6 @@
 package com.android.szparag.saymyname.views.contracts
 
+import com.android.szparag.saymyname.events.CameraPictureEvent
 import io.reactivex.Observable
 
 /**
@@ -18,7 +19,7 @@ interface RealtimeCameraPreviewView : View {
 
 
   fun retrieveHardwareBackCamera()
-  fun takePicture()
+  fun takePicture(): Observable<CameraPictureEvent>
 //  fun scaleCompressPictureByteData(shortestResolutionDimension : Int)
 //  fun onScaledCompressedPicgureByteDataReady(pictureDataArray: ByteArray)
 
@@ -30,7 +31,7 @@ interface RealtimeCameraPreviewView : View {
   //todo: this is unimplemented yet
   fun initializeSuddenMovementDetection()
   fun onSuddenMovementDetected()
-  fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray) : Observable<ByteArray>
+  fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray) : Observable<CameraPictureEvent>
   fun onUserTakePictureButtonClicked(): Observable<Any>
 
 }
