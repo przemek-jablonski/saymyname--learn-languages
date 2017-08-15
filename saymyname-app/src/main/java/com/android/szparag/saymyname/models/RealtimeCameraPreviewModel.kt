@@ -18,6 +18,9 @@ interface RealtimeCameraPreviewModel {
 
   fun observeNewWords() : Flowable<Image>
 
+  fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray, languageTo: Int,
+      languageFrom: Int, languagePair: String) : Completable
+
   fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int,
       languageFrom: Int): Completable
 

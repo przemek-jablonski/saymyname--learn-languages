@@ -45,8 +45,8 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.flatMap { _ -> getView()?.takePicture()?.subscribeOn(AndroidSchedulers.mainThread()) }
             ?.doOnNext {
               when (it.type) {
-                CAMERA_SHUTTER_EVENT -> onCameraShutterEvent()
-                CAMERA_BYTES_RETRIEVED -> onCameraBytesRetrieved()
+                CAMERA_SHUTTER_EVENT -> this::onCameraShutterEvent
+                CAMERA_BYTES_RETRIEVED -> this::onCameraBytesRetrieved
               }
             }
             ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
@@ -56,7 +56,8 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
-
+                  model.requestImageProcessing()
+                  model.requestTranslation()
                 },
                 onError = {
 
@@ -66,16 +67,24 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
   fun onCameraShutterEvent() {
+    logMethod()
     getView()?.stopRenderingWords()
+    //todo: fire up more dense Google'y Vision animations
+    //todo: fire up one-shot that symbolizes camera flash on shutter click
+    //todo: fire up loading bar at the bottom
+    //todo: hide bottom sheet if exists (bottom loading bar goes there)
   }
 
   fun onCameraBytesRetrieved() {
-    //...
+    logMethod()
+    //todo: make user feel that he is (almost) half of the way in image processing
+    //todo: (take photo -> process -> send to clarifai -> send to translator)
+    //todo: change loading bar colour maybe
   }
 
   override fun observeNewWords() {
     model.observeNewWords()
-        .doOnEach { logMethod() }
+//        .doOnEach { logMethod() }
         .subscribeBy(
             onNext = {
 
@@ -126,43 +135,6 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun startCameraRealtimePreview() {
     logMethod()
-  }
-
-  override fun onUserTakePictureButtonClicked() {
-    logMethod()
-//    getView()?.stopRenderingWords()
-//    takeCameraPicture()
-    getView()?.takePicture()
-  }
-
-  override fun takeCameraPicture() {
-    logMethod()
-  }
-
-  override fun onCameraPhotoTaken() {
-    logMethod()
-    //todo: fire up more dense Google'y Vision animations
-    //todo: fire up one-shot that symbolizes camera flash on shutter click
-    //todo: fire up loading bar at the bottom
-    //todo: hide bottom sheet if exists (bottom loading bar goes there)
-  }
-
-  override fun onCameraPhotoByteArrayReady(photoByteArray: ByteArray) {
-    logMethod()
-    //todo: make user feel that he is (almost) half of the way in image processing
-    //todo: (take photo -> process -> send to clarifai -> send to translator)
-    //todo: change loading bar colour maybe
-//    getView()?.scaleCompressEncodePictureByteArray(photoByteArray)
-//        ?.subscribeOn(Schedulers.computation())
-//        ?.observeOn(AndroidSchedulers.mainThread())
-//        ?.subscribeBy(
-//            onNext = {
-//
-//            },
-//            onError = {
-//
-//            }
-//        )
   }
 
   override fun requestImageVisionData(imageByteArray: ByteArray) {

@@ -35,11 +35,7 @@ interface CameraPresenter : Presenter {
 
   fun startCameraRealtimePreview()
 
-  fun onUserTakePictureButtonClicked()
-  fun takeCameraPicture()
-  fun onCameraPhotoTaken()
-  fun onCameraPhotoByteArrayReady(photoByteArray: ByteArray)
-  //todo: what if processing fails? add methods
+  //todo: what if camera image processing fails? add methods
 
 
 }

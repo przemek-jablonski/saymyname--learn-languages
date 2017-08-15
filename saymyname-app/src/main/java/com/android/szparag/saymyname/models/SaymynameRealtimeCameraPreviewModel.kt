@@ -36,7 +36,17 @@ class SaymynameRealtimeCameraPreviewModel(
     return repository.fetchLastImage().skip(1)
   }
 
-  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int, languageFrom: Int): Completable {
+
+  override fun requestImageProcessingWithTranslation(
+      modelId: String, imageByteArray: ByteArray, languageTo: Int, languageFrom: Int,
+      languagePair: String)
+      : Completable {
+    requestImageProcessing(modelId, imageByteArray, languageTo, languageFrom).toObservable<Unit>()
+
+  }
+
+  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int,
+      languageFrom: Int): Completable {
     return Completable.create {
       imageRecognitionService.requestImageProcessing(model = modelId, image = imageByteArray)
           .map { it.map { it -> it.name }.subList(0, 3) }
