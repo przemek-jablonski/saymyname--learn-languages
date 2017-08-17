@@ -1,5 +1,6 @@
 package com.android.szparag.saymyname.presenters
 
+import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_PROCESSED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
@@ -42,28 +43,27 @@ class SaymynameRealtimeCameraPreviewPresenter(
     viewSubscription.add(
         getView()?.onUserTakePictureButtonClicked()
             ?.subscribeOn(AndroidSchedulers.mainThread())
-            ?.flatMap { _ -> getView()?.takePicture()?.subscribeOn(AndroidSchedulers.mainThread()) }
-            ?.doOnNext {
-              when (it.type) {
-                CAMERA_SHUTTER_EVENT -> this::onCameraShutterEvent
-                CAMERA_BYTES_RETRIEVED -> this::onCameraBytesRetrieved
-              }
-            }
+            ?.flatMap { getView()?.takePicture()?.subscribeOn(AndroidSchedulers.mainThread()) }
+            ?.doOnNext { this::processCameraPictureEvents }
             ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
             ?.flatMap {
               it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation())
             }
+            ?.flatMap { pictureEvent -> model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
-                  model.requestImageProcessing()
-                  model.requestTranslation()
+
                 },
                 onError = {
 
                 }
             )
     )
+  }
+
+  fun processCameraPictureEvents(cameraPictureEvent: CameraPictureEvent) {
+
   }
 
   fun onCameraShutterEvent() {
@@ -83,16 +83,17 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
   override fun observeNewWords() {
-    model.observeNewWords()
-//        .doOnEach { logMethod() }
-        .subscribeBy(
-            onNext = {
-
-            },
-            onError = {
-              //todo: tutaj eventbusowanie
-            }
-        )
+//    model.observeNewWords()
+////        .observeOn(AndroidSchedulers.mainThread())
+////        .doOnEach { logMethod() }
+//        .subscribeBy(
+//            onNext = {
+//
+//            },
+//            onError = {
+//              //todo: tutaj eventbusowanie
+//            }
+//        )
   }
 
 

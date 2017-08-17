@@ -18,12 +18,21 @@ open class Image(
     var model: String? = null
 ) : RealmObject() {
 
-  fun set(dateTime: Long, imageBase64: ByteArray?, languageFrom: Int?, languageTo: Int?, model: String?) {
+  fun set(dateTime: Long, imageBase64: ByteArray?, languageFrom: Int?, languageTo: Int?, model: String?): Image {
     this.dateTime = dateTime
     this.imageBase64 = imageBase64
     this.languageFrom = languageFrom
     this.languageTo = languageTo
     this.model = model
+    return this
+  }
+
+  fun getNonTranslatedWords(): List<String> {
+    return words.map { word -> word.original }
+  }
+
+  fun getTranslatedWords(): List<String> {
+    return words.map { word -> word.translated }
   }
 
 }

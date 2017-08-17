@@ -33,7 +33,7 @@ class SaymynameImageRecognitionNetworkService(
         modelId = model,
         imagePredictRequest = ImagePredictRequest(image)
     )
-        .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.single())
 //        .observeOn(AndroidSchedulers.mainThread())
         .map { response -> response.outputs.map { output -> output.dataOutput.concepts }.flatten() }
   }

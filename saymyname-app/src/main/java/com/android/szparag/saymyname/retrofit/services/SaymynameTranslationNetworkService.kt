@@ -27,7 +27,7 @@ class SaymynameTranslationNetworkService(
         key = NETWORK_SERVICE_API_KEY,
         textToTranslate = texts,
         targetLanguagesPair = languagePair)
-        .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.single())
         .map { response -> response.texts }
   }
 

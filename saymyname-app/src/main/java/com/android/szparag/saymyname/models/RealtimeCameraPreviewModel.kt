@@ -4,6 +4,8 @@ import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.entities.Image
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.Single
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 8/5/2017.
@@ -18,11 +20,12 @@ interface RealtimeCameraPreviewModel {
 
   fun observeNewWords() : Flowable<Image>
 
-  fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray, languageTo: Int,
-      languageFrom: Int, languagePair: String) : Completable
+  fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray?, languageTo: Int,
+      languageFrom: Int, languagePair: String) : Observable<Image>
 
-  fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int,
-      languageFrom: Int): Completable
+  //todo: change arguments order so that they match rest of the model (like in SMNRealtimeCameraPreviewModel)
+  fun requestImageProcessing(modelId: String, imageByteArray: ByteArray?, languageTo: Int,
+      languageFrom: Int): Observable<Image>
 
-  fun requestTranslation(languagePair: String, textsToTranslate: List<String>): Completable
+  fun requestTranslation(languagePair: String, textsToTranslate: List<String>): Observable<Image>
 }

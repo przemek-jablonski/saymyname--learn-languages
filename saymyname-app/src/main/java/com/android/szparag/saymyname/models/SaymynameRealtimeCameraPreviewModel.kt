@@ -5,10 +5,10 @@ import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
-import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 8/5/2017.
@@ -24,7 +24,7 @@ class SaymynameRealtimeCameraPreviewModel(
 
   override fun attach(presenter: RealtimeCameraPreviewPresenter) {
     this.presenter = presenter
-    repository.attach()
+    repository.attach().subscribe()
   }
 
   override fun detach() {
@@ -38,41 +38,27 @@ class SaymynameRealtimeCameraPreviewModel(
 
 
   override fun requestImageProcessingWithTranslation(
-      modelId: String, imageByteArray: ByteArray, languageTo: Int, languageFrom: Int,
-      languagePair: String)
-      : Completable {
-    requestImageProcessing(modelId, imageByteArray, languageTo, languageFrom).toObservable<Unit>()
+      modelId: String, imageByteArray: ByteArray?, languageTo: Int, languageFrom: Int,
+      languagePair: String): Observable<Image> {
+    imageByteArray ?: throw Throwable() //todo: custom throwable
+    return requestImageProcessing(modelId, imageByteArray, languageTo, languageFrom)
+        .flatMap { image -> requestTranslation(languagePair, image.getNonTranslatedWords())}
+  }
+
+
+  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray?, languageTo: Int,
+      languageFrom: Int): Observable<Image> {
+    imageByteArray ?: throw Throwable()
+    return imageRecognitionService
+        .requestImageProcessing(modelId, imageByteArray)
+        .map { it.map { it -> it.name }.subList(0, 3) }
+        .flatMap { repository.pushImage(imageByteArray, languageFrom, languageTo, modelId, it)}
 
   }
 
-  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray, languageTo: Int,
-      languageFrom: Int): Completable {
-    return Completable.create {
-      imageRecognitionService.requestImageProcessing(model = modelId, image = imageByteArray)
-          .map { it.map { it -> it.name }.subList(0, 3) }
-          .subscribeBy(
-              onNext = {
-                repository.pushImage(imageByteArray, languageFrom, languageTo, modelId).subscribe()
-                repository.pushWordsOriginal(it).subscribe()
-              },
-              onError = {
-                //todo: tutej jakies eventbusowanie ON_NETWORK_ERROR
-              }
-          )
-    }
-  }
-
-  override fun requestTranslation(languagePair: String,
-      textsToTranslate: List<String>): Completable {
-    return Completable.create {
-      translationService.requestTextTranslation(texts = textsToTranslate,
-          languagePair = languagePair)
-          .subscribeBy(
-              onNext = { repository.pushWordsTranslated(it) },
-              onError = {
-                //todo: tutej jakies eventbusowanie ON_NETWORK_ERROR
-              }
-          )
-    }
+  override fun requestTranslation(languagePair: String, textsToTranslate: List<String>)
+      : Observable<Image> {
+    return translationService.requestTextTranslation(textsToTranslate, languagePair)
+        .flatMap { wordsTranslated -> repository.pushWordsTranslated(wordsTranslated)}
   }
 }
