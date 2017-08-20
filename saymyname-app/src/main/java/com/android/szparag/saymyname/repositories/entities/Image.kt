@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.repositories.entities
 
 import io.realm.RealmList
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 
@@ -10,7 +11,7 @@ import io.realm.annotations.RealmClass
  */
 @RealmClass
 open class Image(
-    var dateTime: Long = -1,
+    @Index var dateTime: Long = -1,
     var imageBase64: ByteArray? = null,
     var words: RealmList<Word> = RealmList(),
     var languageFrom: Int? = null,

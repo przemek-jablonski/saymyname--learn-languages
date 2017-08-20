@@ -8,7 +8,6 @@ import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetw
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 8/5/2017.
@@ -24,7 +23,9 @@ class SaymynameRealtimeCameraPreviewModel(
 
   override fun attach(presenter: RealtimeCameraPreviewPresenter) {
     this.presenter = presenter
-    repository.attach().subscribe()
+    repository.attach().subscribe({
+      repository.logRealmChanges()
+    })
   }
 
   override fun detach() {
@@ -42,7 +43,7 @@ class SaymynameRealtimeCameraPreviewModel(
       languagePair: String): Observable<Image> {
     imageByteArray ?: throw Throwable() //todo: custom throwable
     return requestImageProcessing(modelId, imageByteArray, languageTo, languageFrom)
-        .flatMap { image -> requestTranslation(languagePair, image.getNonTranslatedWords())}
+        .flatMap { image -> requestTranslation(languagePair, image.getNonTranslatedWords()) }
   }
 
 
@@ -52,13 +53,13 @@ class SaymynameRealtimeCameraPreviewModel(
     return imageRecognitionService
         .requestImageProcessing(modelId, imageByteArray)
         .map { it.map { it -> it.name }.subList(0, 3) }
-        .flatMap { repository.pushImage(imageByteArray, languageFrom, languageTo, modelId, it)}
+        .flatMap { repository.pushImage(imageByteArray, languageFrom, languageTo, modelId, it) }
 
   }
 
   override fun requestTranslation(languagePair: String, textsToTranslate: List<String>)
       : Observable<Image> {
     return translationService.requestTextTranslation(textsToTranslate, languagePair)
-        .flatMap { wordsTranslated -> repository.pushWordsTranslated(wordsTranslated)}
+        .flatMap { wordsTranslated -> repository.pushWordsTranslated(wordsTranslated) }
   }
 }

@@ -9,17 +9,20 @@ import android.util.Log
 val APPLICATION_TAG = "saymyname"
 val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
-fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG ) {
+inline fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
   //TODO: refactor that so that it uses kapt and generating code, this approach is CPU heavy
-  Thread.currentThread().stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
+  val currentThread = Thread.currentThread()
+  currentThread
       ?.takeIf {
         true
         //todo: check if NOT in debug
       }
       ?.let {
-        val className = it.className
-        val methodName = it.methodName
-        val lineNumber = it.lineNumber
-        Log.println(level, APPLICATION_TAG, "$className.$methodName [$lineNumber] | " + (optionalString ?: ""))
+        val stacktrace = it.stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
+        val threadName = it.name
+        val className = stacktrace.className
+        val methodName = stacktrace.methodName
+        val lineNumber = stacktrace.lineNumber
+        Log.println(level, APPLICATION_TAG, " [${threadName.toUpperCase()}] | $className.${methodName.toUpperCase()} [$lineNumber] | ${optionalString ?: ""}")
       }
 }

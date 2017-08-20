@@ -46,4 +46,5 @@ interface ImagesWordsRepository {
   fun fetchLastImage(): Flowable<Image>
 
   fun fetchAllWords(): Flowable<List<Word>>
+  fun logRealmChanges()
 }

@@ -1,10 +1,12 @@
 package com.android.szparag.saymyname.presenters
 
+import android.util.Log
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_PROCESSED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
+import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.subListSafe
@@ -53,10 +55,15 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
-
+                  logMethod("Main pipe: Succeeded")
                 },
                 onError = {
-
+                  logMethod("Main pipe: Failed")
+                  logMethod(it.toString(), Log.ERROR)
+                  it.printStackTrace()
+                },
+                onComplete = {
+                  logMethod("Main pipe: Completed")
                 }
             )
     )
@@ -84,7 +91,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun observeNewWords() {
 //    model.observeNewWords()
-////        .observeOn(AndroidSchedulers.mainThread())
+//        .observeOn(AndroidSchedulers.mainThread())
 ////        .doOnEach { logMethod() }
 //        .subscribeBy(
 //            onNext = {

@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.repositories.entities
 
 import io.realm.RealmModel
 import io.realm.RealmObject
+import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
 
@@ -10,7 +11,7 @@ import io.realm.annotations.RealmClass
  */
 @RealmClass
 open class Word(
-    var id: Long? = -1,
+    @Index var id: Long? = -1,
     var original: String = String(),
     var translated: String = String(),
     var wordOccurences: Int? = -1
