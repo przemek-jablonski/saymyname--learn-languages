@@ -14,7 +14,7 @@ interface ImagesWordsRepository {
   //  lifecycle:
   fun attach(): Completable
 
-  fun detach() //todo: make this completable as well
+  fun detach(): Completable //todo: make this completable as well
 
 
 
@@ -39,9 +39,9 @@ interface ImagesWordsRepository {
 //   */
 //  fun pushWordsTranslated(wordsTranslated: List<String>): Observable<Image>
 //
-//
-//  fun fetchAllImages(): Flowable<List<Image>> //todo: refactor so that flowable generic has only Image in it (maybe?)
-//
+
+  fun fetchAllImages(): Flowable<List<Image>> //todo: refactor so that flowable generic has only Image in it (maybe?)
+
 //  fun fetchLastImage(): Flowable<Image>
 //
 //  fun fetchAllWords(): Flowable<List<Word>>

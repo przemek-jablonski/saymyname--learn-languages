@@ -7,13 +7,10 @@ import com.android.szparag.saymyname.utils.asFlowable
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.Sort
-import io.realm.log.RealmLogger
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 8/5/2017.
@@ -35,28 +32,22 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
     }).subscribeOn(AndroidSchedulers.mainThread())
   }
 
-  override fun detach() {
-    logMethod(level = Log.WARN)
-    realm.close()
-    imagesSubscription?.dispose()
+  override fun detach(): Completable {
+    return Completable.fromAction {
+      logMethod(level = Log.WARN)
+      realm.close()
+      imagesSubscription?.dispose()
+    }
   }
 
   private fun logRealmChanges(realm: Realm) {
     //todo: refactor to
     logMethod(level = Log.WARN)
-    realm.addChangeListener { Log.d("ImagesWordsRepository", realm.where(Image::class.java).findAll()) }
-//    realm.where(Image::class.java)
-//        .findAll()
-//        .addChangeListener ({
-//          realmResults, changeSet ->
-//          realmResults.forEachIndexed { index, image ->
-//            Log.d("ImagesWordsRepository",
-//                "[Image ($index)]: {${image.dateTime}},{${image.languageFrom}},{${image.languageTo}},{${image.model}}")
-//            image.words.forEachIndexed { i, word ->
-//              Log.d("ImagesWordsRepository", "[Image $index][Word $i]: $word")
-//            }
-//          }
-//        })
+    realm.addChangeListener { realm ->
+      realm.where(Image::class.java).findAll().forEach {
+        Log.d("ImagesWordsRepository", it.toString())
+      }
+    }
   }
 
   override fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
@@ -73,7 +64,14 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
         parentImage.words.add(word)
       }
     }
-    realm.refresh()
+    realm.refresh() //todo: is it needed?
+  }
+
+  override fun fetchAllImages(): Flowable<List<Image>> {
+    return realm.where(Image::class.java).findAllSorted("dateTime", Sort.DESCENDING)
+        .asFlowable()
+//        .share().replay().autoConnect()
+        .subscribeOn(AndroidSchedulers.mainThread())
   }
 
   //  push operations:
@@ -163,13 +161,8 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
 //    }).subscribeOn(AndroidSchedulers.mainThread())
 //  }
 //
-//
-//  override fun fetchAllImages(): Flowable<List<Image>> {
-//    return realm.where(Image::class.java).findAllSorted("dateTime",
-//        Sort.DESCENDING).asFlowable().share().replay().autoConnect().subscribeOn(
-//        AndroidSchedulers.mainThread())
-//  }
-//
+
+
 //  override fun fetchLastImage(): Flowable<Image> {
 //    return realm.where(Image::class.java).findAllSorted("dateTime",
 //        Sort.DESCENDING).asFlowable().map { listImages -> listImages[0] }.skip(1).subscribeOn(

@@ -10,7 +10,6 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.flatMapSequence
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -22,26 +21,28 @@ class SaymynameRealtimeCameraPreviewModel(
     val repository: ImagesWordsRepository
 ) : RealtimeCameraPreviewModel {
 
-
-  private lateinit var presenter: RealtimeCameraPreviewPresenter
   private val networkSubscriptions: CompositeDisposable by lazy { CompositeDisposable() }
 
-  override fun attach(presenter: RealtimeCameraPreviewPresenter) {
-    this.presenter = presenter
-    repository.attach().subscribe()
+  override fun attach(): Completable {
+    return repository.attach()
   }
 
-  override fun detach() {
-    repository.detach()
-    networkSubscriptions.clear()
+  override fun detach(): Completable {
+    return Completable.fromAction {
+      networkSubscriptions.clear()
+    }.andThen {
+      repository.detach()
+    }
   }
 
-//  override fun observeNewWords(): Flowable<Image> {
-//    return repository.fetchLastImage().skip(1)
-//  }
+  override fun observeNewWords(): Flowable<Image> {
+    return repository.fetchAllImages().skip(1).filter { list -> list.isNotEmpty() }.map { images -> images[0
+        ] }
+  }
 
   override fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray?,
-      languageTo: Int, languageFrom: Int, languagePair: String): Observable<List<Pair<String, String>>> {
+      languageTo: Int, languageFrom: Int,
+      languagePair: String): Observable<List<Pair<String, String>>> {
     imageByteArray ?: throw Throwable()
     return imageRecognitionService
         .requestImageProcessing(modelId, imageByteArray)
@@ -49,7 +50,10 @@ class SaymynameRealtimeCameraPreviewModel(
         .map { it.map { it -> it.name }.subList(0, 3) }
         .flatMap { translationService.requestTextTranslation(it, languagePair) }
         .observeOn(AndroidSchedulers.mainThread())
-        .doOnNext { words -> repository.pushImage(imageByteArray, languageFrom, languageTo, modelId, words.map { (first) -> first }, words.map { words -> words.second }) }
+        .doOnNext { words ->
+          repository.pushImage(imageByteArray, languageFrom, languageTo, modelId,
+              words.map { (first) -> first }, words.map { words -> words.second })
+        }
   }
 
 

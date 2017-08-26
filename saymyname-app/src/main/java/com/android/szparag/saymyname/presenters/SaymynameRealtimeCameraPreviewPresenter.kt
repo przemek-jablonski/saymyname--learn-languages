@@ -2,14 +2,9 @@ package com.android.szparag.saymyname.presenters
 
 import android.util.Log
 import com.android.szparag.saymyname.events.CameraPictureEvent
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_PROCESSED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
-import com.android.szparag.saymyname.repositories.entities.Image
-import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
-import com.android.szparag.saymyname.utils.subListSafe
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -34,11 +29,28 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun onAttached() {
     super.onAttached()
-    model.attach(this)
-    initializeTextToSpeechClient()
-    observeView()
-    observeNewWords()
+    model.attach().subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(
+        {
+          logMethod("ONATTACHED.onComplete()")
+          observeView()
+          observeNewWords()
+          initializeTextToSpeechClient()
+        },
+        {
+          logMethod("ONATTACHED.onError()")
+        })
+
   }
+
+  override fun onBeforeDetached() {
+    logMethod()
+    super.onBeforeDetached()
+    viewSubscription.clear()
+    modelSubscription?.dispose()
+    getView()?.stopRenderingLoadingAnimation()
+    getView()?.stopRenderingRealtimeCameraPreview()
+  }
+
 
   @Suppress("NON_EXHAUSTIVE_WHEN")
   private fun observeView() {
@@ -49,10 +61,15 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.doOnNext { this::processCameraPictureEvents }
             ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
             ?.flatMap {
-              it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation())
+              it.cameraImageBytes?.let { bytes ->
+                getView()?.scaleCompressEncodePictureByteArray(bytes)
+              }?.subscribeOn(Schedulers.computation())
             }
-            ?.flatMap { pictureEvent -> model.
-                requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
+            ?.flatMap { pictureEvent ->
+              model.
+                  requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c",
+                      pictureEvent.cameraImageBytes, -1, -1, "en-it")
+            }
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
@@ -91,28 +108,18 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
   override fun observeNewWords() {
-//    model.observeNewWords()
-//        .observeOn(AndroidSchedulers.mainThread())
-////        .doOnEach { logMethod() }
-//        .subscribeBy(
-//            onNext = {
-//
-//            },
-//            onError = {
-//              //todo: tutaj eventbusowanie
-//            }
-//        )
+    model.observeNewWords()
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({
+          logMethod("OBSERVENEWWORDS.onNext, image: $it")
+        }, {
+          logMethod("OBSERVENEWWORDS.onError, throwable: $it")
+        }, {
+          logMethod("OBSERVENEWWORDS.onComplete ")
+        })
   }
 
 
-  override fun onBeforeDetached() {
-    logMethod()
-    super.onBeforeDetached()
-    viewSubscription.clear()
-    modelSubscription?.dispose()
-    getView()?.stopRenderingLoadingAnimation()
-    getView()?.stopRenderingRealtimeCameraPreview()
-  }
 
   override fun onViewReady() {
     logMethod()
