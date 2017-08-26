@@ -16,4 +16,7 @@ open class Word(
     var translated: String = String()
 ) : RealmObject() {
 
+  override fun toString(): String {
+    return "\t [WORD] [id: $id | original: $original | translated: $translated] (${hashCode()})\n"
+  }
 }

@@ -36,4 +36,9 @@ open class Image(
     return words.map { word -> word.translated }
   }
 
+  override fun toString(): String {
+    var asString = "[IMAGE] [datetime: $dateTime | lanFrom: $languageFrom | lanTo: $languageTo | model: $model | image: $imageBase64 | words: ${words.size}] (hash: ${hashCode()}) \n"
+    words.forEach { word -> asString.plus(word.toString()) }
+    return asString
+  }
 }
