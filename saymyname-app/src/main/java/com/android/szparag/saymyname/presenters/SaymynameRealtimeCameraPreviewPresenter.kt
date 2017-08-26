@@ -110,8 +110,10 @@ class SaymynameRealtimeCameraPreviewPresenter(
   override fun observeNewWords() {
     model.observeNewWords()
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-          logMethod("OBSERVENEWWORDS.onNext, image: $it")
+        .subscribe({ image ->
+          logMethod("OBSERVENEWWORDS.onNext, image: $image")
+          getView()?.renderNonTranslatedWords(image.getNonTranslatedWords())
+          getView()?.renderTranslatedWords(image.getTranslatedWords())
         }, {
           logMethod("OBSERVENEWWORDS.onError, throwable: $it")
         }, {

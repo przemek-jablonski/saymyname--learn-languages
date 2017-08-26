@@ -36,8 +36,7 @@ class SaymynameRealtimeCameraPreviewModel(
   }
 
   override fun observeNewWords(): Flowable<Image> {
-    return repository.fetchAllImages().skip(1).filter { list -> list.isNotEmpty() }.map { images -> images[0
-        ] }
+    return repository.fetchAllImages().skip(1).filter { list -> list.isNotEmpty() }.map { images -> images[0] }
   }
 
   override fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray?,
