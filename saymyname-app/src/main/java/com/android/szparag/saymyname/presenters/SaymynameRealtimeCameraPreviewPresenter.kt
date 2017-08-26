@@ -51,11 +51,12 @@ class SaymynameRealtimeCameraPreviewPresenter(
             ?.flatMap {
               it.cameraImageBytes?.let { bytes -> getView()?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation())
             }
-            ?.flatMap { pictureEvent -> model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
+            ?.flatMap { pictureEvent -> model.
+                requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
                 onNext = {
-                  logMethod("Main pipe: Succeeded")
+                  logMethod("Main pipe: Succeeded, image: $it")
                 },
                 onError = {
                   logMethod("Main pipe: Failed")
@@ -147,28 +148,11 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun requestImageVisionData(imageByteArray: ByteArray) {
     logMethod()
-    model.requestImageProcessing("aaa03c23b3724a16a56b629203edc62c", imageByteArray, -1, -1)
-        .subscribeBy(onComplete = {},
-            onError = {})
-//        .doOnEach { logMethod() }
-//        .subscribe({
-//          nonTranslatedWords ->
-//          getView()?.let {
-//            it.renderNonTranslatedWords(nonTranslatedWords)
-//            requestTranslation(nonTranslatedWords)
-//            nonTranslatedWords.forEach { word -> it.speakText(word) }
-//          }
-//        })
+
   }
 
   override fun requestTranslation(textsToTranslate: List<String>) {
     logMethod()
-    model.requestTranslation("en-it", textsToTranslate.subListSafe(0, 4))
-//        .doOnEach { logMethod() }
-//        .subscribe({
-//          translatedWords ->
-//          getView()?.renderTranslatedWords(translatedWords)
-//        })
   }
 
 }

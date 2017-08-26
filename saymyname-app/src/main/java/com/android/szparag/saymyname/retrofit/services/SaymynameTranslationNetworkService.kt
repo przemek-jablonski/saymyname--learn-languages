@@ -22,13 +22,13 @@ class SaymynameTranslationNetworkService(
 
   //todo: languagesPair should be handled here somehow
   override fun requestTextTranslation(texts: List<String>,
-      languagePair: String): Observable<List<String>> {
+      languagePair: String): Observable<List<Pair<String, String>>> {
     return networkApiClient.translate(
         key = NETWORK_SERVICE_API_KEY,
         textToTranslate = texts,
         targetLanguagesPair = languagePair)
         .subscribeOn(Schedulers.single())
-        .map { response -> response.texts }
+        .map { response -> response.toTranslatedPair(texts) }
   }
 
 }
