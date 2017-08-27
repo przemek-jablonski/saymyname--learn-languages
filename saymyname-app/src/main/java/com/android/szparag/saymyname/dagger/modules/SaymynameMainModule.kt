@@ -4,10 +4,8 @@ import android.content.Context
 import android.hardware.Camera
 import android.speech.tts.TextToSpeech
 import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.models.ImageRecognitionModel
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.models.SaymynameRealtimeCameraPreviewModel
-import com.android.szparag.saymyname.models.TranslationModel
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.presenters.SaymynameRealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.ImagesWordsRepository

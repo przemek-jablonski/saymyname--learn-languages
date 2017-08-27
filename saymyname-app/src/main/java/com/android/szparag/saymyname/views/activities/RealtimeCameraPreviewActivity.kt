@@ -1,7 +1,7 @@
 package com.android.szparag.saymyname.views.activities
 
 
-import com.android.szparag.saymyname.dagger.DaggerWrapper
+import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
@@ -44,7 +44,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
   @Inject lateinit override var presenter: RealtimeCameraPreviewPresenter
-
   private var cameraInstance: Camera? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +54,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun onStart() {
     super.onStart()
-    DaggerWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
+    DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
   }
 
