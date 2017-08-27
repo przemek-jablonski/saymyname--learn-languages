@@ -1,35 +1,29 @@
 package com.android.szparag.saymyname.views.contracts
 
 import com.android.szparag.saymyname.events.CameraPictureEvent
+import io.reactivex.Completable
 import io.reactivex.Observable
+import java.util.Locale
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/3/2017.
  */
-interface RealtimeCameraPreviewView : View {
+interface RealtimeCameraPreviewView :
+    CameraPreviewView,
+    ImageRecognitionView,
+    TextToSpeechView {
 
-  fun renderRealtimeCameraPreview()
-  fun stopRenderingRealtimeCameraPreview()
+  //user interface events:
+  fun onUserModelSwitchButtonClicked(): Observable<Any>
+  fun onUserModelSwitchLanguageClicked(): Observable<Any>
+  fun onUserHamburgerMenuClicked(): Observable<Any>
+
+  //general view rendering:
   fun renderLoadingAnimation()
   fun stopRenderingLoadingAnimation()
 
-  fun renderNonTranslatedWords(nonTranslatedWords : List<String>)
-  fun renderTranslatedWords(translatedWords : List<String>)
-  fun stopRenderingWords()
-
-
-  fun retrieveHardwareBackCamera()
-  fun takePicture(): Observable<CameraPictureEvent>
-
-  fun initializeCameraPreviewSurfaceView()
-
-  fun initializeTextToSpeechClient()
-  fun speakText(textToSpeak : String, flushSpeakingQueue : Boolean = false)
-
-  //todo: this is unimplemented yet
+  //camera parallax fx:
   fun initializeSuddenMovementDetection()
   fun onSuddenMovementDetected()
-  fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray) : Observable<CameraPictureEvent>
-  fun onUserTakePictureButtonClicked(): Observable<Any>
 
 }

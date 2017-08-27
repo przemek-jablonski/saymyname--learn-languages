@@ -3,11 +3,15 @@ package com.android.szparag.saymyname.utils
 import hu.akarnokd.rxjava.interop.RxJavaInterop
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
+import io.reactivex.CompletableSource
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.Realm.Transaction
 import io.realm.Realm.Transaction.OnError
@@ -24,7 +28,10 @@ private val realmOnSuccessStub by lazy { OnSuccess { } }
 private val COMPLETABLE_NULL_ERROR_THROWABLE_TEXT = "Completable object is null, pushing error value..."
 private val OBSERVABLE_NULL_VALUE_THROWABLE_TEXT = "Observable onNext() argument is null, pushing error value..."
 private val REALM_COMPLETABLE_NULL_EXCEPTION_THROWABLE_TEXT= "Realm transaction callback errored (with null exception)"
-
+private val DISPOSABLE_ALREADY_IN_CONTAINER = "Disposable is already in given container. Throwing exception"
+private val DISPOSABLE_CONTAINER_IS_NULL= "Disposable container is null. Throwing exception"
+val DISPOSABLE_ALREADY_IN_CONTAINER_THROWABLE: Throwable by lazy { Throwable(DISPOSABLE_ALREADY_IN_CONTAINER) }
+val DISPOSABLE_CONTAINER_NULL_THROWABLE: Throwable by lazy { Throwable(DISPOSABLE_CONTAINER_NULL_THROWABLE) }
 
 fun CompositeDisposable.add(disposable: Disposable?): Boolean {
   disposable?.let { this.add(disposable); return true }
@@ -53,20 +60,10 @@ fun Realm.executeTransactionAsyncBy(transaction: Transaction, onSuccess: OnSucce
   this.executeTransactionAsync(transaction, onSuccess, onError)
 }
 
-//fun Realm.executeTransactionAsyncCompletable(transaction: Transaction) {
-//  val transactionCompletable = Completable.unsafeCreate {  }
-//  val transactionCallback = object : Realm.Transaction.Callback() {
-//    override fun onSuccess() { stream.onComplete() }
-//    override fun onError(exc: Exception?) { stream.onError(exc ?: Throwable(REALM_COMPLETABLE_NULL_EXCEPTION_THROWABLE_TEXT)) }
-//  }
-//  this.executeTransactionAsync(transaction, {}, {})
-//}
-//
-//fun Realm.Transaction.Callback.toCompletable(): Completable {
-//  return Completable.create { stream ->
-//    object : Realm.Transaction.Callback() {
-//      override fun onSuccess() { stream.onComplete() }
-//      override fun onError(exc: Exception?) { stream.onError(exc ?: Throwable(REALM_COMPLETABLE_NULL_EXCEPTION_THROWABLE_TEXT)) }
-//    }
-//  }
-//}
+fun Completable.ui() : Completable { return this.subscribeOn(AndroidSchedulers.mainThread()) }
+fun <T> Observable<T>.ui() : Observable<T> { return this.subscribeOn(AndroidSchedulers.mainThread()) }
+fun <T> Flowable<T>.ui() : Flowable<T> { return this.subscribeOn(AndroidSchedulers.mainThread()) }
+
+fun Completable.single() : Completable { return this.subscribeOn(Schedulers.single()) }
+fun <T> Observable<T>.single() : Observable<T> { return this.subscribeOn(Schedulers.single()) }
+fun <T> Flowable<T>.single() : Flowable<T> { return this.subscribeOn(Schedulers.single()) }
