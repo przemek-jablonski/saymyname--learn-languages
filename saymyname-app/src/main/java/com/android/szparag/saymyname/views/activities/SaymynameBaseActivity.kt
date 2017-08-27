@@ -1,5 +1,7 @@
 package com.android.szparag.saymyname.views.activities
 
+import android.content.Intent
+import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import com.android.szparag.saymyname.presenters.Presenter
 import com.android.szparag.saymyname.utils.logMethod
@@ -16,21 +18,32 @@ abstract class SaymynameBaseActivity<P : Presenter<*>>: AppCompatActivity(), Vie
   lateinit open var presenter: P
   val viewReadySubject: Subject<Boolean> = ReplaySubject.create()
 
+  @CallSuper
   override fun onStart() {
     super.onStart()
     logMethod()
     setupViews()
   }
 
-  override fun onWindowFocusChanged(hasFocus: Boolean) {
+  @CallSuper
+  override fun setupViews() {
+    logMethod()
+  }
+
+  override final fun onWindowFocusChanged(hasFocus: Boolean) {
     logMethod()
     super.onWindowFocusChanged(hasFocus)
     viewReadySubject.onNext(hasFocus)
   }
 
-  override fun onViewReady(): Observable<Boolean> {
+  override final fun onViewReady(): Observable<Boolean> {
+    logMethod()
     return viewReadySubject
   }
 
+  override fun <A : SaymynameBaseActivity<*>> startActivity(targetActivityClass: Class<A>) {
+    logMethod("target: $targetActivityClass")
+    startActivity(Intent(applicationContext, targetActivityClass))
+  }
 
 }

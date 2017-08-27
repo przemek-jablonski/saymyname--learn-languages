@@ -8,17 +8,12 @@ import com.android.szparag.saymyname.views.contracts.View
 interface Presenter<V : View> {
 
   fun attach(view: V)
-
   fun onAttached()
 
-
   fun onViewReady()
-
   fun subscribeViewUserEvents()
 
-
   fun detach()
-
   fun onBeforeDetached()
 
 }

@@ -1,5 +1,6 @@
 package com.android.szparag.saymyname.views.contracts
 
+import com.android.szparag.saymyname.views.activities.SaymynameBaseActivity
 import io.reactivex.Observable
 
 /**
@@ -24,5 +25,11 @@ interface View {
    * no matter when they've actually subscribed.
    */
   fun onViewReady(): Observable<Boolean>
+
+  /**
+   * Triggers start of another Activity. Contract omits providing applicationContext
+   * so that it can be used with non-Android based Presenters.
+   */
+  fun <A : SaymynameBaseActivity<*>> startActivity(targetActivityClass: Class<A>)
 
 }

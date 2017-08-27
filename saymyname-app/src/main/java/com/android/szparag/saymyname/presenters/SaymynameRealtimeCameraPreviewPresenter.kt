@@ -6,6 +6,7 @@ import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.logMethodError
 import com.android.szparag.saymyname.utils.ui
+import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -60,22 +61,35 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.flatMapCompletable { pictureEvent -> model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
-            onComplete = { logMethod("OBSERVEVIEW.onUserTakePictureButtonClicked: onComplete") },
-            onError = { logMethodError("OBSERVEVIEW.onUserTakePictureButtonClicked: onError, throwable: ($it)") })
+            onComplete = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onComplete") },
+            onError = { logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)") })
         .toViewDisposable()
 
     view?.onUserModelSwitchButtonClicked()
         ?.ui()
         ?.subscribeBy(
-            onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchButtonClicked: onComplete") },
-            onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchButtonClicked: onError, throwable: ($it)") })
+            onNext = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext") },
+            onComplete = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onComplete") },
+            onError = { logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onError, throwable: ($it)") })
         .toViewDisposable()
 
     view?.onUserModelSwitchLanguageClicked()
         ?.ui()
         ?.subscribeBy(
-            onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onComplete") },
-            onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onError, throwable: ($it)") })
+            onNext = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext") },
+            onComplete = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onComplete") },
+            onError = { logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onError, throwable: ($it)") })
+        .toViewDisposable()
+
+    view?.onUserHistoricalEntriesClicked()
+        ?.ui()
+        ?.subscribeBy(
+            onNext = {
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext")
+              view?.startActivity(HistoricalEntriesActivity::class.java)
+            },
+            onComplete = { logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onComplete") },
+            onError = { logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onError, throwable: ($it)") })
         .toViewDisposable()
   }
 

@@ -17,6 +17,7 @@ interface RealtimeCameraPreviewView :
   fun onUserModelSwitchButtonClicked(): Observable<Any>
   fun onUserModelSwitchLanguageClicked(): Observable<Any>
   fun onUserHamburgerMenuClicked(): Observable<Any>
+  fun onUserHistoricalEntriesClicked(): Observable<Any>
 
   //general view rendering:
   fun renderLoadingAnimation()

@@ -1,6 +1,7 @@
 package com.android.szparag.saymyname.views.activities
 
 
+import android.content.Intent
 import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
@@ -17,6 +18,7 @@ import android.graphics.BitmapFactory
 import android.hardware.Camera
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.support.v7.widget.AppCompatImageButton
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
@@ -26,6 +28,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.annotations.CheckReturnValue
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
@@ -38,6 +41,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
+  val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
   val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
@@ -64,8 +68,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     super.onStop()
   }
 
-  override fun setupViews() {
-    logMethod()
+  fun startActivity() {
+    startActivity(Intent(applicationContext, RealtimeCameraPreviewActivity::class.java))
   }
 
   override fun onUserTakePictureButtonClicked(): Observable<Any> {
@@ -82,6 +86,10 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
     return RxView.clicks(buttonHamburgerMenu)
+  }
+
+  override fun onUserHistoricalEntriesClicked(): Observable<Any> {
+    return RxView.clicks(buttonHistoricalEntries)
   }
 
   override fun initializeCameraPreviewSurfaceView(): Completable {
