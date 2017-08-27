@@ -228,7 +228,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
           Camera.PictureCallback { data, _ ->
             cameraInstance?.startPreview()
             emitter.onNext(CameraPictureEvent(CAMERA_BYTES_RETRIEVED, data))
-//            presenter.onCameraPhotoByteArrayReady(data) //==> view.scaleCompressEncodePictureByteArray -> pres.requetImageVisionData
           }
       )
     })

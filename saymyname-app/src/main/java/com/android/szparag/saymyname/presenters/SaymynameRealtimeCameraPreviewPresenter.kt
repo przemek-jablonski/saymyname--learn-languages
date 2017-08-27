@@ -4,6 +4,7 @@ import android.util.Log
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
+import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,17 +30,17 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun onAttached() {
     super.onAttached()
-    model.attach().subscribeOn(AndroidSchedulers.mainThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(
-        {
+    model.attach()
+        .subscribeOn(AndroidSchedulers.mainThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({
           logMethod("ONATTACHED.onComplete()")
           observeView()
           observeNewWords()
           initializeTextToSpeechClient()
-        },
-        {
+        }, {
           logMethod("ONATTACHED.onError()")
         })
-
   }
 
   override fun onBeforeDetached() {
@@ -65,47 +66,22 @@ class SaymynameRealtimeCameraPreviewPresenter(
                 getView()?.scaleCompressEncodePictureByteArray(bytes)
               }?.subscribeOn(Schedulers.computation())
             }
-            ?.flatMap { pictureEvent ->
-              model.
-                  requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c",
-                      pictureEvent.cameraImageBytes, -1, -1, "en-it")
+            ?.flatMapCompletable { pictureEvent ->
+              model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c",
+                  pictureEvent.cameraImageBytes, -1, -1, "en-it")
             }
             ?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribeBy(
-                onNext = {
-                  logMethod("Main pipe: Succeeded, image: $it")
-                },
-                onError = {
-                  logMethod("Main pipe: Failed")
-                  logMethod(it.toString(), Log.ERROR)
-                  it.printStackTrace()
-                },
-                onComplete = {
-                  logMethod("Main pipe: Completed")
-                }
+                onComplete = { logMethod("OBSERVEVIEW: onComplete") },
+                onError = { logMethod("OBSERVEVIEW: onError, throwable: ($it)") }
             )
     )
   }
 
   fun processCameraPictureEvents(cameraPictureEvent: CameraPictureEvent) {
-
+    //todo: process UI changes based on type of cameraPictureEvent
   }
 
-  fun onCameraShutterEvent() {
-    logMethod()
-    getView()?.stopRenderingWords()
-    //todo: fire up more dense Google'y Vision animations
-    //todo: fire up one-shot that symbolizes camera flash on shutter click
-    //todo: fire up loading bar at the bottom
-    //todo: hide bottom sheet if exists (bottom loading bar goes there)
-  }
-
-  fun onCameraBytesRetrieved() {
-    logMethod()
-    //todo: make user feel that he is (almost) half of the way in image processing
-    //todo: (take photo -> process -> send to clarifai -> send to translator)
-    //todo: change loading bar colour maybe
-  }
 
   override fun observeNewWords() {
     model.observeNewWords()
@@ -118,9 +94,9 @@ class SaymynameRealtimeCameraPreviewPresenter(
           logMethod("OBSERVENEWWORDS.onError, throwable: $it")
         }, {
           logMethod("OBSERVENEWWORDS.onComplete ")
-        })
+        }
+        )
   }
-
 
 
   override fun onViewReady() {

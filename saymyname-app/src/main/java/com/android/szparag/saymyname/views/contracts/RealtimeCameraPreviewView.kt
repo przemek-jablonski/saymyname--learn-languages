@@ -20,8 +20,6 @@ interface RealtimeCameraPreviewView : View {
 
   fun retrieveHardwareBackCamera()
   fun takePicture(): Observable<CameraPictureEvent>
-//  fun scaleCompressPictureByteData(shortestResolutionDimension : Int)
-//  fun onScaledCompressedPicgureByteDataReady(pictureDataArray: ByteArray)
 
   fun initializeCameraPreviewSurfaceView()
 

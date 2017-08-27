@@ -21,11 +21,10 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   protected lateinit var realm: Realm  //todo: change getDefaultInstance() //todo: make Realm operations hronous
   private var imagesSubscription: Disposable? = null
 
-  //  lifecycle:
+
   override fun attach(): Completable {
     logMethod(level = Log.WARN)
     return Completable.create({ emitter ->
-      logMethod(level = Log.WARN)
       realm = Realm.getDefaultInstance()
       logRealmChanges(realm)
       emitter.onComplete()
@@ -51,126 +50,22 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   }
 
   override fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
-      wordsOriginal: List<String>, wordsTranslated: List<String>) {
-    realm.executeTransaction { realm ->
-      logMethod("thread: ${Thread.currentThread().name}")
-      val parentImage = realm.createObject(Image::class.java)
-      parentImage.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model)
-      wordsOriginal.forEachIndexed { index, original ->
-        val word = realm.createObject(Word::class.java)
-        word.id = System.currentTimeMillis()
-        word.original = original
-        word.translated = wordsTranslated.get(index)
-        parentImage.words.add(word)
+      wordsOriginal: List<String>, wordsTranslated: List<String>): Completable {
+    return Completable.fromAction {
+      realm.executeTransaction { realm ->
+        logMethod("thread: ${Thread.currentThread().name}")
+        val parentImage = realm.createObject(Image::class.java).apply { this.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model) }
+        wordsOriginal.forEachIndexed { index, original ->
+          parentImage.words.add(realm.createObject(Word::class.java).apply { this.set(System.currentTimeMillis(), original, wordsTranslated[index]) })
+        }
       }
     }
-    realm.refresh() //todo: is it needed?
   }
 
   override fun fetchAllImages(): Flowable<List<Image>> {
     return realm.where(Image::class.java).findAllSorted("dateTime", Sort.DESCENDING)
         .asFlowable()
-//        .share().replay().autoConnect()
         .subscribeOn(AndroidSchedulers.mainThread())
   }
 
-  //  push operations:
-//  override fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String)
-//      : Observable<Image> {
-//    logMethod(level = Log.WARN)
-//    return Observable.create<Image>({ emitter ->
-//      realm.executeTransaction({ realm ->
-//        logMethod(level = Log.WARN)
-//        realm.refresh()
-//        emitter.onNext(
-//            realm.createObject(Image::class.java)
-//                .set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model)
-//        )
-//        emitter.onComplete()
-//      })
-//    }).subscribeOn(AndroidSchedulers.mainThread())
-//  }
-//
-//  override fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
-//      wordsOriginal: List<String>): Observable<Image> {
-//    logMethod(level = Log.WARN)
-//    return Observable.create<Image>({ emitter ->
-//      try {
-//        var imageParent: Image? = null
-//        realm.executeTransaction({ realm ->
-//          logMethod(level = Log.WARN)
-//          imageParent = realm.createObject(
-//              Image::class.java)//todo: replace that with calling on reference 'latestImage'
-//          imageParent?.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model)
-//          wordsOriginal.forEach {
-//            val wordOriginal = realm.createObject(Word::class.java)
-//            wordOriginal.id = System.currentTimeMillis() //todo: what if user changes its system time?
-//            wordOriginal.original = it
-//            imageParent?.words?.add(wordOriginal)
-//          }
-//        })
-//
-//        realm.executeTransaction({
-//          val testObj = realm.createObject(Image::class.java)
-//          testObj.model = "blelbelbleeble1231313"
-//
-//        })
-//        realm.refresh()
-//        emitter.onNext(imageParent)
-//        emitter.onComplete()
-//      } catch (exc: Throwable) {
-//        emitter.onError(exc)
-//      }
-//    }).subscribeOn(AndroidSchedulers.mainThread())
-//  }
-//
-//  override fun pushWordsOriginal(wordsOriginal: List<String>): Observable<Image> {
-//    logMethod(level = Log.WARN)
-//    return Observable.create<Image>({ emitter ->
-//      var imageParent: Image? = null
-//      realm.executeTransaction({ realm ->
-//        logMethod(level = Log.WARN)
-//        imageParent = realm.where(Image::class.java).findAllSorted("dateTime",
-//            Sort.DESCENDING).first() //todo: replace that with calling on reference 'latestImage'
-//        wordsOriginal.forEach {
-//          val wordOriginal = realm.createObject(Word::class.java)
-//          wordOriginal.id = System.currentTimeMillis() //todo: what if user changes its system time?
-//          wordOriginal.original = it
-//          imageParent?.words?.add(wordOriginal)
-//        }
-//      })
-//      realm.refresh()
-//      emitter.onNext(imageParent)
-//      emitter.onComplete()
-//    }).subscribeOn(AndroidSchedulers.mainThread())
-//  }
-//
-//
-//  override fun pushWordsTranslated(wordsTranslated: List<String>): Observable<Image> {
-//    logMethod(level = Log.WARN)
-//    return Observable.create<Image>({ emitter ->
-//      realm.executeTransaction({
-//        //        logMethod(level = Log.WARN)
-//        val imageParent = realm.where(Image::class.java).findAllSorted("dateTime",
-//            Sort.DESCENDING).first() //todo: replace that with calling on reference 'latestImage'
-//        imageParent.words.forEachIndexed { i, word -> word.translated = wordsTranslated[i] }
-//        realm.refresh()
-//        emitter.onNext(imageParent)
-//        emitter.onComplete()
-//      })
-//    }).subscribeOn(AndroidSchedulers.mainThread())
-//  }
-//
-
-
-//  override fun fetchLastImage(): Flowable<Image> {
-//    return realm.where(Image::class.java).findAllSorted("dateTime",
-//        Sort.DESCENDING).asFlowable().map { listImages -> listImages[0] }.skip(1).subscribeOn(
-//        AndroidSchedulers.mainThread())
-//  }
-//
-//  override fun fetchAllWords(): Flowable<List<Word>> {
-//    return realm.where(Word::class.java).findAllSorted("id",
-//        Sort.DESCENDING).asFlowable().subscribeOn(AndroidSchedulers.mainThread())
-//  }
 }

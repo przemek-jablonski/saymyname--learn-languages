@@ -19,15 +19,11 @@ interface RealtimeCameraPreviewModel {
 
   fun observeNewWords(): Flowable<Image>
 
+  //  //todo: change arguments order so that they match rest of the model (like in SMNRealtimeCameraPreviewModel)
   fun requestImageProcessingWithTranslation(
       modelId: String,
       imageByteArray: ByteArray?,
       languageTo: Int, languageFrom: Int,
-      languagePair: String): Observable<List<Pair<String, String>>>
+      languagePair: String): Completable
 
-//  //todo: change arguments order so that they match rest of the model (like in SMNRealtimeCameraPreviewModel)
-//  fun requestImageProcessing(modelId: String, imageByteArray: ByteArray?, languageTo: Int,
-//      languageFrom: Int): Observable<Image>
-//
-//  fun requestTranslation(languagePair: String, textsToTranslate: List<String>): Observable<Image>
 }

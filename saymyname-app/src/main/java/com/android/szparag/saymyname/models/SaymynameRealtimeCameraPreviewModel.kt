@@ -36,51 +36,28 @@ class SaymynameRealtimeCameraPreviewModel(
   }
 
   override fun observeNewWords(): Flowable<Image> {
-    return repository.fetchAllImages().skip(1).filter { list -> list.isNotEmpty() }.map { images -> images[0] }
+    return repository.fetchAllImages()
+        .skip(1)
+        .filter { list -> list.isNotEmpty() }
+        .map { images -> images[0] }
   }
 
   override fun requestImageProcessingWithTranslation(modelId: String, imageByteArray: ByteArray?,
       languageTo: Int, languageFrom: Int,
-      languagePair: String): Observable<List<Pair<String, String>>> {
+      languagePair: String): Completable {
     imageByteArray ?: throw Throwable()
     return imageRecognitionService
         .requestImageProcessing(modelId, imageByteArray)
         .observeOn(Schedulers.io())
-        .map { it.map { it -> it.name }.subList(0, 3) }
+        .map { concepts -> concepts.map { concept -> concept.name }.subList(0, 3) }
         .flatMap { translationService.requestTextTranslation(it, languagePair) }
         .observeOn(AndroidSchedulers.mainThread())
-        .doOnNext { words ->
-          repository.pushImage(imageByteArray, languageFrom, languageTo, modelId,
-              words.map { (first) -> first }, words.map { words -> words.second })
+        .flatMapCompletable { words ->
+          repository.pushImage(
+              imageByteArray, languageFrom, languageTo, modelId,
+              words.map { (first) -> first }, words.map { words -> words.second }
+          )
         }
   }
-
-
-  //  override fun requestImageProcessingWithTranslation(
-//      modelId: String, imageByteArray: ByteArray?, languageTo: Int, languageFrom: Int,
-//      languagePair: String): Observable<Image> {
-//    imageByteArray ?: throw Throwable() //todo: custom throwable
-//    return requestImageProcessing(modelId, imageByteArray, languageTo, languageFrom)
-//        .flatMap { image -> requestTranslation(languagePair, image.getNonTranslatedWords()) }
-//  }
-//
-//
-
-//  override fun requestImageProcessing(modelId: String, imageByteArray: ByteArray?, languageTo: Int,
-//      languageFrom: Int): Observable<Image> {
-//    imageByteArray ?: throw Throwable()
-//    return imageRecognitionService
-//        .requestImageProcessing(modelId, imageByteArray)
-//        .map { it.map { it -> it.name }.subList(0, 3) }
-//        .flatMap { repository.pushImage(imageByteArray, languageFrom, languageTo, modelId, it) }
-//
-//  }
-
-//
-//  override fun requestTranslation(languagePair: String, textsToTranslate: List<String>)
-//      : Observable<Image> {
-//    return translationService.requestTextTranslation(textsToTranslate, languagePair)
-//        .flatMap { wordsTranslated -> repository.pushWordsTranslated(wordsTranslated) }
-//  }
 
 }
