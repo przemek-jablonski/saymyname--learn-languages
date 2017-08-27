@@ -9,9 +9,4 @@ import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 //todo: split view (mainactivity) as well, so that there is CameraView and TranslationView
 interface ImageProcessingPresenter : Presenter {
 
-  fun requestImageVisionData(imageByteArray: ByteArray)
-
-  //todo: split that into another presenter!
-  fun requestTranslation(textsToTranslate: List<String>)
-
 }

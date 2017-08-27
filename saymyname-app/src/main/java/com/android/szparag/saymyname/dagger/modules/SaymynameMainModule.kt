@@ -1,6 +1,8 @@
 package com.android.szparag.saymyname.dagger.modules
 
 import android.content.Context
+import android.hardware.Camera
+import android.speech.tts.TextToSpeech
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.ImageRecognitionModel
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
@@ -40,7 +42,7 @@ import javax.inject.Singleton
     return context
   }
 
-  @Provides @Singleton fun provideRealtimeCameraPresenter(
+  @Provides fun provideRealtimeCameraPresenter(
       realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter {
     return SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
   }
@@ -101,6 +103,5 @@ import javax.inject.Singleton
         .addConverterFactory(GsonConverterFactory.create())
         .build()
   }
-
 
 }

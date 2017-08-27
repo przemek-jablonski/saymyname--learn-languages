@@ -1,5 +1,7 @@
 package com.android.szparag.saymyname.presenters
 
+import java.util.Locale
+
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
@@ -28,10 +30,9 @@ interface CameraPresenter : Presenter {
   override fun onViewReady()
 
   fun initializeCameraPreviewView()
-  fun onCameraPreviewViewInitialized() //todo: is it needed?
-  fun onCameraPreviewViewInitializationFailed()
+  fun onCameraSetupFailed(exc: Throwable)
 
-  fun initializeTextToSpeechClient()
+  fun initializeTextToSpeechClient(locale: Locale)
 
   fun startCameraRealtimePreview()
 
