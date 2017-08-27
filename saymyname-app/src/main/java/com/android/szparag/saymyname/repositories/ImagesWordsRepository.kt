@@ -14,10 +14,10 @@ interface ImagesWordsRepository {
   //  lifecycle:
   fun attach(): Completable
 
-  fun detach(): Completable //todo: make this completable as well
+  fun detach(): Completable
 
   fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String, wordsOriginal: List<String>, wordsTranslated: List<String>) : Completable
 
-  fun fetchAllImages(): Flowable<List<Image>> //todo: refactor so that flowable generic has only Image in it (maybe?)
+  fun fetchAllImages(): Flowable<List<Image>>
 
 }

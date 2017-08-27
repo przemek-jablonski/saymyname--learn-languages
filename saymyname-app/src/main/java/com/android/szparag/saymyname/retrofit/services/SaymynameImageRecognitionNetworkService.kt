@@ -34,7 +34,6 @@ class SaymynameImageRecognitionNetworkService(
         imagePredictRequest = ImagePredictRequest(image)
     )
         .subscribeOn(Schedulers.single())
-//        .observeOn(AndroidSchedulers.mainThread())
         .map { response -> response.outputs.map { output -> output.dataOutput.concepts }.flatten() }
   }
 

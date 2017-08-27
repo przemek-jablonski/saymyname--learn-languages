@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.android.szparag.saymyname.utils
 
 import android.util.Log
@@ -25,4 +27,8 @@ inline fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
         val lineNumber = stacktrace.lineNumber
         Log.println(level, APPLICATION_TAG, " [${threadName.toUpperCase()}] | $className.${methodName.toUpperCase()} [$lineNumber] | ${optionalString ?: ""}")
       }
+}
+
+inline fun logMethodError(optionalString: String? = null, level: Int = Log.ERROR){
+  logMethod(optionalString, level)
 }

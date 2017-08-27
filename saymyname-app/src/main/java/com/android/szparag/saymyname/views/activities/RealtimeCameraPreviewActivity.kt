@@ -1,18 +1,7 @@
 package com.android.szparag.saymyname.views.activities
 
-import android.graphics.Bitmap.CompressFormat.JPEG
-import android.graphics.BitmapFactory
-import android.hardware.Camera
-import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.support.v7.app.AppCompatActivity
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceHolder.Callback
-import android.view.SurfaceView
-import android.widget.Button
-import com.android.szparag.saymyname.R
-import com.android.szparag.saymyname.dagger.DaggerWrapper
+
+import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
@@ -22,30 +11,39 @@ import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
+import com.android.szparag.saymyname.R
+import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.BitmapFactory
+import android.hardware.Camera
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceHolder.Callback
+import android.view.SurfaceView
+import android.widget.Button
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
+import io.reactivex.Completable
 import io.reactivex.Observable
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
-class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreviewView, Callback {
+class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView, Callback {
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
   val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
-  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(
-      R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
-  val floatingWordsView: SaymynameFloatingWordsView by bindView(
-      R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
+  val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
+  //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
-  @Inject lateinit var presenter: RealtimeCameraPreviewPresenter //todo: remove ? later on, VERY IMPORTANT!
-
+  @Inject lateinit override var presenter: RealtimeCameraPreviewPresenter
   private var cameraInstance: Camera? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,39 +53,15 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
   override fun onStart() {
-    logMethod()
     super.onStart()
-    DaggerWrapper.getComponent(this).inject(this)
-    setupViews()
-    presenter?.attach(this)
-  }
-
-  override fun onResume() {
-    logMethod()
-    super.onResume()
-  }
-
-  override fun onWindowFocusChanged(hasFocus: Boolean) {
-    logMethod()
-    super.onWindowFocusChanged(hasFocus)
-    if (hasFocus) presenter.onViewReady()
-
-  }
-
-  override fun onPause() {
-    logMethod()
-    super.onPause()
+    DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
+    presenter.attach(this) //todo: find a way to generize them in Kotlin
   }
 
   override fun onStop() {
     logMethod()
     presenter.detach()
     super.onStop()
-  }
-
-  override fun onDestroy() {
-    logMethod()
-    super.onDestroy()
   }
 
   override fun setupViews() {
@@ -98,36 +72,49 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     return RxView.clicks(buttonCameraShutter)
   }
 
-  override fun initializeCameraPreviewSurfaceView() {
-    logMethod()
-    val holder = cameraSurfaceView.holder
-    holder.addCallback(this)
-    holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+  override fun onUserModelSwitchButtonClicked(): Observable<Any> {
+    return RxView.clicks(buttonSwitchModel)
   }
 
-  override fun retrieveHardwareBackCamera() {
-    logMethod()
-    //todo: if opening camera failed (or succeeded), then CALL PRESENTER!
-    cameraInstance = openHardwareBackCamera()
-    if (cameraInstance == null)
-      presenter.onCameraPreviewViewInitializationFailed()
+  override fun onUserModelSwitchLanguageClicked(): Observable<Any> {
+    return RxView.clicks(buttonSwitchLanguage)
   }
 
-  override fun renderRealtimeCameraPreview() {
+  override fun onUserHamburgerMenuClicked(): Observable<Any> {
+    return RxView.clicks(buttonHamburgerMenu)
+  }
+
+  override fun initializeCameraPreviewSurfaceView(): Completable {
     logMethod()
-    cameraInstance?.let {
+    return Completable.fromAction {
+      val holder = cameraSurfaceView.holder
+      holder.addCallback(this)
+      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+    }
+  }
+
+  override fun retrieveHardwareBackCamera(): Completable {
+    logMethod()
+    return Completable.create { emitter ->
+      cameraInstance = openHardwareBackCamera()
+      if (cameraInstance != null) emitter.onComplete() else emitter.onError(Throwable()) //todo: custom throwable
+    }
+  }
+
+  override fun renderRealtimeCameraPreview(): Completable {
+    logMethod()
+    return Completable.create { emitter ->
+      if (cameraInstance == null) emitter.onError(Throwable()) //todo: custom throwable
       try {
-        cameraInstance.run {
+        cameraInstance?.let {
           it.setPreviewDisplay(cameraSurfaceView.holder)
           configureCameraDisplayOrientation(0)
           configureFocusMode(cameraInstance)
           it.startPreview()
-          presenter.onCameraPreviewViewInitialized()
+          emitter.onComplete()
         }
-      } catch (exc: IOException) {
-        presenter.onCameraPreviewViewInitializationFailed()
-        exc.printStackTrace()
-        return
+      } catch (exc: Throwable) {
+        emitter.onError(Throwable()) //todo: custom throwable
       }
     }
   }
@@ -148,7 +135,7 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
       }
 
       //todo: add link to this answer (from so, duh)
-      var degreesToRotateFinal: Int
+      val degreesToRotateFinal: Int
       if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
         degreesToRotateFinal = (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
       } else {
@@ -181,7 +168,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
 
   override fun stopRenderingRealtimeCameraPreview() {
     logMethod()
-
   }
 
   override fun renderLoadingAnimation() {
@@ -207,14 +193,12 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     floatingWordsView.clearWords()
   }
 
-
   private fun openHardwareBackCamera(): Camera? {
     logMethod()
     try {
       return Camera.open()
     } catch (exc: RuntimeException) {
-      //todo: ...logging, show error, whatever
-      exc.printStackTrace()
+      exc.printStackTrace() //todo: ...logging, show error, whatever
     }
     return null
   }
@@ -239,11 +223,9 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
       try {
         val options = BitmapFactory.Options().apply {
           this.inPurgeable = true
-          //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
-          rescaleImageRequestFactor(8, this)
+          rescaleImageRequestFactor(8, this) //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
         }
-        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
-            options)
+        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size, options)
         val compressedByteStream = ByteArrayOutputStream()
         scaledBitmap.compress(JPEG, 60, compressedByteStream)
         if (compressedByteStream.size() == 0) emitter.onError(Throwable())
@@ -254,32 +236,28 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     }
   }
 
-  //todo: this kotlin syntax here really sucks, refactor!
-  private fun rescaleImageRequestFactor(downScaleFactor: Int,
+  private fun rescaleImageRequestFactor(
+      downScaleFactor: Int,
       bitmapOptions: BitmapFactory.Options): BitmapFactory.Options {
     bitmapOptions.inSampleSize = downScaleFactor
     return bitmapOptions
   }
 
-
-  override fun initializeTextToSpeechClient() {
+  override fun initializeTextToSpeechClient(locale: Locale) {
     logMethod()
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
-      status: Int ->
-      status.takeIf { it != TextToSpeech.ERROR }?.run {
-        textToSpeechClient.language = Locale.UK
+      status ->
+      status.takeIf { code -> code != TextToSpeech.ERROR }?.run {
+        textToSpeechClient.language = locale
       }
     })
   }
 
   override fun speakText(textToSpeak: String, flushSpeakingQueue: Boolean) {
     logMethod()
-    textToSpeechClient.speak(
-        textToSpeak,
-        if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD,
-        null)
+    textToSpeechClient.speak(textToSpeak,
+        if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
-
 
   override fun initializeSuddenMovementDetection() {
     logMethod()
@@ -288,7 +266,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   override fun onSuddenMovementDetected() {
     logMethod()
   }
-
 
   override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
     logMethod()
