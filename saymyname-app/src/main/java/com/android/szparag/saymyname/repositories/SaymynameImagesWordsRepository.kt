@@ -17,8 +17,7 @@ import io.realm.Sort
  */
 open class SaymynameImagesWordsRepository : ImagesWordsRepository {
 
-
-  protected lateinit var realm: Realm  //todo: change getDefaultInstance() //todo: make Realm operations hronous
+  protected lateinit var realm: Realm
   private var imagesSubscription: Disposable? = null
 
 
@@ -34,8 +33,8 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   override fun detach(): Completable {
     return Completable.fromAction {
       logMethod(level = Log.WARN)
-      realm.close()
       imagesSubscription?.dispose()
+      realm.close()
     }
   }
 

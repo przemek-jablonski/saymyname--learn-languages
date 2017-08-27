@@ -3,100 +3,80 @@ package com.android.szparag.saymyname.presenters
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
-import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.logMethodError
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
+import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
-import java.util.Locale
+
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
 class SaymynameRealtimeCameraPreviewPresenter(
     override val model: RealtimeCameraPreviewModel
-) : BasePresenter(), RealtimeCameraPreviewPresenter {
-
-  val viewSubscription: CompositeDisposable = CompositeDisposable()
-  val modelSubscription: Disposable? = null
-
-  //todo: this is fucked up
-  fun getView(): RealtimeCameraPreviewView? {
-    return this.view as RealtimeCameraPreviewView? //todo: why view can be nullable?
-  }
+) : BasePresenter<RealtimeCameraPreviewView>(), RealtimeCameraPreviewPresenter {
 
   override fun onAttached() {
     super.onAttached()
+    subscribeViewReadyEvents()
+
     model.attach()
         .subscribeOn(AndroidSchedulers.mainThread())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeBy(
             onComplete = {
               logMethodError("ONATTACHED.onComplete()")
-              observeView()
-              observeNewWords()
+              subscribeViewUserEvents()
+              subscribeNewWords()
               initializeTextToSpeechClient(Locale.UK)
             },
-            onError= { logMethod("ONATTACHED.onError(), $it") })
+            onError = { logMethod("ONATTACHED.onError(), $it") })
+        .toModelDisposable()
   }
 
   override fun onBeforeDetached() {
     logMethod()
     super.onBeforeDetached()
-    viewSubscription.clear()
-    modelSubscription?.dispose()
-    getView()?.stopRenderingLoadingAnimation()
-    getView()?.stopRenderingRealtimeCameraPreview()
+    view?.stopRenderingLoadingAnimation()
+    view?.stopRenderingRealtimeCameraPreview()
   }
 
+  fun subscribeViewReadyEvents() {
+    view?.onViewReady()?.ui()?.filter { readyFlag -> readyFlag }?.subscribeBy (onNext = {onViewReady()})
+  }
 
   @Suppress("NON_EXHAUSTIVE_WHEN")
-  private fun observeView() {
-    viewSubscription.add(
-        getView()?.onUserTakePictureButtonClicked()
-            ?.ui()
-            ?.flatMap { getView()?.takePicture()?.ui() }
-            ?.doOnNext { this::processCameraPictureEvents }
-            ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
-            ?.flatMap { it.cameraImageBytes?.let { bytes ->
-                getView()?.scaleCompressEncodePictureByteArray(bytes)
-              }?.subscribeOn(Schedulers.computation())
-            }
-            ?.flatMapCompletable { pictureEvent ->
-              model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c",
-                  pictureEvent.cameraImageBytes, -1, -1, "en-it")
-            }
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribeBy(
-                onComplete = { logMethod("OBSERVEVIEW.onUserTakePictureButtonClicked: onComplete") },
-                onError = { logMethodError("OBSERVEVIEW.onUserTakePictureButtonClicked: onError, throwable: ($it)") }
-            )
-    )
+  override fun subscribeViewUserEvents() {
+    view?.onUserTakePictureButtonClicked()
+        ?.ui()
+        ?.flatMap { view?.takePicture()?.ui() }
+        ?.doOnNext { this::processCameraPictureEvents }
+        ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
+        ?.flatMap { it.cameraImageBytes?.let { bytes -> view?.scaleCompressEncodePictureByteArray(bytes) }?.subscribeOn(Schedulers.computation()) }
+        ?.flatMapCompletable { pictureEvent -> model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c", pictureEvent.cameraImageBytes, -1, -1, "en-it") }
+        ?.observeOn(AndroidSchedulers.mainThread())
+        ?.subscribeBy(
+            onComplete = { logMethod("OBSERVEVIEW.onUserTakePictureButtonClicked: onComplete") },
+            onError = { logMethodError("OBSERVEVIEW.onUserTakePictureButtonClicked: onError, throwable: ($it)") })
+        .toViewDisposable()
 
-    viewSubscription.add(
-        getView()
-            ?.onUserModelSwitchButtonClicked()
-            ?.ui()
-            ?.subscribeBy(
-                onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchButtonClicked: onComplete") },
-                onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchButtonClicked: onError, throwable: ($it)") }
-            )
-    )
+    view?.onUserModelSwitchButtonClicked()
+        ?.ui()
+        ?.subscribeBy(
+            onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchButtonClicked: onComplete") },
+            onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchButtonClicked: onError, throwable: ($it)") })
+        .toViewDisposable()
 
-    viewSubscription.add(
-        getView()
-            ?.onUserModelSwitchLanguageClicked()
-            ?.ui()
-            ?.subscribeBy(
-                onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onComplete") },
-                onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onError, throwable: ($it)") }
-            )
-    )
+    view?.onUserModelSwitchLanguageClicked()
+        ?.ui()
+        ?.subscribeBy(
+            onComplete = { logMethod("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onComplete") },
+            onError = { logMethodError("OBSERVEVIEW.onUserModelSwitchLanguageClicked: onError, throwable: ($it)") })
+        .toViewDisposable()
   }
 
   fun processCameraPictureEvents(cameraPictureEvent: CameraPictureEvent) {
@@ -104,18 +84,18 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
 
-  override fun observeNewWords() {
+  override fun subscribeNewWords() {
     model.observeNewWords()
         .ui()
         .subscribeBy(
             onNext = { image ->
               logMethod("OBSERVENEWWORDS.onNext, image: $image")
-              getView()?.renderNonTranslatedWords(image.getNonTranslatedWords())
-              getView()?.renderTranslatedWords(image.getTranslatedWords())
+              view?.renderNonTranslatedWords(image.getNonTranslatedWords())
+              view?.renderTranslatedWords(image.getTranslatedWords())
             },
             onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it") },
-            onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") }
-        )
+            onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") })
+        .toModelDisposable()
   }
 
   override fun onViewReady() {
@@ -125,15 +105,15 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun initializeCameraPreviewView() {
     logMethod()
-    getView()?.let {
-      it.initializeCameraPreviewSurfaceView()
+    view?.let { view ->
+      view.initializeCameraPreviewSurfaceView()
           .ui()
-          .andThen(it.retrieveHardwareBackCamera().ui())
-          .andThen(it.renderRealtimeCameraPreview().ui())
+          .andThen(view.retrieveHardwareBackCamera().ui())
+          .andThen(view.renderRealtimeCameraPreview().ui())
           .subscribeBy (
               onComplete = { logMethod("initializeCameraPreviewView().onComplete") },
-              onError = { this::onCameraSetupFailed }
-          )
+              onError = { this::onCameraSetupFailed })
+          .toViewDisposable()
     }
   }
 
@@ -143,7 +123,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun initializeTextToSpeechClient(locale: Locale) {
     logMethod()
-    getView()?.initializeTextToSpeechClient(locale)
+    view?.initializeTextToSpeechClient(locale)
   }
 
   override fun startCameraRealtimePreview() {

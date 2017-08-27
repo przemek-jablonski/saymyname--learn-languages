@@ -16,7 +16,7 @@ interface RealtimeCameraPreviewView : View {
   fun onUserModelSwitchLanguageClicked(): Observable<Any>
   fun onUserHamburgerMenuClicked(): Observable<Any>
 
-  //general rendering:
+  //general view rendering:
   fun renderRealtimeCameraPreview(): Completable
   fun renderLoadingAnimation()
   fun stopRenderingRealtimeCameraPreview()
@@ -27,7 +27,7 @@ interface RealtimeCameraPreviewView : View {
   fun renderTranslatedWords(translatedWords: List<String>)
   fun stopRenderingWords()
 
-  //taking photos:
+  //camera and taking photos:
   fun retrieveHardwareBackCamera(): Completable
   fun initializeCameraPreviewSurfaceView(): Completable
   fun scaleCompressEncodePictureByteArray(

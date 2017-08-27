@@ -1,17 +1,6 @@
 package com.android.szparag.saymyname.views.activities
 
-import android.graphics.Bitmap.CompressFormat.JPEG
-import android.graphics.BitmapFactory
-import android.hardware.Camera
-import android.os.Bundle
-import android.speech.tts.TextToSpeech
-import android.support.v7.app.AppCompatActivity
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceHolder.Callback
-import android.view.SurfaceView
-import android.widget.Button
-import com.android.szparag.saymyname.R
+
 import com.android.szparag.saymyname.dagger.DaggerWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
@@ -22,6 +11,17 @@ import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
+import com.android.szparag.saymyname.R
+import android.graphics.Bitmap.CompressFormat.JPEG
+import android.graphics.BitmapFactory
+import android.hardware.Camera
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceHolder.Callback
+import android.view.SurfaceView
+import android.widget.Button
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
@@ -32,20 +32,18 @@ import javax.inject.Inject
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
-class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreviewView, Callback {
+class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView, Callback {
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
   val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
-  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(
-      R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
-  val floatingWordsView: SaymynameFloatingWordsView by bindView(
-      R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
+  val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
 
   //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
-  @Inject lateinit var presenter: RealtimeCameraPreviewPresenter //todo: remove ? later on, VERY IMPORTANT!
+  @Inject lateinit override var presenter: RealtimeCameraPreviewPresenter
 
   private var cameraInstance: Camera? = null
 
@@ -56,38 +54,15 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   }
 
   override fun onStart() {
-    logMethod()
     super.onStart()
-    DaggerWrapper.getComponent(this).inject(this)
-    setupViews()
-    presenter.attach(this)
-  }
-
-  override fun onResume() {
-    logMethod()
-    super.onResume()
-  }
-
-  override fun onWindowFocusChanged(hasFocus: Boolean) {
-    logMethod()
-    super.onWindowFocusChanged(hasFocus)
-    if (hasFocus) presenter.onViewReady()
-  }
-
-  override fun onPause() {
-    logMethod()
-    super.onPause()
+    DaggerWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
+    presenter.attach(this) //todo: find a way to generize them in Kotlin
   }
 
   override fun onStop() {
     logMethod()
     presenter.detach()
     super.onStop()
-  }
-
-  override fun onDestroy() {
-    logMethod()
-    super.onDestroy()
   }
 
   override fun setupViews() {
@@ -269,7 +244,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
     return bitmapOptions
   }
 
-
   override fun initializeTextToSpeechClient(locale: Locale) {
     logMethod()
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
@@ -286,7 +260,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
         if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
 
-
   override fun initializeSuddenMovementDetection() {
     logMethod()
   }
@@ -294,7 +267,6 @@ class RealtimeCameraPreviewActivity : AppCompatActivity(), RealtimeCameraPreview
   override fun onSuddenMovementDetected() {
     logMethod()
   }
-
 
   override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
     logMethod()

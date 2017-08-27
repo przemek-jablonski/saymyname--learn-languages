@@ -1,11 +1,12 @@
 package com.android.szparag.saymyname.presenters
 
+import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import java.util.Locale
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
  */
-interface CameraPresenter : Presenter {
+interface CameraPresenter : Presenter<RealtimeCameraPreviewView> {
 
   //todo: move it to model
   //todo: change to Int, not Enum
@@ -31,12 +32,6 @@ interface CameraPresenter : Presenter {
 
   fun initializeCameraPreviewView()
   fun onCameraSetupFailed(exc: Throwable)
-
   fun initializeTextToSpeechClient(locale: Locale)
-
   fun startCameraRealtimePreview()
-
-  //todo: what if camera image processing fails? add methods
-
-
 }

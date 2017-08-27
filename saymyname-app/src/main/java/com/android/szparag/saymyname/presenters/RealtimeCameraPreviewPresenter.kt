@@ -12,5 +12,5 @@ interface RealtimeCameraPreviewPresenter : CameraPresenter, ImageProcessingPrese
 
   val model : RealtimeCameraPreviewModel
 
-  fun observeNewWords()
+  fun subscribeNewWords()
 }
