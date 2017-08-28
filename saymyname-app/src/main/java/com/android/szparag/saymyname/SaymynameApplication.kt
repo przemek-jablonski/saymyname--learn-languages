@@ -18,14 +18,7 @@ class SaymynameApplication : Application() {
     super.onCreate()
     Stetho.initializeWithDefaults(this)
     Realm.init(this)
-    Realm.setDefaultConfiguration(
-        RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build()
-    )
-    Realm.getDefaultInstance().executeTransaction {
-      realm ->
-      realm.delete(Image::class.java)
-      realm.delete(Word::class.java)
-    }
+    Realm.setDefaultConfiguration(RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build())
     RealmLog.setLevel(LogLevel.ALL)
     RealmLog.registerDefaultLogger()
   }
