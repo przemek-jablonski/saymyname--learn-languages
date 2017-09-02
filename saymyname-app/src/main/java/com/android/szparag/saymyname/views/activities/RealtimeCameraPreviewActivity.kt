@@ -2,6 +2,8 @@ package com.android.szparag.saymyname.views.activities
 
 
 import android.content.Intent
+import android.gesture.GestureOverlayView
+import android.gesture.GestureOverlayView.OnGestureListener
 import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
@@ -16,13 +18,22 @@ import com.android.szparag.saymyname.R
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory
 import android.hardware.Camera
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.BottomSheetBehavior.BottomSheetCallback
+import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageButton
+import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
+import android.view.View
 import android.widget.Button
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
@@ -44,6 +55,9 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
   val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val bottomSheetSinglePhotoDetails: View by bindView(R.id.layout_single_photo_details)
+  lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
+  lateinit var gestureDetector: GestureDetectorCompat
 
   //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
@@ -60,6 +74,57 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     super.onStart()
     DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
+
+
+    bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(bottomSheetSinglePhotoDetails)
+    bottomSheetBehavioursSinglePhotoDetails.isHideable = false
+    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
+    bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object: BottomSheetCallback() {
+      override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+      }
+
+      override fun onStateChanged(bottomSheet: View, newState: Int) {
+        when (newState) {
+          BottomSheetBehavior.STATE_COLLAPSED -> {
+            logMethod("STATE_COLLAPSED")
+          }
+          BottomSheetBehavior.STATE_SETTLING -> {
+            logMethod("STATE_SETTLING")
+          }
+          BottomSheetBehavior.STATE_HIDDEN -> {
+            logMethod("STATE_HIDDEN")
+          }
+          BottomSheetBehavior.STATE_EXPANDED -> {
+            logMethod("STATE_EXPANDED")
+            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_light)
+            }
+          }
+          BottomSheetBehavior.STATE_DRAGGING -> {
+            logMethod("STATE_DRAGGING")
+          }
+        }
+      }
+
+    })
+
+
+  }
+
+  override fun onTouchEvent(ev: MotionEvent?): Boolean {
+//    Log.d("MOTION", "motionEvent: ${ev?.action} ${ev?.}")
+    return super.onTouchEvent(ev)
+  }
+
+  override fun bottomSheetPeek() {
+    TODO(
+        "not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun bottomSheetUnpeek() {
+    TODO(
+        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun onStop() {

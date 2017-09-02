@@ -23,6 +23,10 @@ interface RealtimeCameraPreviewView :
   fun renderLoadingAnimation()
   fun stopRenderingLoadingAnimation()
 
+  //bottomsheet behaviour:
+  fun bottomSheetPeek()
+  fun bottomSheetUnpeek()
+
   //camera parallax fx:
   fun initializeSuddenMovementDetection()
   fun onSuddenMovementDetected()
