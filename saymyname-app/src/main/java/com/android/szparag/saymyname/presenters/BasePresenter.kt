@@ -1,9 +1,12 @@
 package com.android.szparag.saymyname.presenters
 
 import android.support.annotation.CallSuper
+import com.android.szparag.saymyname.utils.add
+import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.subscribeBy
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/4/2017.
@@ -24,7 +27,18 @@ abstract class BasePresenter<V : View> : Presenter<V> {
   override fun onAttached() {
     viewDisposables = CompositeDisposable()
     modelDisposables = CompositeDisposable()
+    subscribeViewReadyEvents()
   }
+
+  private fun subscribeViewReadyEvents() {
+    view?.onViewReady()
+        ?.ui()
+        ?.filter { readyFlag -> readyFlag }
+        ?.subscribeBy(
+            onNext = { onViewReady() }
+        )
+  }
+
 
   override final fun detach() {
     onBeforeDetached()

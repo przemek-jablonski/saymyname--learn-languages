@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/saymyname_blue_light"
+    android:orientation="vertical"
+    >
+
+  <ImageView
+      android:id="@+id/fullscreenMessageIcon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:layout_marginEnd="8dp"
+      android:layout_marginLeft="8dp"
+      android:layout_marginRight="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="199dp"
+      app:layout_constraintBottom_toTopOf="@+id/fullscreenMessageText"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/ic_action_warning_dark"
+      />
+
+  <TextView
+      android:id="@+id/fullscreenMessageText"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
+      android:layout_marginLeft="32dp"
+      android:layout_marginRight="32dp"
+      android:layout_marginTop="8dp"
+      android:gravity="center_horizontal"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="In order to run costam tutej prawda permission is bardzo needed i tam kliknij o tutej blebel ebineubeurbe be be be bebebebe bebe wielka polska surge polonia "
+      />
+
+
+</com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo>

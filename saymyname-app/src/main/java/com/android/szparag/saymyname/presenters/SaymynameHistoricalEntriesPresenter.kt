@@ -29,8 +29,4 @@ class SaymynameHistoricalEntriesPresenter(
   override fun onViewReady() {
 
   }
-
-  override fun subscribeViewUserEvents() {
-
-  }
 }

@@ -1,5 +1,7 @@
 package com.android.szparag.saymyname.views.contracts
 
+import com.android.szparag.saymyname.events.PermissionEvent
+import com.android.szparag.saymyname.presenters.Presenter.PermissionType
 import com.android.szparag.saymyname.views.activities.SaymynameBaseActivity
 import io.reactivex.Observable
 
@@ -7,6 +9,13 @@ import io.reactivex.Observable
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/3/2017.
  */
 interface View {
+
+  /**
+   * Collection of alert messages that can be rendered for the user in this app
+   */
+  enum class UserAlertMessage {
+    CAMERA_PERMISSION_ALERT
+  }
 
   /**
    * Perform additional logic if the View or it's Subviews require specific setup before usage.
@@ -31,5 +40,32 @@ interface View {
    * so that it can be used with non-Android based Presenters.
    */
   fun <A : SaymynameBaseActivity<*>> startActivity(targetActivityClass: Class<A>)
+
+  /**
+   * Checks whether permission(s) from PermissionType group are granted or not
+   * on this device.
+   */
+  fun checkPermissions(vararg permissions: PermissionType)
+
+  /**
+   * Requests permission(s) from PermissionType group.
+   */
+  fun requestPermissions(vararg permissions : PermissionType)
+
+  /**
+   * Returns stream of PermissionEvents informing about permission changes.
+   */
+  fun subscribeForPermissionsChange(): Observable<PermissionEvent>
+
+  /**
+   * Renders alert message for the user, based on collection of messages defined in
+   * the UserAlertMessage enum.
+   */
+  fun renderUserAlertMessage(userAlertMessage: UserAlertMessage)
+
+  /**
+   * Stops rendering current alert message
+   */
+  fun stopRenderUserAlertMessage()
 
 }

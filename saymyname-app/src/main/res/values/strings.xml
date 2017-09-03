@@ -4,4 +4,7 @@
   <string name="clarifai_api_key">@string/clarifai_api_key_secret</string>
   <string name="yandex_api_key">@string/yandex_api_key_secret</string>
   <string name="clarifai_model_id">@string/clarifai_model_id_secret</string>
+
+  <string name="dialog_alert_permission_camera">In order to take photos with the app, you must enable access to the camera.\n Navigate to the System Settings or just tap here</string>
+
 </resources>

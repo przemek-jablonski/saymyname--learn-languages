@@ -35,6 +35,8 @@ import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
+import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
+import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
@@ -56,6 +58,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
   val bottomSheetSinglePhotoDetails: View by bindView(R.id.layout_single_photo_details)
+  val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
   lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
   lateinit var gestureDetector: GestureDetectorCompat
 
@@ -69,6 +72,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_realtime_camera_preview)
   }
+
+
 
   override fun onStart() {
     super.onStart()
@@ -88,6 +93,9 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
         when (newState) {
           BottomSheetBehavior.STATE_COLLAPSED -> {
             logMethod("STATE_COLLAPSED")
+            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_alpha_light)
+            }
           }
           BottomSheetBehavior.STATE_SETTLING -> {
             logMethod("STATE_SETTLING")
@@ -350,5 +358,17 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun surfaceCreated(holder: SurfaceHolder?) {
     logMethod()
+  }
+
+  override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    when(userAlertMessage) {
+      UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
+        fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark, R.string.dialog_alert_permission_camera)
+      }
+    }
+  }
+
+  override fun stopRenderUserAlertMessage() {
+    fullscreenMessageInfo.hide()
   }
 }
