@@ -4,6 +4,7 @@ import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -28,6 +29,7 @@ abstract class BasePresenter<V : View> : Presenter<V> {
     viewDisposables = CompositeDisposable()
     modelDisposables = CompositeDisposable()
     subscribeViewReadyEvents()
+    subscribeViewMenuEvents()
   }
 
   private fun subscribeViewReadyEvents() {
@@ -37,6 +39,25 @@ abstract class BasePresenter<V : View> : Presenter<V> {
         ?.subscribeBy(
             onNext = { onViewReady() }
         )
+  }
+
+  private fun subscribeViewMenuEvents() {
+    view?.subscribeMenuItemClicked()
+        ?.ui()
+        ?.subscribeBy (
+            onNext = { menuOption ->
+              when(menuOption) {
+                SETTINGS -> { }
+                ACHIEVEMENTS -> {}
+                TUTORIAL -> {}
+                ABOUT -> {}
+                UPGRADE_DONATE -> {}
+                OPEN_SOURCE -> {}
+                HELP_FEEDBACK -> {}
+              }
+            }
+        )
+        .toViewDisposable()
   }
 
 

@@ -51,7 +51,7 @@ import javax.inject.Inject
 class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView, Callback {
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
-  val buttonHamburgerMenu: Button by bindView(R.id.button_menu_hamburger)
+  val buttonHamburgerMenu: AppCompatImageButton by bindView(R.id.button_menu_hamburger)
   val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
   val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
@@ -97,52 +97,33 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
               bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_alpha_light)
             }
           }
-          BottomSheetBehavior.STATE_SETTLING -> {
-            logMethod("STATE_SETTLING")
-          }
-          BottomSheetBehavior.STATE_HIDDEN -> {
-            logMethod("STATE_HIDDEN")
-          }
+          BottomSheetBehavior.STATE_SETTLING -> { logMethod("STATE_SETTLING") }
+          BottomSheetBehavior.STATE_HIDDEN -> { logMethod("STATE_HIDDEN") }
           BottomSheetBehavior.STATE_EXPANDED -> {
             logMethod("STATE_EXPANDED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
               bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_light)
             }
           }
-          BottomSheetBehavior.STATE_DRAGGING -> {
-            logMethod("STATE_DRAGGING")
-          }
+          BottomSheetBehavior.STATE_DRAGGING -> { logMethod("STATE_DRAGGING") }
         }
       }
 
     })
-
-
   }
 
-  override fun onTouchEvent(ev: MotionEvent?): Boolean {
-//    Log.d("MOTION", "motionEvent: ${ev?.action} ${ev?.}")
-    return super.onTouchEvent(ev)
-  }
 
   override fun bottomSheetPeek() {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
   override fun bottomSheetUnpeek() {
-    TODO(
-        "not implemented") //To change body of created functions use File | Settings | File Templates.
+
   }
 
   override fun onStop() {
     logMethod()
     presenter.detach()
     super.onStop()
-  }
-
-  fun startActivity() {
-    startActivity(Intent(applicationContext, RealtimeCameraPreviewActivity::class.java))
   }
 
   override fun onUserTakePictureButtonClicked(): Observable<Any> {
@@ -158,7 +139,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
-    return RxView.clicks(buttonHamburgerMenu)
+    return RxView.clicks(buttonHamburgerMenu).doOnNext({parentDrawerLayout.openDrawer(sideNavigationView)})
   }
 
   override fun onUserHistoricalEntriesClicked(): Observable<Any> {

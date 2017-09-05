@@ -12,6 +12,8 @@ import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.ACHIEVEMENTS
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.SETTINGS
 import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
@@ -148,6 +150,11 @@ class SaymynameRealtimeCameraPreviewPresenter(
                   "SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onError, throwable: ($it)")
             })
         .toViewDisposable()
+
+    view?.onUserHamburgerMenuClicked()
+        ?.ui()
+        ?.subscribe()
+        ?.toViewDisposable()
   }
 
   fun processCameraPictureEvents(cameraPictureEvent: CameraPictureEvent) {
