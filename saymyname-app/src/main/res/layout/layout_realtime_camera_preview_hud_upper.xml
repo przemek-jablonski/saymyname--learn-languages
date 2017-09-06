@@ -34,33 +34,45 @@
       android:orientation="horizontal"
       >
 
-    <Button
+    <Spinner
         android:id="@+id/button_switch_language"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1.25"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:gravity="center"
-        android:paddingLeft="@dimen/saymyname_dimen_small"
-        android:paddingRight="@dimen/saymyname_dimen_tiny"
-        android:text="lng"
         />
 
-    <Button
-        android:id="@+id/button_switch_model"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:gravity="center"
-        android:paddingLeft="@dimen/saymyname_dimen_tiny"
-        android:paddingRight="@dimen/saymyname_dimen_small"
-        android:text="modelmodel"
+    <Spinner
+    android:id="@+id/button_switch_model"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="2"
         />
+
+    <!--<Spinner-->
+        <!--android:id="@+id/button_switch_language"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1.25"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:clickable="true"-->
+        <!--android:foreground="?attr/selectableItemBackground"-->
+        <!--android:gravity="center"-->
+        <!--android:paddingLeft="@dimen/saymyname_dimen_small"-->
+        <!--android:paddingRight="@dimen/saymyname_dimen_tiny"-->
+        <!--/>-->
+
+    <!--<Spinner-->
+        <!--android:id="@+id/button_switch_model"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="2"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:clickable="true"-->
+        <!--android:foreground="?attr/selectableItemBackground"-->
+        <!--android:gravity="center"-->
+        <!--android:paddingLeft="@dimen/saymyname_dimen_tiny"-->
+        <!--android:paddingRight="@dimen/saymyname_dimen_small"-->
+        <!--/>-->
 
   </LinearLayout>
 

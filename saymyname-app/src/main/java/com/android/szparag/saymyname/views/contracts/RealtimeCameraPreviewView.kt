@@ -1,6 +1,7 @@
 package com.android.szparag.saymyname.views.contracts
 
 import com.android.szparag.saymyname.events.CameraPictureEvent
+import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent
 import io.reactivex.Completable
 import io.reactivex.Observable
 import java.util.Locale
@@ -14,8 +15,8 @@ interface RealtimeCameraPreviewView :
     TextToSpeechView {
 
   //user interface events:
-  fun onUserModelSwitchButtonClicked(): Observable<Any>
-  fun onUserModelSwitchLanguageClicked(): Observable<Any>
+  fun onUserModelSwitchButtonClicked(): Observable<String>
+  fun onUserLanguageSwitchClicked(): Observable<String>
   fun onUserHamburgerMenuClicked(): Observable<Any>
   fun onUserHistoricalEntriesClicked(): Observable<Any>
 

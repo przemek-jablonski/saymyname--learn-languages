@@ -16,4 +16,22 @@
   <string name="dialog_alert_permission_camera">In order to take photos with the app, you must enable access to the camera.\n Navigate to the System Settings or just tap here</string>
   <string name="dialog_alert_permission_storage">Storage permission is needed to save taken photos on your device,\n so that you can see previously taken photos.</string>
 
+
+  <!-- todo: what if user choses EN when their native language will be english alredy? -->
+  <!-- todo: if user is from GB, they should see GB flag instead of US and vice versa -->
+  <string-array name="spinner_lang_data">
+    <item>🇮🇹</item>
+    <item>🇪🇸</item>
+    <item>🇩🇪</item>
+    <item>🇺🇸</item>
+  </string-array>
+
+  <string-array name="spinner_model_data">
+    <item>General</item>
+    <item>Colours</item>
+    <item>Food</item>
+    <item>Travel</item>
+    <item>Clothing</item>
+  </string-array>
+
 </resources>

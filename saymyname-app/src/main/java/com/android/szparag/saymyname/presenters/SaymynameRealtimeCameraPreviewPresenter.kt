@@ -12,8 +12,6 @@ import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View
-import com.android.szparag.saymyname.views.contracts.View.MenuOption.ACHIEVEMENTS
-import com.android.szparag.saymyname.views.contracts.View.MenuOption.SETTINGS
 import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
@@ -122,7 +120,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onNext, selected: $it")
             },
             onComplete = {
               logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onComplete")
@@ -133,18 +131,18 @@ class SaymynameRealtimeCameraPreviewPresenter(
             })
         .toViewDisposable()
 
-    view?.onUserModelSwitchLanguageClicked()
+    view?.onUserLanguageSwitchClicked()
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onNext, selected: $it")
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onComplete")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onComplete")
             },
             onError = {
               logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onError, throwable: ($it)")
+                  "SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onError, throwable: ($it)")
             })
         .toViewDisposable()
 
@@ -152,7 +150,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchLanguageClicked: onNext")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onNext")
               view?.startActivity(HistoricalEntriesActivity::class.java)
             },
             onComplete = {

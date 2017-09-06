@@ -2,6 +2,10 @@
 
 package com.android.szparag.saymyname.utils
 
+import android.content.Context
+import android.support.annotation.ArrayRes
+import android.widget.ArrayAdapter
+import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse.PERMISSION_GRANTED
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse.PERMISSION_GRANTED_ALREADY
@@ -40,3 +44,8 @@ inline fun <T> Iterable<Iterable<T>?>.flatten(): MutableList <out T> {
 inline fun PermissionResponse.isGranted(): Boolean = this == PERMISSION_GRANTED || this == PERMISSION_GRANTED_ALREADY
 inline fun PermissionResponse.isNotGranted(): Boolean = !this.isGranted()
 
+inline fun Context.createArrayAdapter(@ArrayRes textArrayResId: Int): ArrayAdapter<CharSequence> {
+  return ArrayAdapter
+      .createFromResource(this, textArrayResId, android.R.layout.simple_spinner_item)
+      .apply { this.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+}

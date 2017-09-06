@@ -1,9 +1,6 @@
 package com.android.szparag.saymyname.views.activities
 
 
-import android.content.Intent
-import android.gesture.GestureOverlayView
-import android.gesture.GestureOverlayView.OnGestureListener
 import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
@@ -26,15 +23,15 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetBehavior.BottomSheetCallback
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageButton
-import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
 import android.view.View
-import android.widget.Button
+import android.widget.Adapter
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import com.android.szparag.saymyname.utils.createArrayAdapter
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
@@ -42,10 +39,10 @@ import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.annotations.CheckReturnValue
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
+import com.android.szparag.saymyname.utils.itemSelections
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
@@ -53,8 +50,10 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
   val buttonHamburgerMenu: AppCompatImageButton by bindView(R.id.button_menu_hamburger)
-  val buttonSwitchLanguage: Button by bindView(R.id.button_switch_language)
-  val buttonSwitchModel: Button by bindView(R.id.button_switch_model)
+  val spinnerSwitchLanguage: Spinner by bindView(R.id.button_switch_language)
+  lateinit var spinnerSwitchLanguageAdapter: ArrayAdapter<CharSequence>
+  val spinnerSwitchModel: Spinner by bindView(R.id.button_switch_model)
+  lateinit var spinnerSwitchModelAdapter: ArrayAdapter<CharSequence>
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
   val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
@@ -82,7 +81,10 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
 
-
+    spinnerSwitchLanguageAdapter = createArrayAdapter(R.array.spinner_lang_data)
+    spinnerSwitchModelAdapter= createArrayAdapter(R.array.spinner_model_data)
+    spinnerSwitchLanguage.adapter = spinnerSwitchLanguageAdapter
+    spinnerSwitchModel.adapter = spinnerSwitchModelAdapter
     bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(bottomSheetSinglePhotoDetails)
     bottomSheetBehavioursSinglePhotoDetails.isHideable = false
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
@@ -112,6 +114,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       }
 
     })
+
   }
 
 
@@ -127,7 +130,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun bottomSheetUnpeek() {
-
   }
 
   override fun onStop() {
@@ -140,12 +142,12 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     return RxView.clicks(buttonCameraShutter)
   }
 
-  override fun onUserModelSwitchButtonClicked(): Observable<Any> {
-    return RxView.clicks(buttonSwitchModel)
+  override fun onUserModelSwitchButtonClicked(): Observable<String> {
+    return itemSelections(spinnerSwitchModel)
   }
 
-  override fun onUserModelSwitchLanguageClicked(): Observable<Any> {
-    return RxView.clicks(buttonSwitchLanguage)
+  override fun onUserLanguageSwitchClicked(): Observable<String> {
+    return itemSelections(spinnerSwitchLanguage)
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {

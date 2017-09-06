@@ -1,17 +1,17 @@
 package com.android.szparag.saymyname.utils
 
+import android.widget.Adapter
+import android.widget.Spinner
+import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding2.widget.RxAdapterView
 import hu.akarnokd.rxjava.interop.RxJavaInterop
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
-import io.reactivex.CompletableSource
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.OnErrorNotImplementedException
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.Realm.Transaction
@@ -19,7 +19,6 @@ import io.realm.Realm.Transaction.OnError
 import io.realm.Realm.Transaction.OnSuccess
 import io.realm.RealmModel
 import io.realm.RealmResults
-import java.lang.Exception
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 07/08/2017.
@@ -95,6 +94,11 @@ fun Realm.executeTransactionAsyncBy(transaction: Transaction, onSuccess: OnSucce
 //    onComplete: () -> Unit = onCompleteStub
 //): Disposable = subscribe(onNext, onError, onComplete)
 
+
+fun itemSelections(view: Spinner): Observable<String> {
+  checkNotNull(view, {"view == null"})
+  return SpinnerSelectionObservable(view)
+}
 
 fun Completable.ui(): Completable {
   return this.subscribeOn(AndroidSchedulers.mainThread())
