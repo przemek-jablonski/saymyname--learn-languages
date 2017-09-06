@@ -11,9 +11,12 @@ interface Presenter<V : View> {
   /**
    * Permissions used by the application.
    */
-  enum class PermissionType {
+  enum class PermissionType() {
     CAMERA_PERMISSION,
-    STORAGE_ACCESS
+    STORAGE_ACCESS;
+    var permissionAskCount = -1
+
+    init { permissionAskCount += 1 }
   }
 
   /**

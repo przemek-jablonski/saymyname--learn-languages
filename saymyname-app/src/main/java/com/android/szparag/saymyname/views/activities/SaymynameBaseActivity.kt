@@ -14,6 +14,8 @@ import com.android.szparag.saymyname.events.PermissionEvent
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse
 import com.android.szparag.saymyname.presenters.Presenter
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType
+import com.android.szparag.saymyname.presenters.Presenter.PermissionType.CAMERA_PERMISSION
+import com.android.szparag.saymyname.presenters.Presenter.PermissionType.STORAGE_ACCESS
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.View
@@ -27,9 +29,7 @@ import com.android.szparag.saymyname.views.contracts.View.MenuOption.TUTORIAL
 import com.android.szparag.saymyname.views.contracts.View.MenuOption.UPGRADE_DONATE
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
-import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.ReplaySubject
 import io.reactivex.subjects.Subject
 
@@ -40,7 +40,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
 
   lateinit open var presenter: P
   val viewReadySubject: Subject<Boolean> = ReplaySubject.create()
-  val permissionsSubject: Subject<PermissionEvent> = PublishSubject.create()
+  val permissionsSubject: Subject<PermissionEvent> = ReplaySubject.create()
   internal val sideNavigationView: NavigationView by bindView(R.id.navigation_view)
   internal val parentDrawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
   private var defaultUserAlert: Snackbar? = null
@@ -89,15 +89,34 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override fun checkPermissions(vararg permissions: PermissionType) {
+    logMethod("permissions: $permissions")
     permissions.forEach {
       val permissionResponseInt = checkSelfPermission(permissionTypeToString(it))
-      permissionsSubject.onNext(
-          PermissionEvent(it, permissionResponseToType(permissionResponseInt)))
+      val permissionResponseToType = permissionResponseToType(permissionResponseInt)
+      val permissionEvent = PermissionEvent(it, permissionResponseToType)
+      permissionsSubject.onNext(permissionEvent)
     }
   }
 
   override fun requestPermissions(vararg permissions: PermissionType) {
-    //...todo
+    logMethod("permissions: $permissions")
+    requestPermissions(
+        permissions.map { permissionType -> permissionTypeToString(permissionType) }.toTypedArray(),
+        requestCode())
+  }
+
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+      grantResults: IntArray) {
+    logMethod("requestCode: $requestCode, permissions: $permissions, results: $grantResults")
+    if (requestCode == requestCode()) {
+      permissions.forEachIndexed { index, permissionString ->
+        permissionsSubject.onNext(
+            PermissionEvent(
+                permissionStringToType(permissionString),
+                permissionResponseToType(grantResults[index]))
+        )
+      }
+    }
   }
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
@@ -108,10 +127,17 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
             Snackbar.LENGTH_INDEFINITE)
         defaultUserAlert?.show()
       }
+      View.UserAlertMessage.STORAGE_PERMISSION_ALERT -> {
+        defaultUserAlert = Snackbar.make(window.decorView.rootView,
+            resources.getString(R.string.dialog_alert_permission_storage),
+            Snackbar.LENGTH_INDEFINITE)
+        defaultUserAlert?.show()
+      }
     }
   }
 
-  override fun stopRenderUserAlertMessage() {
+  override fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    //omitting userAlertMessage check, since Snackbars can be dismissed manually any time.
     defaultUserAlert?.dismiss()
   }
 
@@ -125,8 +151,20 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
         return Manifest.permission.CAMERA
       }
       Presenter.PermissionType.STORAGE_ACCESS -> {
-        return Manifest.permission_group.STORAGE
+        return Manifest.permission.WRITE_EXTERNAL_STORAGE
       }
+    }
+  }
+
+  private fun permissionStringToType(permissionString: String): PermissionType {
+    when (permissionString) {
+      Manifest.permission.CAMERA -> {
+        return CAMERA_PERMISSION
+      }
+      Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+        return STORAGE_ACCESS
+      }
+      else -> throw RuntimeException()
     }
   }
 
@@ -139,6 +177,10 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
         return PermissionResponse.PERMISSION_DENIED
       }
     }
+  }
+
+  private fun requestCode(): Int {
+    return Math.abs(this.packageName.hashCode())
   }
 
   private fun MenuItem.toMenuOption(): MenuOption {

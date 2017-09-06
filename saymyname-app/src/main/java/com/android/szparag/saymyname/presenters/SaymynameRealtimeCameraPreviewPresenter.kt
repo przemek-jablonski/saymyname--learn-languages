@@ -30,7 +30,6 @@ class SaymynameRealtimeCameraPreviewPresenter(
   override fun onAttached() {
     super.onAttached()
     subscribeViewPermissionsEvents()
-    view?.checkPermissions(CAMERA_PERMISSION, STORAGE_ACCESS)
     subscribeModelEvents()
   }
 
@@ -57,25 +56,37 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
   fun subscribeViewPermissionsEvents() {
-    view?.subscribeForPermissionsChange()?.ui()?.subscribeBy(
+    view?.subscribeForPermissionsChange()
+        ?.doOnSubscribe {
+          logMethod("subscribeViewPermissionsEvents.sub")
+          view?.checkPermissions(CAMERA_PERMISSION, STORAGE_ACCESS)
+        }
+        ?.ui()
+        ?.subscribeBy(
         onNext = { permissionEvent ->
           logMethod("subscribeViewPermissionsEvents.onNext, ev: $permissionEvent")
           when (permissionEvent.permissionType) {
             Presenter.PermissionType.CAMERA_PERMISSION -> {
               if (permissionEvent.permissionResponse.isNotGranted()) {
                 view?.renderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
+                if (Presenter.PermissionType.CAMERA_PERMISSION.permissionAskCount == 0) view?.requestPermissions(Presenter.PermissionType.CAMERA_PERMISSION)
+              } else {
+                view?.stopRenderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
               }
             }
-            Presenter.PermissionType.STORAGE_ACCESS -> { }
+            Presenter.PermissionType.STORAGE_ACCESS -> {
+              if (permissionEvent.permissionResponse.isNotGranted()) {
+                view?.renderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
+                if (Presenter.PermissionType.STORAGE_ACCESS.permissionAskCount == 0) view?.requestPermissions(Presenter.PermissionType.STORAGE_ACCESS)
+              } else {
+                view?.stopRenderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
+              }
+            }
           }
         },
-        onError = {
-          logMethod("subscribeViewPermissionsEvents.onError, exc: $it")
-        },
-        onComplete = {
-          logMethod("subscribeViewPermissionsEvents.onComplete")
-        }
-    ).toViewDisposable()
+        onError = { logMethod("subscribeViewPermissionsEvents.onError, exc: $it") },
+        onComplete = { logMethod("subscribeViewPermissionsEvents.onComplete") })
+        .toViewDisposable()
   }
 
   @Suppress("NON_EXHAUSTIVE_WHEN")

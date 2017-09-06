@@ -17,7 +17,8 @@ interface View {
   enum class UserAlertMessage {
     CAMERA_PERMISSION_ALERT,
     INTERNET_CONNECTION_NOT_AVAILABLE,
-    INTERNET_CONNECTION_WEAK
+    INTERNET_CONNECTION_WEAK,
+    STORAGE_PERMISSION_ALERT
   }
 
   /**
@@ -83,7 +84,7 @@ interface View {
   /**
    *  Stops rendering current alert message
    */
-  fun stopRenderUserAlertMessage()
+  fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage)
 
   fun subscribeMenuItemClicked(): Observable<MenuOption>
 

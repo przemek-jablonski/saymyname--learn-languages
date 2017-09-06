@@ -59,6 +59,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
   val bottomSheetSinglePhotoDetails: View by bindView(R.id.layout_single_photo_details)
   val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
+  var fullscreenMessageType: UserAlertMessage? = null
   lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
   lateinit var gestureDetector: GestureDetectorCompat
 
@@ -342,14 +343,22 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
-    when(userAlertMessage) {
+    when (userAlertMessage) {
       UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
-        fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark, R.string.dialog_alert_permission_camera)
+        fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark,
+            R.string.dialog_alert_permission_camera)
+        fullscreenMessageType = UserAlertMessage.CAMERA_PERMISSION_ALERT
+      }
+      UserAlertMessage.STORAGE_PERMISSION_ALERT -> {
+        fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark,
+            R.string.dialog_alert_permission_storage)
+        fullscreenMessageType = UserAlertMessage.STORAGE_PERMISSION_ALERT
       }
     }
   }
 
-  override fun stopRenderUserAlertMessage() {
-    fullscreenMessageInfo.hide()
+  override fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    if (fullscreenMessageType == userAlertMessage)
+      fullscreenMessageInfo.hide()
   }
 }

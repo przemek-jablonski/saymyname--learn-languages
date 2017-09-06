@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.presenters
 
 import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.utils.add
+import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
 import com.android.szparag.saymyname.views.contracts.View.MenuOption.*
@@ -35,9 +36,13 @@ abstract class BasePresenter<V : View> : Presenter<V> {
   private fun subscribeViewReadyEvents() {
     view?.onViewReady()
         ?.ui()
+        ?.doOnSubscribe { logMethod("subscribeViewReadyEvents.sub") }
         ?.filter { readyFlag -> readyFlag }
         ?.subscribeBy(
-            onNext = { onViewReady() }
+            onNext = {
+              logMethod("subscribeViewReadyEvents.onNext")
+              onViewReady()
+            }
         )
   }
 
