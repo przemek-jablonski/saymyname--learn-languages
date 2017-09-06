@@ -27,6 +27,7 @@ class HistoricalEntriesActivity : SaymynameBaseActivity<HistoricalEntriesPresent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    overridePendingTransition(R.anim.transition_right_left, R.anim.transition_left_right)
     setContentView(R.layout.activity_historical_entries)
   }
 
