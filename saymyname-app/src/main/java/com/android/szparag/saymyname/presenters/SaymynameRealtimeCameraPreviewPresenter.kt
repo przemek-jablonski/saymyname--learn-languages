@@ -25,6 +25,10 @@ class SaymynameRealtimeCameraPreviewPresenter(
     override val model: RealtimeCameraPreviewModel
 ) : BasePresenter<RealtimeCameraPreviewView>(), RealtimeCameraPreviewPresenter {
 
+  private lateinit var currentImageRecognitionModel: String
+  private var nativeLanguageCode: String = "en"
+  private lateinit var currentForeignLanguageString: String
+
   override fun onAttached() {
     super.onAttached()
     subscribeViewPermissionsEvents()
@@ -42,7 +46,8 @@ class SaymynameRealtimeCameraPreviewPresenter(
               subscribeNewWords()
               initializeTextToSpeechClient(Locale.UK)
             },
-            onError = { logMethod("ONATTACHED.onError(), $it") })
+            onError = { logMethod("ONATTACHED.onError(), $it")
+              it.printStackTrace() })
         .toModelDisposable()
   }
 
@@ -102,8 +107,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
           }?.subscribeOn(Schedulers.computation())
         }
         ?.flatMapCompletable { pictureEvent ->
-          model.requestImageProcessingWithTranslation("aaa03c23b3724a16a56b629203edc62c",
-              pictureEvent.cameraImageBytes, -1, -1, "en-it")
+          model.requestImageProcessingWithTranslation(currentImageRecognitionModel, pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
         }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
@@ -113,6 +117,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
             onError = {
               logMethodError(
                   "SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)")
+              it.printStackTrace()
             })
         .toViewDisposable()
 
@@ -120,14 +125,16 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onNext, selected: $it")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onNext, selected: $it")
+              currentImageRecognitionModel = it
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onComplete")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onComplete")
             },
             onError = {
               logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserModelSwitchButtonClicked: onError, throwable: ($it)")
+                  "SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onError, throwable: ($it)")
+              it.printStackTrace()
             })
         .toViewDisposable()
 
@@ -135,14 +142,16 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onNext, selected: $it")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onNext, selected: $it")
+              currentForeignLanguageString = it
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onComplete")
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onComplete")
             },
             onError = {
               logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onError, throwable: ($it)")
+                  "SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onError, throwable: ($it)")
+              it.printStackTrace()
             })
         .toViewDisposable()
 
@@ -159,6 +168,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
             onError = {
               logMethodError(
                   "SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onError, throwable: ($it)")
+              it.printStackTrace()
             })
         .toViewDisposable()
 
@@ -187,7 +197,8 @@ class SaymynameRealtimeCameraPreviewPresenter(
                 )
               }
             },
-            onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it") },
+            onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it")
+              it.printStackTrace() },
             onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") })
         .toModelDisposable()
   }
@@ -213,6 +224,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
 
   override fun onCameraSetupFailed(exc: Throwable) {
     logMethodError("onCameraSetupFailed, $exc")
+    exc.printStackTrace()
   }
 
   override fun initializeTextToSpeechClient(locale: Locale) {

@@ -48,7 +48,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
     }
   }
 
-  override fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String,
+  override fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String,
       wordsOriginal: List<String>, wordsTranslated: List<String>): Completable {
     return Completable.fromAction {
       realm.executeTransaction { realm ->
