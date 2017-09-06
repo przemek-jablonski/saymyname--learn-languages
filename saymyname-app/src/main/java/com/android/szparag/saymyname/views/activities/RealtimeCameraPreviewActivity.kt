@@ -84,7 +84,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
     bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(bottomSheetSinglePhotoDetails)
     bottomSheetBehavioursSinglePhotoDetails.isHideable = false
-    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
+    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
     bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object: BottomSheetCallback() {
       override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
@@ -115,6 +115,11 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
 
   override fun bottomSheetPeek() {
+    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
+  }
+
+  override fun bottomSheetFillData() {
+
   }
 
   override fun bottomSheetUnpeek() {

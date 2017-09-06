@@ -180,6 +180,8 @@ class SaymynameRealtimeCameraPreviewPresenter(
               logMethod("OBSERVENEWWORDS.onNext, image: $image")
               view?.renderNonTranslatedWords(image.getNonTranslatedWords())
               view?.renderTranslatedWords(image.getTranslatedWords())
+              view?.bottomSheetPeek()
+              view?.bottomSheetFillData()
             },
             onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it") },
             onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") })
