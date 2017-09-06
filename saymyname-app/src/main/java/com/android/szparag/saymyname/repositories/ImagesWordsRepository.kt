@@ -16,7 +16,7 @@ interface ImagesWordsRepository {
 
   fun detach(): Completable
 
-  fun pushImage(imageBase64: ByteArray, languageFrom: Int, languageTo: Int, model: String, wordsOriginal: List<String>, wordsTranslated: List<String>) : Completable
+  fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String, wordsOriginal: List<String>, wordsTranslated: List<String>) : Completable
 
   fun fetchAllImages(): Flowable<List<Image>>
 

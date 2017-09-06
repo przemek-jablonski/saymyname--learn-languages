@@ -6,7 +6,9 @@ import android.speech.tts.TextToSpeech
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.models.SaymynameRealtimeCameraPreviewModel
+import com.android.szparag.saymyname.presenters.HistoricalEntriesPresenter
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
+import com.android.szparag.saymyname.presenters.SaymynameHistoricalEntriesPresenter
 import com.android.szparag.saymyname.presenters.SaymynameRealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.repositories.SaymynameImagesWordsRepository
@@ -43,6 +45,10 @@ import javax.inject.Singleton
   @Provides fun provideRealtimeCameraPresenter(
       realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter {
     return SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
+  }
+
+  @Provides fun provideHistoricalEntriesPresenter(repository: ImagesWordsRepository): HistoricalEntriesPresenter {
+    return SaymynameHistoricalEntriesPresenter(repository)
   }
 
   @Provides @Singleton fun provideImageRecognitionNetworkService(

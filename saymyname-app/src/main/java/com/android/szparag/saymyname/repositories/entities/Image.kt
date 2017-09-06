@@ -14,12 +14,12 @@ open class Image(
     @Index var dateTime: Long = -1,
     var imageBase64: ByteArray? = null,
     var words: RealmList<Word> = RealmList(),
-    var languageFrom: Int? = null,
-    var languageTo: Int? = null,
+    var languageFrom: String? = null,
+    var languageTo: String? = null,
     var model: String? = null
 ) : RealmObject() {
 
-  fun set(dateTime: Long, imageBase64: ByteArray?, languageFrom: Int?, languageTo: Int?, model: String?): Image {
+  fun set(dateTime: Long, imageBase64: ByteArray?, languageFrom: String?, languageTo: String?, model: String?): Image {
     this.dateTime = dateTime
     this.imageBase64 = imageBase64
     this.languageFrom = languageFrom

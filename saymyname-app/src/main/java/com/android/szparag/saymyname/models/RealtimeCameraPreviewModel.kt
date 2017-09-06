@@ -36,9 +36,8 @@ interface RealtimeCameraPreviewModel {
 
   //  //todo: change arguments order so that they match rest of the model (like in SMNRealtimeCameraPreviewModel)
   fun requestImageProcessingWithTranslation(
-      modelId: String,
+      modelString: String,
       imageByteArray: ByteArray?,
-      languageTo: Int, languageFrom: Int,
-      languagePair: String): Completable
+      languageFromCode: String, languageToString: String): Completable
 
 }

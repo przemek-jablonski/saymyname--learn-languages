@@ -1,7 +1,37 @@
 <resources>
   <string name="app_name">Saymyname</string>
+
   <string name="action_settings">Settings</string>
+  <string name="action_achievements">Achievements</string>
+  <string name="action_tutorial">Tutorial</string>
+  <string name="action_upgradedonate">Upgrade / Donate</string>
+  <string name="action_opensource">Open Source</string>
+  <string name="action_about">About</string>
+  <string name="action_helpfeedback">Help &amp; Feedback</string>
+
   <string name="clarifai_api_key">@string/clarifai_api_key_secret</string>
   <string name="yandex_api_key">@string/yandex_api_key_secret</string>
   <string name="clarifai_model_id">@string/clarifai_model_id_secret</string>
+
+  <string name="dialog_alert_permission_camera">In order to take photos with the app, you must enable access to the camera.\n Navigate to the System Settings or just tap here</string>
+  <string name="dialog_alert_permission_storage">Storage permission is needed to save taken photos on your device,\n so that you can see previously taken photos.</string>
+
+
+  <!-- todo: what if user choses EN when their native language will be english alredy? -->
+  <!-- todo: if user is from GB, they should see GB flag instead of US and vice versa -->
+  <string-array name="spinner_lang_data">
+    <item>🇮🇹</item>
+    <item>🇪🇸</item>
+    <item>🇩🇪</item>
+    <item>🇺🇸</item>
+  </string-array>
+
+  <string-array name="spinner_model_data">
+    <item>General</item>
+    <item>Colours</item>
+    <item>Food</item>
+    <item>Travel</item>
+    <item>Clothing</item>
+  </string-array>
+
 </resources>
