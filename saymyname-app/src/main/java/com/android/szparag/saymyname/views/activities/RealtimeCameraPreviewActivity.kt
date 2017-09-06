@@ -246,10 +246,12 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun renderLoadingAnimation() {
     logMethod()
+    floatingWordsView.renderLoadingHalo()
   }
 
   override fun stopRenderingLoadingAnimation() {
     logMethod()
+    floatingWordsView.stopRenderingLoadingHalo()
   }
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
@@ -372,4 +374,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     if (fullscreenMessageType == userAlertMessage)
       fullscreenMessageInfo.hide()
   }
+
+
 }

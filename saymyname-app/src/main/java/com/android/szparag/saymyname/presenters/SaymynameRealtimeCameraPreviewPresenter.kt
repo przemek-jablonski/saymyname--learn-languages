@@ -98,6 +98,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
   fun subscribeViewUserEvents() {
     view?.onUserTakePictureButtonClicked()
         ?.ui()
+        ?.doOnNext { view?.renderLoadingAnimation() }
         ?.flatMap { view?.takePicture()?.ui() }
         ?.doOnNext { this::processCameraPictureEvents }
         ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
@@ -109,12 +110,15 @@ class SaymynameRealtimeCameraPreviewPresenter(
         ?.flatMapCompletable { pictureEvent ->
           model.requestImageProcessingWithTranslation(currentImageRecognitionModel, pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
         }
+        ?.doFinally { view?.stopRenderingLoadingAnimation() }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
             onComplete = {
+              view?.stopRenderingLoadingAnimation()
               logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onComplete")
             },
             onError = {
+              view?.stopRenderingLoadingAnimation()
               logMethodError(
                   "SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)")
               it.printStackTrace()

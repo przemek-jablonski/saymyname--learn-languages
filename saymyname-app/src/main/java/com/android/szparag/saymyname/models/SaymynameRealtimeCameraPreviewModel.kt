@@ -8,6 +8,7 @@ import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitio
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.*
+import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -47,11 +48,11 @@ class SaymynameRealtimeCameraPreviewModel(
   override fun requestImageProcessingWithTranslation(
       modelString: String,
       imageByteArray: ByteArray?,
-      languageFromCode: String, languageToString: String)
-      : Completable {
+      languageFromCode: String, languageToString: String): Completable {
     imageByteArray ?: throw Throwable()
     val modelType = modelStringToType(modelString)
     val languageToType = languageStringToType(languageToString)
+    logMethod("modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")
     return imageRecognitionService
         .requestImageProcessing(modelType.modelId, imageByteArray)
         .observeOn(Schedulers.io())
@@ -59,18 +60,11 @@ class SaymynameRealtimeCameraPreviewModel(
           concepts.map { concept -> concept.name }.subList(0, 3)
         }
         .flatMap { concepts ->
-          translationService.requestTextTranslation(
-              concepts,
-              languageCodesToPair(languageFromCode, languageToType.languageCode))
+          translationService.requestTextTranslation(concepts, languageCodesToPair(languageFromCode, languageToType.languageCode))
         }
         .observeOn(AndroidSchedulers.mainThread())
         .flatMapCompletable { words ->
-          repository.pushImage(
-              imageByteArray,
-              languageToString, languageToType.languageCode,
-              modelType.modelString,
-              words.map { (first) -> first },
-              words.map { words -> words.second })
+          repository.pushImage(imageByteArray, languageToString, languageToType.languageCode, modelType.modelString, words.map { (first) -> first }, words.map { words -> words.second })
         }
   }
 
