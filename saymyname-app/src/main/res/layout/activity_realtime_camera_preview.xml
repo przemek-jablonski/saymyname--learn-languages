@@ -1,47 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
-  <include
-      layout="@layout/layout_realtime_camera_preview_surface"
+  <android.support.design.widget.CoordinatorLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      />
-
-  <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:orientation="vertical"
       >
+
     <include
-        layout="@layout/layout_realtime_camera_preview_hud_upper"
+        layout="@layout/layout_realtime_camera_preview_surface"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_height="match_parent"
+        />
+
+    <include
+        layout="@layout/layout_fullscreen_message_info"
+        android:id="@+id/fullscreen_message_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+      <include
+          layout="@layout/layout_realtime_camera_preview_hud_upper"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="4"
+          />
+
+
+      <include
+          layout="@layout/view_floating_words"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="9"
+          />
+
+
+      <include
+          layout="@layout/layout_realtime_camera_preview_hud_lower"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="4"
+          />
+
+    </LinearLayout>
+
+    <include
+      layout="@layout/layout_single_photo_details"
+        android:layout_width="match_parent"
+        android:layout_height="487dp"
+        android:animateLayoutChanges="true"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
         />
 
 
-    <include
-        layout="@layout/view_floating_words"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="9"
-        />
+  </android.support.design.widget.CoordinatorLayout>
 
+  <android.support.design.widget.NavigationView
+      android:id="@+id/navigation_view"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="start"
+      app:elevation="6dp"
+      app:menu="@menu/menu_main"
+      />
+  <!--app:headerLayout="@layout/header"-->
 
-    <include
-        layout="@layout/layout_realtime_camera_preview_hud_lower"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        />
-
-  </LinearLayout>
-
-
-
-
-</FrameLayout>
+</android.support.v4.widget.DrawerLayout>

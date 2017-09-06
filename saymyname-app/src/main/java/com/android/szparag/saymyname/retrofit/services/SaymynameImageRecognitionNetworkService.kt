@@ -4,9 +4,10 @@ import com.android.szparag.saymyname.retrofit.apis.ApiImageRecognitionClarifai
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictRequest
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel
 import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.single
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 
 /**
@@ -26,14 +27,14 @@ class SaymynameImageRecognitionNetworkService(
   }
 
 
-  override fun requestImageProcessing(model: String, image: ByteArray): Observable<List<Concept>> {
-    logMethod()
+  override fun requestImageProcessing(modelId: String, image: ByteArray): Observable<List<Concept>> {
+    logMethod("modelId: $modelId")
+    if (modelId == ImageRecognitionModel.COLOURS.modelId) throw RuntimeException("Colours model is not available atm (different json structure)")
     return networkApiClient.processImageByModel(
         key = AUTHORIZATION_KEY_PREFIX + NETWORK_SERVICE_API_KEY,
-        modelId = model,
-        imagePredictRequest = ImagePredictRequest(image)
-    )
-        .subscribeOn(Schedulers.single())
+        modelId = modelId,
+        imagePredictRequest = ImagePredictRequest(image))
+        .single()
         .map { response -> response.outputs.map { output -> output.dataOutput.concepts }.flatten() }
   }
 

@@ -3,6 +3,8 @@
   <!-- specifics -->
   <!-- overlay interface (hud) -->
   <dimen name="hud_margin_vertical_big">@dimen/saymyname_dimen_big</dimen>
+  <dimen name="hud_margin_uniform_tiny">@dimen/saymyname_dimen_tiny</dimen>
+  <dimen name="hud_margin_uniform_small">@dimen/saymyname_dimen_small</dimen>
   <dimen name="hud_margin_uniform_normal">@dimen/saymyname_dimen_normal</dimen>
   <dimen name="hud_margin_uniform_big">@dimen/saymyname_dimen_big</dimen>
   <dimen name="hud_shutter_size">@dimen/saymyname_dimen_huge</dimen>
