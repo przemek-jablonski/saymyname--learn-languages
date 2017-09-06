@@ -37,6 +37,7 @@ import android.view.View
 import android.widget.Button
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
+import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
@@ -57,7 +58,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
   val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
   val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
-  val bottomSheetSinglePhotoDetails: View by bindView(R.id.layout_single_photo_details)
+  val bottomSheetSinglePhotoDetails: BottomSheetSinglePhotoDetails by bindView(R.id.layout_single_photo_details)
   val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
   var fullscreenMessageType: UserAlertMessage? = null
   lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
@@ -118,8 +119,11 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
   }
 
-  override fun bottomSheetFillData() {
-
+  override fun bottomSheetFillData(imageBytes: ByteArray,
+      textsOriginal: List<String>,
+      textsTranslated: List<String>,
+      dateTime: Long) {
+    bottomSheetSinglePhotoDetails.setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
   }
 
   override fun bottomSheetUnpeek() {

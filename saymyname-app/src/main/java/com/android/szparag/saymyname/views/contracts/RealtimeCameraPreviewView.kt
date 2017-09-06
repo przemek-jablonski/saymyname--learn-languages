@@ -25,7 +25,7 @@ interface RealtimeCameraPreviewView :
 
   //bottomsheet behaviour:
   fun bottomSheetPeek()
-  fun bottomSheetFillData()
+  fun bottomSheetFillData(imageBytes: ByteArray, textsOriginal: List<String>, textsTranslated: List<String>, dateTime: Long)
   fun bottomSheetUnpeek()
 
   //camera parallax fx:

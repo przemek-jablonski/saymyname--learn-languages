@@ -63,29 +63,31 @@ class SaymynameRealtimeCameraPreviewPresenter(
         }
         ?.ui()
         ?.subscribeBy(
-        onNext = { permissionEvent ->
-          logMethod("subscribeViewPermissionsEvents.onNext, ev: $permissionEvent")
-          when (permissionEvent.permissionType) {
-            Presenter.PermissionType.CAMERA_PERMISSION -> {
-              if (permissionEvent.permissionResponse.isNotGranted()) {
-                view?.renderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
-                if (Presenter.PermissionType.CAMERA_PERMISSION.permissionAskCount == 0) view?.requestPermissions(Presenter.PermissionType.CAMERA_PERMISSION)
-              } else {
-                view?.stopRenderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
+            onNext = { permissionEvent ->
+              logMethod("subscribeViewPermissionsEvents.onNext, ev: $permissionEvent")
+              when (permissionEvent.permissionType) {
+                Presenter.PermissionType.CAMERA_PERMISSION -> {
+                  if (permissionEvent.permissionResponse.isNotGranted()) {
+                    view?.renderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
+                    if (Presenter.PermissionType.CAMERA_PERMISSION.permissionAskCount == 0) view?.requestPermissions(
+                        Presenter.PermissionType.CAMERA_PERMISSION)
+                  } else {
+                    view?.stopRenderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
+                  }
+                }
+                Presenter.PermissionType.STORAGE_ACCESS -> {
+                  if (permissionEvent.permissionResponse.isNotGranted()) {
+                    view?.renderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
+                    if (Presenter.PermissionType.STORAGE_ACCESS.permissionAskCount == 0) view?.requestPermissions(
+                        Presenter.PermissionType.STORAGE_ACCESS)
+                  } else {
+                    view?.stopRenderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
+                  }
+                }
               }
-            }
-            Presenter.PermissionType.STORAGE_ACCESS -> {
-              if (permissionEvent.permissionResponse.isNotGranted()) {
-                view?.renderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
-                if (Presenter.PermissionType.STORAGE_ACCESS.permissionAskCount == 0) view?.requestPermissions(Presenter.PermissionType.STORAGE_ACCESS)
-              } else {
-                view?.stopRenderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
-              }
-            }
-          }
-        },
-        onError = { logMethod("subscribeViewPermissionsEvents.onError, exc: $it") },
-        onComplete = { logMethod("subscribeViewPermissionsEvents.onComplete") })
+            },
+            onError = { logMethod("subscribeViewPermissionsEvents.onError, exc: $it") },
+            onComplete = { logMethod("subscribeViewPermissionsEvents.onComplete") })
         .toViewDisposable()
   }
 
@@ -181,7 +183,11 @@ class SaymynameRealtimeCameraPreviewPresenter(
               view?.renderNonTranslatedWords(image.getNonTranslatedWords())
               view?.renderTranslatedWords(image.getTranslatedWords())
               view?.bottomSheetPeek()
-              view?.bottomSheetFillData()
+              image.imageBase64?.let {
+                view?.bottomSheetFillData(
+                    it, image.getNonTranslatedWords(), image.getTranslatedWords(), image.dateTime
+                )
+              }
             },
             onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it") },
             onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") })
