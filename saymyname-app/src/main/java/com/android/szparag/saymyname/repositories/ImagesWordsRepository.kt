@@ -1,7 +1,6 @@
 package com.android.szparag.saymyname.repositories
 
 import com.android.szparag.saymyname.repositories.entities.Image
-import com.android.szparag.saymyname.repositories.entities.Word
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -16,7 +15,7 @@ interface ImagesWordsRepository {
 
   fun detach(): Completable
 
-  fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String, wordsOriginal: List<String>, wordsTranslated: List<String>) : Completable
+  fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String, wordsOriginal: List<String>, wordsTranslated: List<String>): Observable<Image>
 
   fun fetchAllImages(): Flowable<List<Image>>
 

@@ -5,6 +5,7 @@ import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEven
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.CAMERA_PERMISSION
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.STORAGE_ACCESS
+import com.android.szparag.saymyname.utils.computation
 import com.android.szparag.saymyname.utils.isNotGranted
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.logMethodError
@@ -98,25 +99,29 @@ class SaymynameRealtimeCameraPreviewPresenter(
   fun subscribeViewUserEvents() {
     view?.onUserTakePictureButtonClicked()
         ?.ui()
+        ?.doOnNext { view?.renderLoadingAnimation() }
         ?.flatMap { view?.takePicture()?.ui() }
         ?.doOnNext { this::processCameraPictureEvents }
         ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
         ?.flatMap {
           it.cameraImageBytes?.let { bytes ->
             view?.scaleCompressEncodePictureByteArray(bytes)
-          }?.subscribeOn(Schedulers.computation())
+          }?.computation()
         }
-        ?.flatMapCompletable { pictureEvent ->
+        ?.flatMap { pictureEvent ->
           model.requestImageProcessingWithTranslation(currentImageRecognitionModel, pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
         }
+        ?.doFinally { view?.stopRenderingLoadingAnimation() }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
+            onNext = {
+              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onNext")
+            },
             onComplete = {
               logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onComplete")
             },
             onError = {
-              logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)")
+              logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)")
               it.printStackTrace()
             })
         .toViewDisposable()

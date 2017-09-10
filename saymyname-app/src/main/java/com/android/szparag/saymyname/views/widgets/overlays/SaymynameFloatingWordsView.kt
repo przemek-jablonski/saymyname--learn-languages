@@ -7,25 +7,17 @@ import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation.INFINITE
-import android.view.animation.Animation.REVERSE
-import android.view.animation.AnimationUtils
-import android.view.animation.AnticipateInterpolator
-import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import com.android.szparag.saymyname.R
+import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.bindViews
 import com.android.szparag.saymyname.utils.fadeIn
-import com.android.szparag.saymyname.utils.fadeInTranslate
 import com.android.szparag.saymyname.utils.fadeOut
 import com.android.szparag.saymyname.utils.getBoundingBox
 import com.android.szparag.saymyname.utils.getBoundingBoxSpread
 import com.android.szparag.saymyname.utils.getCoordinatesCenter
 import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.min
-import com.android.szparag.saymyname.utils.nextFloat
-import com.android.szparag.saymyname.utils.setCoordinatesCenter
-import com.android.szparag.saymyname.utils.setCoordinatesCenterNoclip
 import com.android.szparag.saymyname.views.widgets.FloatingWordTextView
 import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
 import java.util.Random
@@ -37,26 +29,26 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
 
-  val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
-  val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
-  val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
-
-  val auxiliaryWordsViews: List<FloatingWordTextView> by bindViews(
+  private val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
+  private val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
+  private val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
+  private val loadingHaloContainer: View by bindView(R.id.view_loading_halo_container)
+  private var viewCenter: Point? = null
+  private var viewBoundingBox: Rect? = null
+  private var viewBoundingBoxSpawnSpread: Pair<Int, Int>? = null
+  private lateinit var random: Random
+  private val auxiliaryWordsViews: List<FloatingWordTextView> by bindViews(
       R.id.textview_word_auxilliary_1,
       R.id.textview_word_auxilliary_2,
       R.id.textview_word_auxilliary_3
   )
-  val primaryWordsViews: List<FloatingWordTextView> by bindViews(
+  private val primaryWordsViews: List<FloatingWordTextView> by bindViews(
       R.id.textview_word_primary_1,
       R.id.textview_word_primary_2,
       R.id.textview_word_primary_3
   )
 
-  var viewCenter: Point? = null
-  var viewBoundingBox: Rect? = null
-  var viewBoundingBoxSpawnSpread: Pair<Int, Int>? = null
 
-  lateinit var random: Random
 
 
   override fun onFinishInflate() {
@@ -183,7 +175,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
 //            it.setCoordinatesCenterNoclip(coordX, coordY)
           },
           animationEndCallback = {
-//            val anim = TranslateAnimation(-10 * random.nextFloat(0.5f, 10f), 10 * random.nextFloat(0.5f, 20f), -1f, 1f)
+            //            val anim = TranslateAnimation(-10 * random.nextFloat(0.5f, 10f), 10 * random.nextFloat(0.5f, 20f), -1f, 1f)
 //            anim.repeatMode = REVERSE
 //            anim.repeatCount = INFINITE
 //            anim.interpolator = AnticipateInterpolator(random.nextFloat(0.5f, 2.0f))
@@ -194,12 +186,25 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
     }
   }
 
+
+  override fun renderLoadingHalo() {
+    loadingHaloContainer.visibility = View.VISIBLE
+  }
+
+  override fun stopRenderingLoadingHalo() {
+    loadingHaloContainer.visibility = View.GONE
+  }
+
   override fun clearAuxillaryWords() {
-    auxiliaryWordsViews.forEach { it.fadeOut(animationStartCallback = {}, animationEndCallback = {})}
+    auxiliaryWordsViews.forEach {
+      it.fadeOut(animationStartCallback = {}, animationEndCallback = {})
+    }
   }
 
   override fun clearPrimaryWords() {
-    primaryWordsViews.forEach { it.fadeOut(durationMillis = 1350, animationStartCallback = {}, animationEndCallback = {}) }
+    primaryWordsViews.forEach {
+      it.fadeOut(durationMillis = 1350, animationStartCallback = {}, animationEndCallback = {})
+    }
   }
 
   override fun clearWords() {
