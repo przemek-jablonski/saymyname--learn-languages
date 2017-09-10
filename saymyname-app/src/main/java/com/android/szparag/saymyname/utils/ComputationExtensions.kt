@@ -7,7 +7,6 @@ import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.support.annotation.ArrayRes
 import android.widget.ArrayAdapter
-import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse.PERMISSION_GRANTED
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse.PERMISSION_GRANTED_ALREADY
@@ -30,6 +29,24 @@ inline fun getCameraHardwareInfo(cameraId: Int = 0): CameraInfo {
   Camera.getCameraInfo(cameraId, info)
   logMethod(", cameraInfo: $info (for cameraId: $cameraId)")
   return info
+}
+
+@Throws inline fun Camera?.configureFocusMode(vararg focusModes: String = arrayOf(
+    Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE,
+    Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
+    Camera.Parameters.FOCUS_MODE_EDOF,
+    Camera.Parameters.FOCUS_MODE_AUTO)) {
+  logMethod(", focusModes: $focusModes, cameraInstance: $this")
+  checkNotNull(this, { throw ERROR_CAMERA_CONFIGURATION_NULL })
+  val parameters = this!!.parameters
+  val supportedFocusModes = parameters.supportedFocusModes
+  focusModes.forEach {
+    if (supportedFocusModes.contains(it)) {
+      parameters.focusMode = it
+      this.parameters = parameters
+      return
+    }
+  }
 }
 
 inline fun Int.max(otherNumber: Int): Int {

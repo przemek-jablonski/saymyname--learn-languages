@@ -30,6 +30,7 @@ import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
 import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
 import com.android.szparag.saymyname.utils.bindView
+import com.android.szparag.saymyname.utils.configureFocusMode
 import com.android.szparag.saymyname.utils.createArrayAdapter
 import com.android.szparag.saymyname.utils.getCameraHardwareInfo
 import com.android.szparag.saymyname.utils.itemSelections
@@ -203,7 +204,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
         cameraInstance?.let {
           it.setPreviewDisplay(cameraSurfaceView.holder)
           configureCameraDisplayOrientation(0)
-          configureFocusMode(cameraInstance)
+          it.configureFocusMode()
           it.startPreview()
           emitter.onComplete()
         }
@@ -237,16 +238,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
       it.setRotation(degreesToRotateFinal)
       it.setDisplayOrientation(degreesToRotateFinal)
-    }
-  }
-
-  private fun configureFocusMode(cameraInstance: Camera?) {
-    logMethod()
-    cameraInstance?.let {
-      //todo: implement system that handles case where cam doesnt have this FocusMode
-      val parameters = it.parameters
-      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-      it.parameters = parameters
     }
   }
 
@@ -285,7 +276,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     try {
       return Camera.open()
     } catch (exc: RuntimeException) {
-      exc.printStackTrace() //todo: ...logging, show error, whatever
+      exc.printStackTrace()
+      //todo: ...logging, show error, whatever
     }
     return null
   }

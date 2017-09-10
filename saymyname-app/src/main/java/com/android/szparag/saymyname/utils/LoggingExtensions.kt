@@ -12,6 +12,7 @@ val APPLICATION_TAG = "saymyname"
 val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
 val ERROR_CAMERA_RETRIEVAL by lazy { Throwable(ERROR_CAMERA_RETRIEVAL_KEY) }
+val ERROR_CAMERA_CONFIGURATION_NULL by lazy { Throwable(ERROR_CAMERA_CONFIGURATION_NULL_KEY) }
 val ERROR_CAMERA_RENDERING_COMMAND_NULL by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_NULL_KEY) }
 val ERROR_CAMERA_RENDERING_COMMAND_EXC by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_EXC_KEY) }
 val ERROR_COMPRESSED_BYTES_INVALID_SIZE by lazy {Throwable(ERROR_COMPRESSED_BYTES_INVALID_SIZE_KEY) }
@@ -23,7 +24,7 @@ private val ERROR_CAMERA_RENDERING_COMMAND_EXC_KEY = "Error rendering stream fro
 private val ERROR_COMPRESSED_BYTES_INVALID_SIZE_KEY = "Error camera snapshot compression, byte count is 0 or lower."
 private val ERROR_REPOSITORY_PUSH_IMAGE_NULL_KEY = "Error pushing to repository, parentImage is null (probably creating Image object errored)."
 private val ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL_KEY = "Error during 'image processing with translation' request, captured image bytes are null."
-
+private val ERROR_CAMERA_CONFIGURATION_NULL_KEY = "Error configuring camera, retrieved instance is null."
 
 inline fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
   //TODO: refactor that so that it uses kapt and generating code, this approach is CPU heavy
