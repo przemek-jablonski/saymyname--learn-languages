@@ -8,6 +8,7 @@ import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitio
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.*
+import com.android.szparag.saymyname.utils.ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -50,7 +51,7 @@ class SaymynameRealtimeCameraPreviewModel(
       modelString: String,
       imageByteArray: ByteArray?,
       languageFromCode: String, languageToString: String): Observable<Image> {
-    imageByteArray ?: throw Throwable()
+    imageByteArray ?: throw ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
     val modelType = modelStringToType(modelString)
     val languageToType = languageStringToType(languageToString)
     logMethod("modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")

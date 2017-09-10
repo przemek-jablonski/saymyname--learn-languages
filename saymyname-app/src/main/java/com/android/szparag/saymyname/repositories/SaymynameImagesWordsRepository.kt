@@ -3,6 +3,7 @@ package com.android.szparag.saymyname.repositories
 import android.util.Log
 import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.repositories.entities.Word
+import com.android.szparag.saymyname.utils.ERROR_REPOSITORY_PUSH_IMAGE_NULL
 import com.android.szparag.saymyname.utils.asFlowable
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
@@ -68,7 +69,7 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
       } catch (exc: Exception) {
         emitter.onError(exc)
       }
-      parentImage?.let { emitter.onNext(it) } ?: emitter.onError(Throwable()) //todo: throwable()
+      parentImage?.let { emitter.onNext(it) } ?: emitter.onError(ERROR_REPOSITORY_PUSH_IMAGE_NULL)
     }
   }
 

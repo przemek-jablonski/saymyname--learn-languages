@@ -1,17 +1,6 @@
 package com.android.szparag.saymyname.views.activities
 
 
-import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
-import com.android.szparag.saymyname.events.CameraPictureEvent
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
-import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
-import com.android.szparag.saymyname.utils.bindView
-import com.android.szparag.saymyname.utils.logMethod
-import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
-import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
-import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
-import com.android.szparag.saymyname.R
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory
 import android.hardware.Camera
@@ -30,10 +19,28 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import com.android.szparag.saymyname.R
+import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
+import com.android.szparag.saymyname.events.CameraPictureEvent
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
+import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
+import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
+import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.createArrayAdapter
+import com.android.szparag.saymyname.utils.getCameraHardwareInfo
+import com.android.szparag.saymyname.utils.itemSelections
+import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.setRotation
+import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
+import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
+import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
@@ -41,7 +48,6 @@ import io.reactivex.Observable
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
-import com.android.szparag.saymyname.utils.itemSelections
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
@@ -54,9 +60,12 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   val spinnerSwitchModel: Spinner by bindView(R.id.button_switch_model)
   lateinit var spinnerSwitchModelAdapter: ArrayAdapter<CharSequence>
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
-  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
-  val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
-  val bottomSheetSinglePhotoDetails: BottomSheetSinglePhotoDetails by bindView(R.id.layout_single_photo_details)
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(
+      R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
+  val floatingWordsView: SaymynameFloatingWordsView by bindView(
+      R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val bottomSheetSinglePhotoDetails: BottomSheetSinglePhotoDetails by bindView(
+      R.id.layout_single_photo_details)
   val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
   var fullscreenMessageType: UserAlertMessage? = null
   lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
@@ -73,21 +82,21 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     setContentView(R.layout.activity_realtime_camera_preview)
   }
 
-
-
   override fun onStart() {
     super.onStart()
-    DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
+    DaggerGlobalScopeWrapper.getComponent(this).inject(
+        this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
 
     spinnerSwitchLanguageAdapter = createArrayAdapter(R.array.spinner_lang_data)
-    spinnerSwitchModelAdapter= createArrayAdapter(R.array.spinner_model_data)
+    spinnerSwitchModelAdapter = createArrayAdapter(R.array.spinner_model_data)
     spinnerSwitchLanguage.adapter = spinnerSwitchLanguageAdapter
     spinnerSwitchModel.adapter = spinnerSwitchModelAdapter
-    bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(bottomSheetSinglePhotoDetails)
+    bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(
+        bottomSheetSinglePhotoDetails)
     bottomSheetBehavioursSinglePhotoDetails.isHideable = false
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
-    bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object: BottomSheetCallback() {
+    bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object : BottomSheetCallback() {
       override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
       }
@@ -97,23 +106,37 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
           BottomSheetBehavior.STATE_COLLAPSED -> {
             logMethod("STATE_COLLAPSED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_alpha_light)
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(
+                  R.color.saymyname_blue_alpha_light)
             }
           }
-          BottomSheetBehavior.STATE_SETTLING -> { logMethod("STATE_SETTLING") }
-          BottomSheetBehavior.STATE_HIDDEN -> { logMethod("STATE_HIDDEN") }
+          BottomSheetBehavior.STATE_SETTLING -> {
+            logMethod("STATE_SETTLING")
+          }
+          BottomSheetBehavior.STATE_HIDDEN -> {
+            logMethod("STATE_HIDDEN")
+          }
           BottomSheetBehavior.STATE_EXPANDED -> {
             logMethod("STATE_EXPANDED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_light)
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(
+                  R.color.saymyname_blue_light)
             }
           }
-          BottomSheetBehavior.STATE_DRAGGING -> { logMethod("STATE_DRAGGING") }
+          BottomSheetBehavior.STATE_DRAGGING -> {
+            logMethod("STATE_DRAGGING")
+          }
         }
       }
 
     })
 
+  }
+
+  override fun onStop() {
+    logMethod()
+    presenter.detach()
+    super.onStop()
   }
 
 
@@ -125,17 +148,14 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       textsOriginal: List<String>,
       textsTranslated: List<String>,
       dateTime: Long) {
-    bottomSheetSinglePhotoDetails.setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
+    bottomSheetSinglePhotoDetails.setPhotoDetails(imageBytes, textsOriginal, textsTranslated,
+        dateTime)
   }
 
   override fun bottomSheetUnpeek() {
+    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
   }
 
-  override fun onStop() {
-    logMethod()
-    presenter.detach()
-    super.onStop()
-  }
 
   override fun onUserTakePictureButtonClicked(): Observable<Any> {
     return RxView.clicks(buttonCameraShutter)
@@ -150,7 +170,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
-    return RxView.clicks(buttonHamburgerMenu).doOnNext({parentDrawerLayout.openDrawer(sideNavigationView)})
+    return RxView.clicks(buttonHamburgerMenu).doOnNext(
+        { parentDrawerLayout.openDrawer(sideNavigationView) })
   }
 
   override fun onUserHistoricalEntriesClicked(): Observable<Any> {
@@ -170,14 +191,14 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     logMethod()
     return Completable.create { emitter ->
       cameraInstance = openHardwareBackCamera()
-      if (cameraInstance != null) emitter.onComplete() else emitter.onError(Throwable()) //todo: custom throwable
+      cameraInstance?.let { emitter.onComplete() } ?: emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
   }
 
   override fun renderRealtimeCameraPreview(): Completable {
     logMethod()
     return Completable.create { emitter ->
-      if (cameraInstance == null) emitter.onError(Throwable()) //todo: custom throwable
+      cameraInstance ?: emitter.onError(ERROR_CAMERA_RENDERING_COMMAND_NULL)
       try {
         cameraInstance?.let {
           it.setPreviewDisplay(cameraSurfaceView.holder)
@@ -187,7 +208,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
           emitter.onComplete()
         }
       } catch (exc: Throwable) {
-        emitter.onError(Throwable()) //todo: custom throwable
+        emitter.onError(ERROR_CAMERA_RENDERING_COMMAND_EXC)
+        exc.printStackTrace()
       }
     }
   }
@@ -197,10 +219,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     logMethod()
     cameraInstance?.let {
       val info = getCameraHardwareInfo(cameraId)
-      val parameters = it.parameters
-      val displayRotation = this.windowManager.defaultDisplay.rotation
       var degreesToRotate = 0
-      when (displayRotation) {
+      when (this.windowManager.defaultDisplay.rotation) {
         Surface.ROTATION_0 -> degreesToRotate = 0
         Surface.ROTATION_90 -> degreesToRotate = 90
         Surface.ROTATION_180 -> degreesToRotate = 180
@@ -215,17 +235,9 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
         degreesToRotateFinal = (info.orientation - degreesToRotate + 360) % 360
       }
 
-      parameters.setRotation(degreesToRotateFinal)
-      it.parameters = parameters
+      it.setRotation(degreesToRotateFinal)
       it.setDisplayOrientation(degreesToRotateFinal)
     }
-  }
-
-  private fun getCameraHardwareInfo(cameraId: Int): Camera.CameraInfo {
-    logMethod()
-    val info = android.hardware.Camera.CameraInfo()
-    android.hardware.Camera.getCameraInfo(cameraId, info)
-    return info
   }
 
   private fun configureFocusMode(cameraInstance: Camera?) {
@@ -298,12 +310,14 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       try {
         val options = BitmapFactory.Options().apply {
           this.inPurgeable = true
-          rescaleImageRequestFactor(8, this) //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
+          rescaleImageRequestFactor(8,
+              this) //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
         }
-        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size, options)
+        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
+            options)
         val compressedByteStream = ByteArrayOutputStream()
         scaledBitmap.compress(JPEG, 60, compressedByteStream)
-        if (compressedByteStream.size() == 0) emitter.onError(Throwable())
+        if (compressedByteStream.size() <= 0) emitter.onError(ERROR_COMPRESSED_BYTES_INVALID_SIZE)
         else emitter.onNext(CameraPictureEvent(compressedByteStream.toByteArray()))
       } catch (exc: Throwable) {
         emitter.onError(exc)

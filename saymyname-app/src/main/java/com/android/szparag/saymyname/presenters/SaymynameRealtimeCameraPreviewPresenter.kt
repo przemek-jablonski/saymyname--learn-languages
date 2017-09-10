@@ -30,11 +30,25 @@ class SaymynameRealtimeCameraPreviewPresenter(
   private var nativeLanguageCode: String = "en"
   private lateinit var currentForeignLanguageString: String
 
+  //primary presenter lifecycle:
   override fun onAttached() {
     super.onAttached()
     subscribeViewPermissionsEvents()
     subscribeModelEvents()
   }
+
+  override fun onViewReady() {
+    logMethod()
+    initializeCameraPreviewView()
+  }
+
+  override fun onBeforeDetached() {
+    logMethod()
+    super.onBeforeDetached()
+    view?.stopRenderingLoadingAnimation()
+    view?.stopRenderingRealtimeCameraPreview()
+  }
+
 
   fun subscribeModelEvents() {
     model.attach()
@@ -50,13 +64,6 @@ class SaymynameRealtimeCameraPreviewPresenter(
             onError = { logMethod("ONATTACHED.onError(), $it")
               it.printStackTrace() })
         .toModelDisposable()
-  }
-
-  override fun onBeforeDetached() {
-    logMethod()
-    super.onBeforeDetached()
-    view?.stopRenderingLoadingAnimation()
-    view?.stopRenderingRealtimeCameraPreview()
   }
 
   fun subscribeViewPermissionsEvents() {
@@ -99,19 +106,31 @@ class SaymynameRealtimeCameraPreviewPresenter(
   fun subscribeViewUserEvents() {
     view?.onUserTakePictureButtonClicked()
         ?.ui()
-        ?.doOnNext { view?.renderLoadingAnimation() }
-        ?.flatMap { view?.takePicture()?.ui() }
-        ?.doOnNext { this::processCameraPictureEvents }
-        ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
+        ?.doOnNext {
+          view?.renderLoadingAnimation()
+          view?.bottomSheetUnpeek()
+        }
         ?.flatMap {
-          it.cameraImageBytes?.let { bytes ->
-            view?.scaleCompressEncodePictureByteArray(bytes)
-          }?.computation()
+          view?.takePicture()?.ui()
+        }
+        ?.doOnNext {
+          this::processCameraPictureEvents
+        }
+        ?.filter {
+          it.type == CAMERA_BYTES_RETRIEVED
+        }
+        ?.flatMap {
+          it.cameraImageBytes
+              ?.let { bytes -> view?.scaleCompressEncodePictureByteArray(bytes) }
+              ?.computation()
         }
         ?.flatMap { pictureEvent ->
           model.requestImageProcessingWithTranslation(currentImageRecognitionModel, pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
         }
-        ?.doFinally { view?.stopRenderingLoadingAnimation() }
+        ?.doOnEach {
+          logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: doOnEach")
+          view?.stopRenderingLoadingAnimation()
+        }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
             onNext = {
@@ -208,10 +227,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
         .toModelDisposable()
   }
 
-  override fun onViewReady() {
-    logMethod()
-    initializeCameraPreviewView()
-  }
+
 
   override fun initializeCameraPreviewView() {
     logMethod()

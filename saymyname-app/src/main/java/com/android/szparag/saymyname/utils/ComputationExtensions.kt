@@ -1,8 +1,10 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "DEPRECATION")
 
 package com.android.szparag.saymyname.utils
 
 import android.content.Context
+import android.hardware.Camera
+import android.hardware.Camera.CameraInfo
 import android.support.annotation.ArrayRes
 import android.widget.ArrayAdapter
 import com.android.szparag.saymyname.R
@@ -15,6 +17,20 @@ import java.util.Random
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/24/2017.
  */
 
+inline fun Camera.setRotation(degreesToRotate: Int) {
+  logMethod(", degreesToRotate: $degreesToRotate")
+  val parameters = this.parameters
+  parameters.setRotation(degreesToRotate)
+  this.parameters = parameters
+}
+
+inline fun getCameraHardwareInfo(cameraId: Int = 0): CameraInfo {
+  logMethod(", cameraId: $cameraId")
+  val info = CameraInfo()
+  Camera.getCameraInfo(cameraId, info)
+  logMethod(", cameraInfo: $info (for cameraId: $cameraId)")
+  return info
+}
 
 inline fun Int.max(otherNumber: Int): Int {
   return if (this > otherNumber) this else otherNumber
