@@ -123,3 +123,7 @@ fun <T> Observable<T>.single(): Observable<T> {
 fun <T> Flowable<T>.single(): Flowable<T> {
   return this.subscribeOn(Schedulers.single())
 }
+
+fun <T> Observable<T>.computation(): Observable<T> {
+  return this.subscribeOn(Schedulers.computation())
+}

@@ -28,7 +28,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.SurfaceView
 import android.view.View
-import android.widget.Adapter
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import com.android.szparag.saymyname.utils.createArrayAdapter
@@ -246,10 +245,12 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun renderLoadingAnimation() {
     logMethod()
+    floatingWordsView.renderLoadingHalo()
   }
 
   override fun stopRenderingLoadingAnimation() {
     logMethod()
+    floatingWordsView.stopRenderingLoadingHalo()
   }
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
@@ -372,4 +373,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     if (fullscreenMessageType == userAlertMessage)
       fullscreenMessageInfo.hide()
   }
+
+
 }

@@ -7,6 +7,7 @@ import com.android.szparag.saymyname.utils.asFlowable
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.realm.Realm
@@ -49,15 +50,25 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   }
 
   override fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String,
-      wordsOriginal: List<String>, wordsTranslated: List<String>): Completable {
-    return Completable.fromAction {
-      realm.executeTransaction { realm ->
-        logMethod("thread: ${Thread.currentThread().name}")
-        val parentImage = realm.createObject(Image::class.java).apply { this.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model) }
-        wordsOriginal.forEachIndexed { index, original ->
-          parentImage.words.add(realm.createObject(Word::class.java).apply { this.set(System.currentTimeMillis(), original, wordsTranslated[index]) })
+      wordsOriginal: List<String>, wordsTranslated: List<String>): Observable<Image> {
+    return Observable.create { emitter ->
+      var parentImage: Image? = null
+      try {
+        realm.executeTransaction { realm ->
+          logMethod("thread: ${Thread.currentThread().name}")
+          parentImage = realm.createObject(Image::class.java).apply {
+            this.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model)
+          }
+          wordsOriginal.forEachIndexed { index, original ->
+            parentImage?.words?.add(realm.createObject(Word::class.java).apply {
+              this.set(System.currentTimeMillis(), original, wordsTranslated[index])
+            })
+          }
         }
+      } catch (exc: Exception) {
+        emitter.onError(exc)
       }
+      parentImage?.let { emitter.onNext(it) } ?: emitter.onError(Throwable()) //todo: throwable()
     }
   }
 
