@@ -11,6 +11,7 @@ import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetw
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -48,7 +49,7 @@ class SaymynameRealtimeCameraPreviewModel(
   override fun requestImageProcessingWithTranslation(
       modelString: String,
       imageByteArray: ByteArray?,
-      languageFromCode: String, languageToString: String): Completable {
+      languageFromCode: String, languageToString: String): Observable<Image> {
     imageByteArray ?: throw Throwable()
     val modelType = modelStringToType(modelString)
     val languageToType = languageStringToType(languageToString)
@@ -63,7 +64,7 @@ class SaymynameRealtimeCameraPreviewModel(
           translationService.requestTextTranslation(concepts, languageCodesToPair(languageFromCode, languageToType.languageCode))
         }
         .observeOn(AndroidSchedulers.mainThread())
-        .flatMapCompletable { words ->
+        .flatMap { words ->
           repository.pushImage(imageByteArray, languageToString, languageToType.languageCode, modelType.modelString, words.map { (first) -> first }, words.map { words -> words.second })
         }
   }

@@ -38,6 +38,6 @@ interface RealtimeCameraPreviewModel {
   fun requestImageProcessingWithTranslation(
       modelString: String,
       imageByteArray: ByteArray?,
-      languageFromCode: String, languageToString: String): Completable
+      languageFromCode: String, languageToString: String): Observable<Image>
 
 }
