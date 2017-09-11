@@ -1,7 +1,9 @@
 package com.android.szparag.saymyname.presenters
 
+import android.graphics.Camera
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
+import com.android.szparag.saymyname.events.CameraSurfaceEvent
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.CAMERA_PERMISSION
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.STORAGE_ACCESS
@@ -13,10 +15,11 @@ import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View
+import io.reactivex.Observable
+import io.reactivex.ObservableSource
 import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 
 
 /**
@@ -228,19 +231,33 @@ class SaymynameRealtimeCameraPreviewPresenter(
   }
 
 
-
+  //todo: permissions stuff
+  //todo: if perm isnt granted - dont run this code, if it is - do run it.
+  //todo: immediately after granting permission - run this code.
   override fun initializeCameraPreviewView() {
     logMethod()
-    view?.let { view ->
-      view.initializeCameraPreviewSurfaceView()
-          .ui()
-          .andThen(view.retrieveHardwareBackCamera().ui())
-          .andThen(view.renderRealtimeCameraPreview().ui())
-          .subscribeBy(
-              onComplete = { logMethod("initializeCameraPreviewView().onComplete") },
-              onError = { this::onCameraSetupFailed })
-          .toViewDisposable()
-    }
+    view?.initializeCameraPreviewRendering()
+        ?.ui()
+        ?.startWith { view?.retrieveHardwareBackCamera()?.ui() }
+//    view?.retrieveHardwareBackCamera()
+//        ?.ui()
+////        ?.
+////        ?.toObservable<CameraSurfaceEvent>()
+//        ?.startWith(){ view?.initializeCameraPreviewRendering() }
+        ?.subscribeBy (
+            onNext = { event ->
+              logMethod("initializeCameraPreviewView.onNext, ev: $event")
+              view?.configureAndStartRealtimeCameraRendering()
+            },
+            onError = { exc ->
+              logMethodError("initializeCameraPreviewView.ONERROR, exc: $exc")
+            },
+            onComplete = {
+              logMethodError("initializeCameraPreviewView.onComplete")
+            }
+        )
+        .toViewDisposable()
+
   }
 
   override fun onCameraSetupFailed(exc: Throwable) {

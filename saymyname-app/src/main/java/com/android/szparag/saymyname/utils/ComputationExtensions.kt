@@ -6,6 +6,8 @@ import android.content.Context
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.support.annotation.ArrayRes
+import android.view.Display
+import android.view.Surface
 import android.widget.ArrayAdapter
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse
 import com.android.szparag.saymyname.events.PermissionEvent.PermissionResponse.PERMISSION_GRANTED
@@ -31,6 +33,10 @@ inline fun getCameraHardwareInfo(cameraId: Int = 0): CameraInfo {
   return info
 }
 
+inline fun Camera.getCameraHardwareInfo(cameraId: Int = 0)
+    = com.android.szparag.saymyname.utils.getCameraHardwareInfo(cameraId)
+
+
 @Throws inline fun Camera?.configureFocusMode(vararg focusModes: String = arrayOf(
     Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE,
     Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
@@ -46,6 +52,32 @@ inline fun getCameraHardwareInfo(cameraId: Int = 0): CameraInfo {
       this.parameters = parameters
       return
     }
+  }
+}
+
+@Throws inline fun Camera?.configureCameraDisplayOrientation(defaultDisplay: Display, cameraId: Int = 0) {
+  logMethod(", camera: $this")
+  checkNotNull(this, { throw ERROR_CAMERA_CONFIGURATION_NULL })
+  this?.let {
+    val info = getCameraHardwareInfo(cameraId)
+    var degreesToRotate = 0
+    when (defaultDisplay.rotation) {
+      Surface.ROTATION_0 -> degreesToRotate = 0
+      Surface.ROTATION_90 -> degreesToRotate = 90
+      Surface.ROTATION_180 -> degreesToRotate = 180
+      Surface.ROTATION_270 -> degreesToRotate = 270
+    }
+
+    //todo: add link to this answer (from so, duh)
+    val degreesToRotateFinal: Int
+    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+      degreesToRotateFinal = (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
+    } else {
+      degreesToRotateFinal = (info.orientation - degreesToRotate + 360) % 360
+    }
+
+    it.setRotation(degreesToRotateFinal)
+    it.setDisplayOrientation(degreesToRotateFinal)
   }
 }
 

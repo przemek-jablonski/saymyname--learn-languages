@@ -24,37 +24,43 @@ import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
+import com.android.szparag.saymyname.events.CameraSurfaceEvent
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
 import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
 import com.android.szparag.saymyname.utils.bindView
+import com.android.szparag.saymyname.utils.configureCameraDisplayOrientation
 import com.android.szparag.saymyname.utils.configureFocusMode
 import com.android.szparag.saymyname.utils.createArrayAdapter
 import com.android.szparag.saymyname.utils.getCameraHardwareInfo
 import com.android.szparag.saymyname.utils.itemSelections
 import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.logMethodError
 import com.android.szparag.saymyname.utils.setRotation
+import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
 import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
+import com.android.szparag.saymyname.views.widgets.SaymynameCameraSurfaceView
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.subscribeBy
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
-class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView, Callback {
+class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView {
 
-  val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
+  val cameraSurfaceView: SaymynameCameraSurfaceView by bindView(R.id.surfaceview_realtime_camera)
   val buttonHamburgerMenu: AppCompatImageButton by bindView(R.id.button_menu_hamburger)
   val spinnerSwitchLanguage: Spinner by bindView(R.id.button_switch_language)
   lateinit var spinnerSwitchLanguageAdapter: ArrayAdapter<CharSequence>
@@ -84,6 +90,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun onStart() {
+    logMethod()
     super.onStart()
     DaggerGlobalScopeWrapper.getComponent(this).inject(
         this) //todo: find a way to generize them in Kotlin
@@ -134,6 +141,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   }
 
+  override fun onPause() {
+    logMethod()
+    super.onPause()
+    cameraInstance?.release()
+    cameraInstance = null
+  }
+
   override fun onStop() {
     logMethod()
     presenter.detach()
@@ -142,6 +156,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
 
   override fun bottomSheetPeek() {
+    logMethod()
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
   }
 
@@ -149,11 +164,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       textsOriginal: List<String>,
       textsTranslated: List<String>,
       dateTime: Long) {
-    bottomSheetSinglePhotoDetails.setPhotoDetails(imageBytes, textsOriginal, textsTranslated,
-        dateTime)
+    logMethod()
+    bottomSheetSinglePhotoDetails
+        .setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
   }
 
   override fun bottomSheetUnpeek() {
+    logMethod()
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
   }
 
@@ -179,68 +196,30 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     return RxView.clicks(buttonHistoricalEntries)
   }
 
-  override fun initializeCameraPreviewSurfaceView(): Completable {
-    logMethod()
-    return Completable.fromAction {
-      val holder = cameraSurfaceView.holder
-      holder.addCallback(this)
-      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
-    }
-  }
 
   override fun retrieveHardwareBackCamera(): Completable {
     logMethod()
     return Completable.create { emitter ->
       cameraInstance = openHardwareBackCamera()
+      logMethod("retrieved camera instance: $cameraInstance")
       cameraInstance?.let { emitter.onComplete() } ?: emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
   }
 
-  override fun renderRealtimeCameraPreview(): Completable {
-    logMethod()
-    return Completable.create { emitter ->
-      cameraInstance ?: emitter.onError(ERROR_CAMERA_RENDERING_COMMAND_NULL)
-      try {
-        cameraInstance?.let {
-          it.setPreviewDisplay(cameraSurfaceView.holder)
-          configureCameraDisplayOrientation(0)
-          it.configureFocusMode()
-          it.startPreview()
-          emitter.onComplete()
-        }
-      } catch (exc: Throwable) {
-        emitter.onError(ERROR_CAMERA_RENDERING_COMMAND_EXC)
-        exc.printStackTrace()
-      }
-    }
+  override fun initializeCameraPreviewRendering(): Observable<CameraSurfaceEvent> {
+    logMethod("bel")
+    return cameraSurfaceView.initialize()
   }
 
-  //todo: get rid of cameraId, we only care about back-facing cam here
-  private fun configureCameraDisplayOrientation(cameraId: Int) {
-    logMethod()
+  override fun configureAndStartRealtimeCameraRendering() {
+    logMethod(", camera: $cameraInstance")
     cameraInstance?.let {
-      val info = getCameraHardwareInfo(cameraId)
-      var degreesToRotate = 0
-      when (this.windowManager.defaultDisplay.rotation) {
-        Surface.ROTATION_0 -> degreesToRotate = 0
-        Surface.ROTATION_90 -> degreesToRotate = 90
-        Surface.ROTATION_180 -> degreesToRotate = 180
-        Surface.ROTATION_270 -> degreesToRotate = 270
-      }
-
-      //todo: add link to this answer (from so, duh)
-      val degreesToRotateFinal: Int
-      if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-        degreesToRotateFinal = (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
-      } else {
-        degreesToRotateFinal = (info.orientation - degreesToRotate + 360) % 360
-      }
-
-      it.setRotation(degreesToRotateFinal)
-      it.setDisplayOrientation(degreesToRotateFinal)
+      it.configureCameraDisplayOrientation(this.windowManager.defaultDisplay)
+      it.configureFocusMode()
+      it.setPreviewDisplay(cameraSurfaceView.holder)
+      it.startPreview()
     }
   }
-
 
   override fun stopRenderingRealtimeCameraPreview() {
     logMethod()
@@ -348,17 +327,6 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     logMethod()
   }
 
-  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-    logMethod()
-  }
-
-  override fun surfaceDestroyed(holder: SurfaceHolder?) {
-    logMethod()
-  }
-
-  override fun surfaceCreated(holder: SurfaceHolder?) {
-    logMethod()
-  }
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
     when (userAlertMessage) {

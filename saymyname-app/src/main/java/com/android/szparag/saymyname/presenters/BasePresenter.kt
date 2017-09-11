@@ -21,12 +21,14 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
 
   override final fun attach(view: V) {
+    logMethod()
     this.view = view
     onAttached()
   }
 
   @CallSuper
   override fun onAttached() {
+    logMethod()
     viewDisposables = CompositeDisposable()
     modelDisposables = CompositeDisposable()
     subscribeViewReadyEvents()
@@ -34,19 +36,21 @@ abstract class BasePresenter<V : View> : Presenter<V> {
   }
 
   private fun subscribeViewReadyEvents() {
+    logMethod()
     view?.onViewReady()
         ?.ui()
         ?.doOnSubscribe { logMethod("subscribeViewReadyEvents.sub") }
         ?.filter { readyFlag -> readyFlag }
         ?.subscribeBy(
-            onNext = {
-              logMethod("subscribeViewReadyEvents.onNext")
+            onNext = { readyFlag ->
+              logMethod("subscribeViewReadyEvents.onNext, ready: $readyFlag")
               onViewReady()
             }
         )
   }
 
   private fun subscribeViewMenuEvents() {
+    logMethod()
     view?.subscribeMenuItemClicked()
         ?.ui()
         ?.subscribeBy (
@@ -67,12 +71,14 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
 
   override final fun detach() {
+    logMethod()
     onBeforeDetached()
     view = null
   }
 
   @CallSuper
   override fun onBeforeDetached() {
+    logMethod()
     viewDisposables.clear()
     modelDisposables.clear()
   }
