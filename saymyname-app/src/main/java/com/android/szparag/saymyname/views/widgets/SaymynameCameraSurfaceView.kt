@@ -8,10 +8,12 @@ import android.view.SurfaceView
 import com.android.szparag.saymyname.events.CameraSurfaceEvent
 import com.android.szparag.saymyname.events.CameraSurfaceEvent.CameraSurfaceEventType.SURFACE_CHANGED
 import com.android.szparag.saymyname.events.CameraSurfaceEvent.CameraSurfaceEventType.SURFACE_CREATED
+import com.android.szparag.saymyname.events.CameraSurfaceEvent.CameraSurfaceEventType.SURFACE_INITIALIZED
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_SURFACE_NULL
 import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.ReplaySubject
 import io.reactivex.subjects.Subject
 
 /**
@@ -21,15 +23,18 @@ class SaymynameCameraSurfaceView @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
   : SurfaceView(context, attrs, defStyleAttr), SurfaceHolder.Callback {
 
-  private lateinit var surfaceEventsSubject: Subject<CameraSurfaceEvent>
+  private val surfaceEventsSubject = ReplaySubject.create<CameraSurfaceEvent>()
 
-  fun initialize(): Observable<CameraSurfaceEvent>  {
+  fun subscribeForEvents():Observable<CameraSurfaceEvent> {
+    return surfaceEventsSubject
+  }
+
+  fun initialize() {
     logMethod("belbel")
-    surfaceEventsSubject = PublishSubject.create<CameraSurfaceEvent>()
     holder.addCallback(this)
 //    holder.setFormat(PixelFormat.RGBA_8888)
     holder.setFormat(PixelFormat.OPAQUE) //todo: do performance tests
-    return surfaceEventsSubject
+    surfaceEventsSubject.onNext(CameraSurfaceEvent(SURFACE_INITIALIZED))
   }
 
   override fun surfaceCreated(holder: SurfaceHolder?) {

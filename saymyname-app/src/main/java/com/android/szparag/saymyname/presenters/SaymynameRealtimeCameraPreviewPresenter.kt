@@ -236,24 +236,34 @@ class SaymynameRealtimeCameraPreviewPresenter(
   //todo: immediately after granting permission - run this code.
   override fun initializeCameraPreviewView() {
     logMethod()
-    view?.initializeCameraPreviewRendering()
-        ?.ui()
-        ?.startWith { view?.retrieveHardwareBackCamera()?.ui() }
-//    view?.retrieveHardwareBackCamera()
+        view?.retrieveHardwareBackCamera()
+            ?.ui()
+            ?.doOnEach { logMethod("ainitializeCameraPreviewView.retrieveHardwareBackCamera.each") }
+            ?.flatMap { view?.initializeCameraPreviewRendering()?.ui()?.doOnSubscribe { logMethod("initializeCameraPreviewView.retrieveHardwareBackCamera.doOnSubscribe") } }
+            ?.doOnEach { logMethod("ainitializeCameraPreviewView.initializeCameraPreviewRendering.each, surfEvent: $it") }
+//        view?.retrieveHardwareBackCamera()
+////    view?.initializeCameraPreviewRendering()
 //        ?.ui()
-////        ?.
-////        ?.toObservable<CameraSurfaceEvent>()
-//        ?.startWith(){ view?.initializeCameraPreviewRendering() }
+//            ?.doFinally { logMethod("initializeCameraPreviewView.finally") }
+////        ?.startWith { view?.retrieveHardwareBackCamera()?.ui() }
+//            ?.andThen (view?.initializeCameraPreviewRendering()?.ui())
+////            ?.doOnEach { logMethod("initializeCameraPreviewView.any") }
+////    view?.retrieveHardwareBackCamera()
+////        ?.ui()
+//////        ?.
+//////        ?.toObservable<CameraSurfaceEvent>()
+////        ?.startWith(){ view?.initializeCameraPreviewRendering() }
+            ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy (
             onNext = { event ->
-              logMethod("initializeCameraPreviewView.onNext, ev: $event")
+              logMethod("ainitializeCameraPreviewView.onNext, ev: $event")
               view?.configureAndStartRealtimeCameraRendering()
             },
             onError = { exc ->
-              logMethodError("initializeCameraPreviewView.ONERROR, exc: $exc")
+              logMethodError("ainitializeCameraPreviewView.ONERROR, exc: $exc")
             },
             onComplete = {
-              logMethodError("initializeCameraPreviewView.onComplete")
+              logMethodError("ainitializeCameraPreviewView.onComplete")
             }
         )
         .toViewDisposable()

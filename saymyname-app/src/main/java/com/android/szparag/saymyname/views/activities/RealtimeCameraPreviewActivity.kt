@@ -188,27 +188,32 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
-    return RxView.clicks(buttonHamburgerMenu).doOnNext(
-        { parentDrawerLayout.openDrawer(sideNavigationView) })
+    return RxView
+        .clicks(buttonHamburgerMenu)
+        .doOnNext({ parentDrawerLayout.openDrawer(sideNavigationView) })
   }
 
   override fun onUserHistoricalEntriesClicked(): Observable<Any> {
     return RxView.clicks(buttonHistoricalEntries)
   }
 
-
-  override fun retrieveHardwareBackCamera(): Completable {
+  //really wanted to make this return Completable, but rx noob herp derp
+  override fun retrieveHardwareBackCamera(): Observable<Any> {
     logMethod()
-    return Completable.create { emitter ->
+    return Observable.create { emitter ->
       cameraInstance = openHardwareBackCamera()
       logMethod("retrieved camera instance: $cameraInstance")
-      cameraInstance?.let { emitter.onComplete() } ?: emitter.onError(ERROR_CAMERA_RETRIEVAL)
+      cameraInstance?.let {
+        emitter.onNext(cameraInstance)
+      } ?:
+          emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
   }
 
   override fun initializeCameraPreviewRendering(): Observable<CameraSurfaceEvent> {
     logMethod("bel")
-    return cameraSurfaceView.initialize()
+    cameraSurfaceView.initialize()
+    return cameraSurfaceView.subscribeForEvents()
   }
 
   override fun configureAndStartRealtimeCameraRendering() {
