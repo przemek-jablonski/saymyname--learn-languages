@@ -39,6 +39,7 @@ import com.android.szparag.saymyname.utils.createArrayAdapter
 import com.android.szparag.saymyname.utils.getCameraHardwareInfo
 import com.android.szparag.saymyname.utils.hide
 import com.android.szparag.saymyname.utils.itemSelections
+import com.android.szparag.saymyname.utils.letNull
 import com.android.szparag.saymyname.utils.setRotation
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
@@ -206,9 +207,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   override fun retrieveHardwareBackCamera(): Observable<Any> {
     logger.debug("retrieveHardwareBackCamera")
     return Observable.create { emitter ->
-      cameraInstance = openHardwareBackCamera()
-      cameraInstance?.setErrorCallback (this::onCameraError)
-      logger.debug("retrieved camera instance: $cameraInstance")
+      if (cameraInstance == null) {
+        cameraInstance = openHardwareBackCamera()
+        cameraInstance?.setErrorCallback(this::onCameraError)
+        logger.debug("retrieveHardwareBackCamera, retrieved camera instance: $cameraInstance")
+      } else {
+        logger.debug("retrieveHardwareBackCamera, cached camera instance: $cameraInstance")
+      }
       cameraInstance?.let {
         emitter.onNext(cameraInstance)
       } ?:

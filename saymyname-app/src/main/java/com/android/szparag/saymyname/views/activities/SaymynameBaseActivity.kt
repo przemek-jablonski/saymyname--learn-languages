@@ -79,7 +79,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   override final fun onWindowFocusChanged(hasFocus: Boolean) {
     logger.debug("onWindowFocusChanged, hasFocus: $hasFocus, windowFocusCache: $windowFocusCache")
     super.onWindowFocusChanged(hasFocus)
-    if (windowFocusCache != hasFocus) viewReadySubject.onNext(hasFocus)
+      if (windowFocusCache != hasFocus) viewReadySubject.onNext(hasFocus)
     windowFocusCache = hasFocus
   }
 

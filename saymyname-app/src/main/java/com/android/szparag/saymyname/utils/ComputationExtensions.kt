@@ -19,6 +19,8 @@ import java.util.Random
  */
 
 
+inline fun <T, R> T?.letNull(block: (T?) -> R): R = block(this)
+
 inline fun Camera.setRotation(degreesToRotate: Int) {
   parameters.setRotation(degreesToRotate)
   this.parameters = parameters
