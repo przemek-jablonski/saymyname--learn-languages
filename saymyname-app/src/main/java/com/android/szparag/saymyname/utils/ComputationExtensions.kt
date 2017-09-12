@@ -18,18 +18,15 @@ import java.util.Random
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/24/2017.
  */
 
+
 inline fun Camera.setRotation(degreesToRotate: Int) {
-  logMethod(", degreesToRotate: $degreesToRotate")
-  val parameters = this.parameters
   parameters.setRotation(degreesToRotate)
   this.parameters = parameters
 }
 
 inline fun getCameraHardwareInfo(cameraId: Int = 0): CameraInfo {
-  logMethod(", cameraId: $cameraId")
   val info = CameraInfo()
   Camera.getCameraInfo(cameraId, info)
-  logMethod(", cameraInfo: $info (for cameraId: $cameraId)")
   return info
 }
 
@@ -42,7 +39,6 @@ inline fun Camera.getCameraHardwareInfo(cameraId: Int = 0)
     Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
     Camera.Parameters.FOCUS_MODE_EDOF,
     Camera.Parameters.FOCUS_MODE_AUTO)) {
-  logMethod(", focusModes: $focusModes, cameraInstance: $this")
   checkNotNull(this, { throw ERROR_CAMERA_CONFIGURATION_NULL })
   val parameters = this!!.parameters
   val supportedFocusModes = parameters.supportedFocusModes
@@ -56,7 +52,6 @@ inline fun Camera.getCameraHardwareInfo(cameraId: Int = 0)
 }
 
 @Throws inline fun Camera?.configureCameraDisplayOrientation(defaultDisplay: Display, cameraId: Int = 0) {
-  logMethod(", camera: $this")
   checkNotNull(this, { throw ERROR_CAMERA_CONFIGURATION_NULL })
   this?.let {
     val info = getCameraHardwareInfo(cameraId)

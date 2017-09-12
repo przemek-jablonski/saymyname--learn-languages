@@ -30,14 +30,14 @@ import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
 import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.configureCameraDisplayOrientation
 import com.android.szparag.saymyname.utils.configureFocusMode
 import com.android.szparag.saymyname.utils.createArrayAdapter
 import com.android.szparag.saymyname.utils.getCameraHardwareInfo
+import com.android.szparag.saymyname.utils.hide
 import com.android.szparag.saymyname.utils.itemSelections
-import com.android.szparag.saymyname.utils.logMethod
-import com.android.szparag.saymyname.utils.logMethodError
 import com.android.szparag.saymyname.utils.setRotation
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
@@ -75,8 +75,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       R.id.layout_single_photo_details)
   val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
   var fullscreenMessageType: UserAlertMessage? = null
-  lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
-  lateinit var gestureDetector: GestureDetectorCompat
+  private lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
 
   //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
@@ -84,14 +83,14 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   private var cameraInstance: Camera? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    logMethod()
     super.onCreate(savedInstanceState)
+    logger.debug("onCreate, bundle: $savedInstanceState")
     setContentView(R.layout.activity_realtime_camera_preview)
   }
 
   override fun onStart() {
-    logMethod()
     super.onStart()
+    logger.debug("onStart")
     DaggerGlobalScopeWrapper.getComponent(this).inject(
         this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
@@ -112,27 +111,27 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       override fun onStateChanged(bottomSheet: View, newState: Int) {
         when (newState) {
           BottomSheetBehavior.STATE_COLLAPSED -> {
-            logMethod("STATE_COLLAPSED")
+            logger.debug("STATE_COLLAPSED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
               bottomSheetSinglePhotoDetails.background = resources.getDrawable(
                   R.color.saymyname_blue_alpha_light)
             }
           }
           BottomSheetBehavior.STATE_SETTLING -> {
-            logMethod("STATE_SETTLING")
+            logger.debug("STATE_SETTLING")
           }
           BottomSheetBehavior.STATE_HIDDEN -> {
-            logMethod("STATE_HIDDEN")
+            logger.debug("STATE_HIDDEN")
           }
           BottomSheetBehavior.STATE_EXPANDED -> {
-            logMethod("STATE_EXPANDED")
+            logger.debug("STATE_EXPANDED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
               bottomSheetSinglePhotoDetails.background = resources.getDrawable(
                   R.color.saymyname_blue_light)
             }
           }
           BottomSheetBehavior.STATE_DRAGGING -> {
-            logMethod("STATE_DRAGGING")
+            logger.debug("STATE_DRAGGING")
           }
         }
       }
@@ -142,21 +141,21 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun onPause() {
-    logMethod()
     super.onPause()
+    logger.debug("onPause")
     cameraInstance?.release()
     cameraInstance = null
   }
 
   override fun onStop() {
-    logMethod()
     presenter.detach()
+    logger.debug("onStop")
     super.onStop()
   }
 
 
   override fun bottomSheetPeek() {
-    logMethod()
+    logger.debug("bottomSheetPeek")
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
   }
 
@@ -164,45 +163,50 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       textsOriginal: List<String>,
       textsTranslated: List<String>,
       dateTime: Long) {
-    logMethod()
+    logger.debug("bottomSheetFillData, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
     bottomSheetSinglePhotoDetails
         .setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
   }
 
   override fun bottomSheetUnpeek() {
-    logMethod()
+    logger.debug("bottomSheetUnpeek")
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
   }
 
 
   override fun onUserTakePictureButtonClicked(): Observable<Any> {
+    logger.debug("onUserTakePictureButtonClicked")
     return RxView.clicks(buttonCameraShutter)
   }
 
   override fun onUserModelSwitchButtonClicked(): Observable<String> {
+    logger.debug("onUserModelSwitchButtonClicked")
     return itemSelections(spinnerSwitchModel)
   }
 
   override fun onUserLanguageSwitchClicked(): Observable<String> {
+    logger.debug("onUserLanguageSwitchClicked")
     return itemSelections(spinnerSwitchLanguage)
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
+    logger.debug("onUserHamburgerMenuClicked")
     return RxView
         .clicks(buttonHamburgerMenu)
         .doOnNext({ parentDrawerLayout.openDrawer(sideNavigationView) })
   }
 
   override fun onUserHistoricalEntriesClicked(): Observable<Any> {
+    logger.debug("onUserHistoricalEntriesClicked")
     return RxView.clicks(buttonHistoricalEntries)
   }
 
-  //really wanted to make this return Completable, but rx noob herp derp
+  //todo: really wanted to make this return Completable, but rx noob herp derp
   override fun retrieveHardwareBackCamera(): Observable<Any> {
-    logMethod()
+    logger.debug("retrieveHardwareBackCamera")
     return Observable.create { emitter ->
       cameraInstance = openHardwareBackCamera()
-      logMethod("retrieved camera instance: $cameraInstance")
+      logger.debug("retrieved camera instance: $cameraInstance")
       cameraInstance?.let {
         emitter.onNext(cameraInstance)
       } ?:
@@ -211,13 +215,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun initializeCameraPreviewRendering(): Observable<CameraSurfaceEvent> {
-    logMethod("bel")
+    logger.debug("initializeCameraPreviewRendering")
     cameraSurfaceView.initialize()
     return cameraSurfaceView.subscribeForEvents()
   }
 
   override fun configureAndStartRealtimeCameraRendering() {
-    logMethod(", camera: $cameraInstance")
+    logger.debug("configureAndStartRealtimeCameraRendering, camera: $cameraInstance")
     cameraInstance?.let {
       it.configureCameraDisplayOrientation(this.windowManager.defaultDisplay)
       it.configureFocusMode()
@@ -227,36 +231,36 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun stopRenderingRealtimeCameraPreview() {
-    logMethod()
+    logger.debug("stopRenderingRealtimeCameraPreview")
   }
 
   override fun renderLoadingAnimation() {
-    logMethod()
+    logger.debug("renderLoadingAnimation")
     floatingWordsView.renderLoadingHalo()
   }
 
   override fun stopRenderingLoadingAnimation() {
-    logMethod()
+    logger.debug("stopRenderingLoadingAnimation")
     floatingWordsView.stopRenderingLoadingHalo()
   }
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
-    logMethod()
+    logger.debug("renderNonTranslatedWords, words: $nonTranslatedWords")
     floatingWordsView.renderAuxiliaryWords(nonTranslatedWords)
   }
 
   override fun renderTranslatedWords(translatedWords: List<String>) {
-    logMethod()
+    logger.debug("renderNonTranslatedWords, words: $translatedWords")
     floatingWordsView.renderPrimaryWords(translatedWords)
   }
 
   override fun stopRenderingWords() {
-    logMethod()
+    logger.debug("stopRenderingWords")
     floatingWordsView.clearWords()
   }
 
   private fun openHardwareBackCamera(): Camera? {
-    logMethod()
+    logger.debug("openHardwareBackCamera")
     try {
       return Camera.open()
     } catch (exc: RuntimeException) {
@@ -267,7 +271,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun takePicture(): Observable<CameraPictureEvent> {
-    logMethod()
+    logger.debug("takePicture")
     return Observable.create({ emitter ->
       cameraInstance?.takePicture(
           Camera.ShutterCallback { emitter.onNext(CameraPictureEvent(CAMERA_SHUTTER_EVENT)) },
@@ -282,6 +286,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
       : Observable<CameraPictureEvent> {
+    logger.debug("scaleCompressEncodePictureByteArray, picture: ${pictureByteArray.hashCode()}")
     return Observable.create { emitter ->
       try {
         val options = BitmapFactory.Options().apply {
@@ -304,12 +309,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   private fun rescaleImageRequestFactor(
       downScaleFactor: Int,
       bitmapOptions: BitmapFactory.Options): BitmapFactory.Options {
+    logger.debug("rescaleImageRequestFactor, downScaleFactor: $downScaleFactor, options: $bitmapOptions")
     bitmapOptions.inSampleSize = downScaleFactor
     return bitmapOptions
   }
 
   override fun initializeTextToSpeechClient(locale: Locale) {
-    logMethod()
+    logger.debug("initializeTextToSpeechClient, locale: $locale")
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
       status ->
       status.takeIf { code -> code != TextToSpeech.ERROR }?.run {
@@ -319,21 +325,22 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun speakText(textToSpeak: String, flushSpeakingQueue: Boolean) {
-    logMethod()
+    logger.debug("speakText, textToSpeak: $textToSpeak, flushSpeakingQueue: $flushSpeakingQueue")
     textToSpeechClient.speak(textToSpeak,
         if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
 
   override fun initializeSuddenMovementDetection() {
-    logMethod()
+    logger.debug("initializeSuddenMovementDetection")
   }
 
   override fun onSuddenMovementDetected() {
-    logMethod()
+    logger.debug("onSuddenMovementDetected")
   }
 
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     when (userAlertMessage) {
       UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
         fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark,
@@ -349,6 +356,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     if (fullscreenMessageType == userAlertMessage)
       fullscreenMessageInfo.hide()
   }

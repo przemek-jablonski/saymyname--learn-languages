@@ -16,7 +16,6 @@ import io.reactivex.android.MainThreadDisposable
  */
 class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObservable<String>() {
 
-
   override fun subscribeListener(observer: Observer<in String>?) {
     if (observer == null || !checkMainThread(observer)) { return }
     val listener = Listener(view, observer)
@@ -33,16 +32,13 @@ class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObserv
     : MainThreadDisposable(), OnItemSelectedListener {
 
     override fun onItemSelected(adapterView: AdapterView<*>, view: View, position: Int, id: Long) {
-      logMethod("SpinnerSelectionObservable.onItemSelected, pos: $position, view: $view")
       if (!isDisposed) { observer.onNext(spinner.adapter.getItem(position).toString()) }
     }
 
     override fun onNothingSelected(adapterView: AdapterView<*>) {
-      logMethod("SpinnerSelectionObservable.onNothingSelected, ")
     }
 
     override fun onDispose() {
-      logMethod("SpinnerSelectionObservable.onDispose")
       spinner.onItemSelectedListener = null
     }
   }

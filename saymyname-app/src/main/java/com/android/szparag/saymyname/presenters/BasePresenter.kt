@@ -1,8 +1,7 @@
 package com.android.szparag.saymyname.presenters
 
 import android.support.annotation.CallSuper
-import com.android.szparag.saymyname.utils.add
-import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
 import com.android.szparag.saymyname.views.contracts.View.MenuOption.*
@@ -15,20 +14,22 @@ import io.reactivex.rxkotlin.subscribeBy
  */
 abstract class BasePresenter<V : View> : Presenter<V> {
 
+  internal lateinit var logger: Logger
   internal var view: V? = null
   lateinit private var viewDisposables: CompositeDisposable
   lateinit private var modelDisposables: CompositeDisposable
 
 
   override final fun attach(view: V) {
-    logMethod()
+    logger = Logger.create(this::class)
+    logger.debug("attach, view: $view")
     this.view = view
     onAttached()
   }
 
   @CallSuper
   override fun onAttached() {
-    logMethod()
+    logger.debug("onAttached")
     viewDisposables = CompositeDisposable()
     modelDisposables = CompositeDisposable()
     subscribeViewReadyEvents()
@@ -36,21 +37,21 @@ abstract class BasePresenter<V : View> : Presenter<V> {
   }
 
   private fun subscribeViewReadyEvents() {
-    logMethod()
-    view?.onViewReady()
+    logger.debug("subscribeViewReadyEvents")
+    view?.subscribeOnViewReady()
         ?.ui()
-        ?.doOnSubscribe { logMethod("subscribeViewReadyEvents.sub") }
+        ?.doOnSubscribe { logger.debug("subscribeViewReadyEvents.sub") }
         ?.filter { readyFlag -> readyFlag }
         ?.subscribeBy(
             onNext = { readyFlag ->
-              logMethod("subscribeViewReadyEvents.onNext, ready: $readyFlag")
+              logger.debug("subscribeViewReadyEvents.onNext, ready: $readyFlag")
               onViewReady()
             }
         )
   }
 
   private fun subscribeViewMenuEvents() {
-    logMethod()
+    logger.debug("subscribeViewMenuEvents")
     view?.subscribeMenuItemClicked()
         ?.ui()
         ?.subscribeBy (
@@ -71,14 +72,14 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
 
   override final fun detach() {
-    logMethod()
+    logger.debug("detach")
     onBeforeDetached()
     view = null
   }
 
   @CallSuper
   override fun onBeforeDetached() {
-    logMethod()
+    logger.debug("onBeforeDetached")
     viewDisposables.clear()
     modelDisposables.clear()
   }

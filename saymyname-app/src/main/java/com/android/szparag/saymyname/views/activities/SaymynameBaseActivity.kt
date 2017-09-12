@@ -3,6 +3,7 @@ package com.android.szparag.saymyname.views.activities
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
@@ -16,8 +17,8 @@ import com.android.szparag.saymyname.presenters.Presenter
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.CAMERA_PERMISSION
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.STORAGE_ACCESS
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.bindView
-import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.views.contracts.View
 import com.android.szparag.saymyname.views.contracts.View.MenuOption
 import com.android.szparag.saymyname.views.contracts.View.MenuOption.ABOUT
@@ -38,6 +39,7 @@ import io.reactivex.subjects.Subject
  */
 abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), View {
 
+  internal lateinit var logger: Logger
   lateinit open var presenter: P
   val viewReadySubject: Subject<Boolean> = ReplaySubject.create()
   val permissionsSubject: Subject<PermissionEvent> = ReplaySubject.create()
@@ -46,40 +48,50 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   private var defaultUserAlert: Snackbar? = null
 
   @CallSuper
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    logger = Logger.create(this::class)
+    logger.debug("logger created, $logger")
+    logger.debug("onCreate, bundle: $savedInstanceState")
+  }
+
+  @CallSuper
   override fun onStart() {
     super.onStart()
-    logMethod()
+    logger.debug("onStart")
     setupViews()
   }
 
   @CallSuper
   override fun onStop() {
     super.onStop()
+    logger.debug("onStart")
   }
 
   @CallSuper
   override fun setupViews() {
-    logMethod()
+    logger.debug("setupViews")
   }
 
   override final fun onWindowFocusChanged(hasFocus: Boolean) {
-    logMethod()
+    logger.debug("onWindowFocusChanged, hasFocus: $hasFocus")
     super.onWindowFocusChanged(hasFocus)
     viewReadySubject.onNext(hasFocus)
   }
 
-  override fun onViewReady(): Observable<Boolean> {
-    logMethod()
+  override fun subscribeOnViewReady(): Observable<Boolean> {
+    logger.debug("subscribeOnViewReady")
     RxNavigationView.itemSelections(sideNavigationView)
     return viewReadySubject
   }
 
   override fun <A : SaymynameBaseActivity<*>> startActivity(targetActivityClass: Class<A>) {
-    logMethod("target: $targetActivityClass")
+    logger.debug("startActivity, target: $targetActivityClass")
     startActivity(Intent(applicationContext, targetActivityClass))
   }
 
   override fun subscribeMenuItemClicked(): Observable<MenuOption> {
+    logger.debug("subscribeMenuItemClicked")
     return RxNavigationView.itemSelections(sideNavigationView)
         .doOnEach {
           parentDrawerLayout.closeDrawers()
@@ -89,7 +101,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override fun checkPermissions(vararg permissions: PermissionType) {
-    logMethod("permissions: $permissions")
+    logger.debug("checkPermissions, permissions: $permissions")
     permissions.forEach {
       val permissionResponseInt = checkSelfPermission(permissionTypeToString(it))
       val permissionResponseToType = permissionResponseToType(permissionResponseInt)
@@ -99,7 +111,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override fun requestPermissions(vararg permissions: PermissionType) {
-    logMethod("permissions: $permissions")
+    logger.debug("requestPermissions, permissions: $permissions")
     requestPermissions(
         permissions.map { permissionType -> permissionTypeToString(permissionType) }.toTypedArray(),
         requestCode())
@@ -107,7 +119,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
 
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
       grantResults: IntArray) {
-    logMethod("requestCode: $requestCode, permissions: $permissions, results: $grantResults")
+    logger.debug("onRequestPermissionsResult, requestCode: $requestCode, permissions: $permissions, results: $grantResults")
     if (requestCode == requestCode()) {
       permissions.forEachIndexed { index, permissionString ->
         permissionsSubject.onNext(
@@ -120,6 +132,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("renderUserAlertMessage, alert: $userAlertMessage")
     when (userAlertMessage) {
       View.UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
         defaultUserAlert = Snackbar.make(window.decorView.rootView,
@@ -137,15 +150,18 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("stopRenderUserAlertMessage, alert: $userAlertMessage")
     //omitting userAlertMessage check, since Snackbars can be dismissed manually any time.
     defaultUserAlert?.dismiss()
   }
 
   override fun subscribeForPermissionsChange(): Observable<PermissionEvent> {
+    logger.debug("requestPermissions")
     return permissionsSubject
   }
 
   private fun permissionTypeToString(permissionType: PermissionType): String {
+    logger.debug("permissionTypeToString, permissionType: $permissionType")
     when (permissionType) {
       Presenter.PermissionType.CAMERA_PERMISSION -> {
         return Manifest.permission.CAMERA
@@ -157,6 +173,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   private fun permissionStringToType(permissionString: String): PermissionType {
+    logger.debug("permissionStringToType, permissionString: $permissionString")
     when (permissionString) {
       Manifest.permission.CAMERA -> {
         return CAMERA_PERMISSION
@@ -169,6 +186,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   private fun permissionResponseToType(permissionResponseInt: Int): PermissionResponse {
+    logger.debug("permissionResponseToType, permissionResponseInt: $permissionResponseInt")
     when (permissionResponseInt) {
       PackageManager.PERMISSION_GRANTED -> {
         return PermissionResponse.PERMISSION_GRANTED

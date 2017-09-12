@@ -9,7 +9,7 @@ import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetw
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.*
 import com.android.szparag.saymyname.utils.ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
-import com.android.szparag.saymyname.utils.logMethod
+import com.android.szparag.saymyname.utils.Logger
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -26,6 +26,7 @@ class SaymynameRealtimeCameraPreviewModel(
     val repository: ImagesWordsRepository
 ) : RealtimeCameraPreviewModel {
 
+  private val logger = Logger.create(SaymynameRealtimeCameraPreviewModel::class)
   private val networkSubscriptions: CompositeDisposable by lazy { CompositeDisposable() }
 
   override fun attach(): Completable {
@@ -54,7 +55,7 @@ class SaymynameRealtimeCameraPreviewModel(
     imageByteArray ?: throw ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
     val modelType = modelStringToType(modelString)
     val languageToType = languageStringToType(languageToString)
-    logMethod("modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")
+    logger.debug("requestImageProcessingWithTranslation, modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")
     return imageRecognitionService
         .requestImageProcessing(modelType.modelId, imageByteArray)
         .observeOn(Schedulers.io())

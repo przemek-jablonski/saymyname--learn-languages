@@ -3,6 +3,7 @@
 package com.android.szparag.saymyname.utils
 
 import android.util.Log
+import kotlin.reflect.KClass
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/5/2017.
@@ -28,24 +29,55 @@ private val ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL_KEY = "Error during 
 private val ERROR_CAMERA_CONFIGURATION_NULL_KEY = "Error configuring camera, retrieved instance is null."
 private val ERROR_CAMERA_SURFACE_NULL_KEY = "Error performing camera surface operations, surfaceview is null."
 
-inline fun logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
-  //TODO: refactor that so that it uses kapt and generating code, this approach is CPU heavy
-  val currentThread = Thread.currentThread()
-  currentThread
-      ?.takeIf {
-        true
-        //todo: check if NOT in debug
-      }
-      ?.let {
-        val stacktrace = it.stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
-        val threadName = it.name
-        val className = stacktrace.className
-        val methodName = stacktrace.methodName
-        val lineNumber = stacktrace.lineNumber
-        Log.println(level, APPLICATION_TAG, " [${threadName.toUpperCase()}] | $className.${methodName.toUpperCase()} [$lineNumber] | ${optionalString ?: ""}")
-      }
-}
 
-inline fun logMethodError(optionalString: String? = null, level: Int = Log.ERROR){
-  logMethod(optionalString, level)
+//inline fun Any.logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
+//  this::class.qualifiedName.toString()
+//  Log.println(level, APPLICATION_TAG, " [${threadName.toUpperCase()}] | $className.${methodName.toUpperCase()} [$lineNumber] | ${optionalString ?: ""}")
+//
+////  val currentThread = Thread.currentThread()
+////  currentThread
+////      ?.takeIf {
+////        true
+////        //todo: check if NOT in debug
+////      }
+////      ?.let {
+////        val stacktrace = it.stackTrace[LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH]
+////        val threadName = it.name
+////        val className = stacktrace.className
+////        val methodName = stacktrace.methodName
+////        val lineNumber = stacktrace.lineNumber
+////        Log.println(level, APPLICATION_TAG, " [${threadName.toUpperCase()}] | $className.${methodName.toUpperCase()} [$lineNumber] | ${optionalString ?: ""}")
+////      }
+//}
+//
+//inline fun Any.logMethodError(optionalString: String? = null, level: Int = Log.ERROR){
+//  this.logMethod(optionalString, level)
+//}
+
+class Logger {
+  private lateinit var callerClassString: String
+  private val debugLoggingAvailable = true //todo: check if NOT in debug
+  private val errorLoggingAvailable = true //todo: check if NOT in debug
+
+  companion object {
+    fun create(callerClass : KClass<*>): Logger {
+      return Logger().apply { this.callerClassString = callerClass.simpleName.toString() }
+    }
+  }
+
+  init {
+    //todo: check if NOT in debug
+  }
+
+  fun debug(string: String?) = log(Log.DEBUG, string)
+  fun error(string: String?, exception: Exception) = log(Log.ERROR, string, exception)
+  fun error(string: String?, throwable: Throwable) = log(Log.ERROR, string, throwable)
+
+  private fun log(level: Int = Log.DEBUG, string: String?, exception: Throwable? = null) {
+    exception?.let {
+      Log.println(level, APPLICATION_TAG, "$callerClassString: $string $exception")
+    } ?: Log.println(level, APPLICATION_TAG, "$callerClassString: $string")
+
+    exception?.let { exception.printStackTrace() }
+  }
 }
