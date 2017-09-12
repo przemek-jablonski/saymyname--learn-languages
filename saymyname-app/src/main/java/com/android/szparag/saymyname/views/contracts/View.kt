@@ -51,7 +51,7 @@ interface View {
    *  so that subscribers of this stream are always aware of View readiness,
    *  no matter when they've actually subscribed.
    */
-  fun onViewReady(): Observable<Boolean>
+  fun subscribeOnViewReady(): Observable<Boolean>
 
   /**
    *  Triggers start of another Activity. Contract omits providing applicationContext

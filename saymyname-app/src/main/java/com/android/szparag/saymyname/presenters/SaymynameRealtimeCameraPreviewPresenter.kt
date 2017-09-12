@@ -1,22 +1,18 @@
 package com.android.szparag.saymyname.presenters
 
-import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.CAMERA_PERMISSION
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType.STORAGE_ACCESS
 import com.android.szparag.saymyname.utils.computation
 import com.android.szparag.saymyname.utils.isNotGranted
-import com.android.szparag.saymyname.utils.logMethod
-import com.android.szparag.saymyname.utils.logMethodError
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View
-import java.util.Locale
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
+import java.util.Locale
 
 
 /**
@@ -30,45 +26,56 @@ class SaymynameRealtimeCameraPreviewPresenter(
   private var nativeLanguageCode: String = "en"
   private lateinit var currentForeignLanguageString: String
 
+  //primary presenter lifecycle:
   override fun onAttached() {
     super.onAttached()
+    logger.debug("onAttached")
     subscribeViewPermissionsEvents()
     subscribeModelEvents()
   }
 
-  fun subscribeModelEvents() {
-    model.attach()
-        .subscribeOn(AndroidSchedulers.mainThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeBy(
-            onComplete = {
-              logMethodError("ONATTACHED.onComplete()")
-              subscribeViewUserEvents()
-              subscribeNewWords()
-              initializeTextToSpeechClient(Locale.UK)
-            },
-            onError = { logMethod("ONATTACHED.onError(), $it")
-              it.printStackTrace() })
-        .toModelDisposable()
+  override fun onViewReady() {
+    logger.debug("onViewReady")
+    initializeCameraPreviewView()
   }
 
   override fun onBeforeDetached() {
-    logMethod()
+    logger.debug("onBeforeDetached")
     super.onBeforeDetached()
     view?.stopRenderingLoadingAnimation()
     view?.stopRenderingRealtimeCameraPreview()
   }
 
+
+  fun subscribeModelEvents() {
+    logger.debug("subscribeModelEvents")
+    model
+        .attach()
+        .subscribeOn(AndroidSchedulers.mainThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeBy(
+            onComplete = {
+              logger.debug("subscribeModelEvents.model.attach.onComplete()")
+              subscribeViewUserEvents()
+              subscribeNewWords()
+              initializeTextToSpeechClient(Locale.UK)
+            },
+            onError = { exc ->
+              logger.error("subscribeModelEvents.model.attach.onError()", exc)
+            })
+        .toModelDisposable()
+  }
+
   fun subscribeViewPermissionsEvents() {
-    view?.subscribeForPermissionsChange()
-        ?.doOnSubscribe {
-          logMethod("subscribeViewPermissionsEvents.sub")
-          view?.checkPermissions(CAMERA_PERMISSION, STORAGE_ACCESS)
-        }
+    logger.debug("subscribeViewPermissionsEvents")
+    view
+        ?.subscribeForPermissionsChange()
+        ?.doOnSubscribe { view?.checkPermissions(CAMERA_PERMISSION, STORAGE_ACCESS) }
         ?.ui()
         ?.subscribeBy(
             onNext = { permissionEvent ->
-              logMethod("subscribeViewPermissionsEvents.onNext, ev: $permissionEvent")
+              logger.debug(
+                  "subscribeViewPermissionsEvents.view?.subscribeForPermissionsChange.onNext, ev: $permissionEvent")
               when (permissionEvent.permissionType) {
                 Presenter.PermissionType.CAMERA_PERMISSION -> {
                   if (permissionEvent.permissionResponse.isNotGranted()) {
@@ -90,109 +97,134 @@ class SaymynameRealtimeCameraPreviewPresenter(
                 }
               }
             },
-            onError = { logMethod("subscribeViewPermissionsEvents.onError, exc: $it") },
-            onComplete = { logMethod("subscribeViewPermissionsEvents.onComplete") })
+            onComplete = {
+              logger.debug(
+                  "subscribeViewPermissionsEvents.view?.subscribeForPermissionsChange.onComplete")
+            },
+            onError = { exc ->
+              logger.error(
+                  "subscribeViewPermissionsEvents.view?.subscribeForPermissionsChange.onError", exc)
+            })
         .toViewDisposable()
   }
 
   @Suppress("NON_EXHAUSTIVE_WHEN")
   fun subscribeViewUserEvents() {
-    view?.onUserTakePictureButtonClicked()
+    logger.debug("subscribeViewUserEvents")
+    view
+        ?.onUserTakePictureButtonClicked()
         ?.ui()
-        ?.doOnNext { view?.renderLoadingAnimation() }
-        ?.flatMap { view?.takePicture()?.ui() }
-        ?.doOnNext { this::processCameraPictureEvents }
-        ?.filter { it.type == CAMERA_BYTES_RETRIEVED }
+        ?.doOnNext {
+          view?.renderLoadingAnimation()
+          view?.bottomSheetUnpeek()
+        }
         ?.flatMap {
-          it.cameraImageBytes?.let { bytes ->
-            view?.scaleCompressEncodePictureByteArray(bytes)
-          }?.computation()
+          view?.takePicture()?.ui()
+        }
+        ?.filter {
+          it.type == CAMERA_BYTES_RETRIEVED
+        }
+        ?.flatMap {
+          it.cameraImageBytes
+              ?.let { bytes -> view?.scaleCompressEncodePictureByteArray(bytes) }
+              ?.computation()
         }
         ?.flatMap { pictureEvent ->
-          model.requestImageProcessingWithTranslation(currentImageRecognitionModel, pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
+          model.requestImageProcessingWithTranslation(currentImageRecognitionModel,
+              pictureEvent.cameraImageBytes, nativeLanguageCode, currentForeignLanguageString)
         }
-        ?.doFinally { view?.stopRenderingLoadingAnimation() }
+        ?.doOnEach {
+          view?.stopRenderingLoadingAnimation()
+        }
         ?.observeOn(AndroidSchedulers.mainThread())
         ?.subscribeBy(
-            onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onNext")
+            onNext = { image ->
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserTakePictureButtonClicked.onNext, image: ${image.hashCode()}")
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onComplete")
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserTakePictureButtonClicked.onComplete")
             },
-            onError = {
-              logMethodError("SUBSCRIBEVIEWUSEREVENTS.onUserTakePictureButtonClicked: onError, throwable: ($it)")
-              it.printStackTrace()
+            onError = { exc ->
+              logger.error(
+                  "subscribeViewUserEvents.view?.onUserTakePictureButtonClicked.onError", exc)
+              exc.printStackTrace()
             })
         .toViewDisposable()
 
-    view?.onUserModelSwitchButtonClicked()
+    view
+        ?.onUserModelSwitchButtonClicked()
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onNext, selected: $it")
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserMODELSwitchButtonClicked.onNext, selected: $it")
               currentImageRecognitionModel = it
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onComplete")
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserMODELSwitchButtonClicked.onComplete")
             },
-            onError = {
-              logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserMODELSwitchButtonClicked: onError, throwable: ($it)")
-              it.printStackTrace()
+            onError = { exc ->
+              logger.error("subscribeViewUserEvents.view?.onUserMODELSwitchButtonClicked.onError",
+                  exc)
+              exc.printStackTrace()
             })
         .toViewDisposable()
 
-    view?.onUserLanguageSwitchClicked()
+    view
+        ?.onUserLanguageSwitchClicked()
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onNext, selected: $it")
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserLANGUAGESwitchClicked.onNext, selected: $it")
               currentForeignLanguageString = it
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onComplete")
+              logger.debug("subscribeViewUserEvents.view?.onUserLANGUAGESwitchClicked.onComplete")
             },
-            onError = {
-              logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserLANGUAGESwitchClicked: onError, throwable: ($it)")
-              it.printStackTrace()
+            onError = { exc ->
+              logger.error("subscribeViewUserEvents.view?.onUserLANGUAGESwitchClicked.onError", exc)
+              exc.printStackTrace()
             })
         .toViewDisposable()
 
-    view?.onUserHistoricalEntriesClicked()
+    view
+        ?.onUserHistoricalEntriesClicked()
         ?.ui()
         ?.subscribeBy(
             onNext = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserLanguageSwitchClicked: onNext")
+              logger.debug("subscribeViewUserEvents.view?.onUserHistoricalEntriesClicked.onNext")
               view?.startActivity(HistoricalEntriesActivity::class.java)
             },
             onComplete = {
-              logMethod("SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onComplete")
+              logger.debug(
+                  "subscribeViewUserEvents.view?.onUserHistoricalEntriesClicked.onComplete")
             },
-            onError = {
-              logMethodError(
-                  "SUBSCRIBEVIEWUSEREVENTS.onUserHistoricalEntriesClicked: onError, throwable: ($it)")
-              it.printStackTrace()
+            onError = { exc ->
+              logger.error("subscribeViewUserEvents.view?.onUserHistoricalEntriesClicked.onError",
+                  exc)
+              exc.printStackTrace()
             })
         .toViewDisposable()
 
-    view?.onUserHamburgerMenuClicked()
+    view
+        ?.onUserHamburgerMenuClicked()
         ?.ui()
         ?.subscribe()
         ?.toViewDisposable()
   }
 
-  fun processCameraPictureEvents(cameraPictureEvent: CameraPictureEvent) {
-    //todo: trigger UI changes based on type of cameraPictureEvent
-  }
-
   override fun subscribeNewWords() {
-    model.observeNewWords()
+    logger.debug("subscribeNewWords")
+    model
+        .observeNewWords()
         .ui()
         .subscribeBy(
             onNext = { image ->
-              logMethod("OBSERVENEWWORDS.onNext, image: $image")
+              logger.debug("subscribeNewWords.model.observeNewWords.onNext, image: $image")
               view?.renderNonTranslatedWords(image.getNonTranslatedWords())
               view?.renderTranslatedWords(image.getTranslatedWords())
               view?.bottomSheetPeek()
@@ -202,42 +234,55 @@ class SaymynameRealtimeCameraPreviewPresenter(
                 )
               }
             },
-            onError = { logMethodError("OBSERVENEWWORDS.onError, throwable: $it")
-              it.printStackTrace() },
-            onComplete = { logMethod("OBSERVENEWWORDS.onComplete ") })
+            onComplete = {
+              logger.debug("subscribeNewWords.model.observeNewWords.onNext.onComplete")
+            },
+            onError = { exc ->
+              logger.error("subscribeNewWords.model.observeNewWords.onError", exc)
+              exc.printStackTrace()
+            })
         .toModelDisposable()
   }
 
-  override fun onViewReady() {
-    logMethod()
-    initializeCameraPreviewView()
-  }
 
+  //todo: permissions stuff
+  //todo: if perm isnt granted - dont run this code, if it is - do run it.
+  //todo: immediately after granting permission - run this code.
   override fun initializeCameraPreviewView() {
-    logMethod()
-    view?.let { view ->
-      view.initializeCameraPreviewSurfaceView()
-          .ui()
-          .andThen(view.retrieveHardwareBackCamera().ui())
-          .andThen(view.renderRealtimeCameraPreview().ui())
-          .subscribeBy(
-              onComplete = { logMethod("initializeCameraPreviewView().onComplete") },
-              onError = { this::onCameraSetupFailed })
-          .toViewDisposable()
-    }
+    logger.debug("initializeCameraPreviewView")
+    view
+        ?.retrieveHardwareBackCamera()
+        ?.ui()
+        ?.flatMap { view?.initializeCameraPreviewRendering()?.ui() }
+        ?.observeOn(AndroidSchedulers.mainThread())
+        ?.subscribeBy(
+            onNext = { event ->
+              logger.debug("initializeCameraPreviewView.view?.retrieveHardwareBackCamera.onNext, ev: $event")
+              view?.configureAndStartRealtimeCameraRendering()
+            },
+            onComplete = {
+              logger.debug("initializeCameraPreviewView.view?.retrieveHardwareBackCamera.onComplete")
+            },
+            onError = { exc ->
+              logger.error("initializeCameraPreviewView.view?.retrieveHardwareBackCamera.onError", exc)
+              exc.printStackTrace()
+            }
+        )
+        .toViewDisposable()
+
   }
 
   override fun onCameraSetupFailed(exc: Throwable) {
-    logMethodError("onCameraSetupFailed, $exc")
+    logger.error("onCameraSetupFailed", exc)
     exc.printStackTrace()
   }
 
   override fun initializeTextToSpeechClient(locale: Locale) {
-    logMethod()
+    logger.debug("initializeTextToSpeechClient, locale: $locale")
     view?.initializeTextToSpeechClient(locale)
   }
 
   override fun startCameraRealtimePreview() {
-    logMethod()
+    logger.debug("startCameraRealtimePreview")
   }
 }

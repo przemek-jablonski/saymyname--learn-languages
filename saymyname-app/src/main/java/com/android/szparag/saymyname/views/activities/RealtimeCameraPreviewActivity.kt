@@ -1,17 +1,6 @@
 package com.android.szparag.saymyname.views.activities
 
 
-import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
-import com.android.szparag.saymyname.events.CameraPictureEvent
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
-import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
-import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
-import com.android.szparag.saymyname.utils.bindView
-import com.android.szparag.saymyname.utils.logMethod
-import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
-import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
-import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
-import com.android.szparag.saymyname.R
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.BitmapFactory
 import android.hardware.Camera
@@ -30,37 +19,65 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import com.android.szparag.saymyname.R
+import com.android.szparag.saymyname.dagger.DaggerGlobalScopeWrapper
+import com.android.szparag.saymyname.events.CameraPictureEvent
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_BYTES_RETRIEVED
+import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
+import com.android.szparag.saymyname.events.CameraSurfaceEvent
+import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_NATIVE_EXCEPTION
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
+import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
+import com.android.szparag.saymyname.utils.Logger
+import com.android.szparag.saymyname.utils.bindView
+import com.android.szparag.saymyname.utils.configureCameraDisplayOrientation
+import com.android.szparag.saymyname.utils.configureFocusMode
 import com.android.szparag.saymyname.utils.createArrayAdapter
+import com.android.szparag.saymyname.utils.getCameraHardwareInfo
+import com.android.szparag.saymyname.utils.hide
+import com.android.szparag.saymyname.utils.itemSelections
+import com.android.szparag.saymyname.utils.letNull
+import com.android.szparag.saymyname.utils.setRotation
+import com.android.szparag.saymyname.utils.ui
+import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
+import com.android.szparag.saymyname.views.widgets.SaymynameCameraShutterButton
+import com.android.szparag.saymyname.views.widgets.SaymynameCameraSurfaceView
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
+import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import com.jakewharton.rxbinding2.view.RxView
 import hugo.weaving.DebugLog
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.subscribeBy
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
-import com.android.szparag.saymyname.utils.itemSelections
 
 @Suppress("DEPRECATION") //because of Camera1 API
 @DebugLog
-class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView, Callback {
+class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView {
 
-  val cameraSurfaceView: SurfaceView by bindView(R.id.surfaceview_realtime_camera)
+  val cameraSurfaceView: SaymynameCameraSurfaceView by bindView(R.id.surfaceview_realtime_camera)
   val buttonHamburgerMenu: AppCompatImageButton by bindView(R.id.button_menu_hamburger)
   val spinnerSwitchLanguage: Spinner by bindView(R.id.button_switch_language)
   lateinit var spinnerSwitchLanguageAdapter: ArrayAdapter<CharSequence>
   val spinnerSwitchModel: Spinner by bindView(R.id.button_switch_model)
   lateinit var spinnerSwitchModelAdapter: ArrayAdapter<CharSequence>
   val buttonHistoricalEntries: AppCompatImageButton by bindView(R.id.button_menu_charts)
-  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
-  val floatingWordsView: SaymynameFloatingWordsView by bindView(R.id.view_floating_words) //todo: refactor so that there is only interface here
-  val bottomSheetSinglePhotoDetails: BottomSheetSinglePhotoDetails by bindView(R.id.layout_single_photo_details)
+  val buttonCameraShutter: SaymynameCameraShutterButton by bindView(
+      R.id.button_shutter) //todo: refactor to just interface (CameraShutterButton)
+  val floatingWordsView: SaymynameFloatingWordsView by bindView(
+      R.id.view_floating_words) //todo: refactor so that there is only interface here
+  val bottomSheetSinglePhotoDetails: BottomSheetSinglePhotoDetails by bindView(
+      R.id.layout_single_photo_details)
   val fullscreenMessageInfo: FullscreenMessageInfo by bindView(R.id.fullscreen_message_info)
   var fullscreenMessageType: UserAlertMessage? = null
-  lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
-  lateinit var gestureDetector: GestureDetectorCompat
+  private lateinit var bottomSheetBehavioursSinglePhotoDetails: BottomSheetBehavior<View>
 
   //cannot be injected because of a listener attached to constructor
   private lateinit var textToSpeechClient: TextToSpeech
@@ -68,26 +85,27 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   private var cameraInstance: Camera? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    logMethod()
     super.onCreate(savedInstanceState)
+    logger.debug("onCreate, bundle: $savedInstanceState")
     setContentView(R.layout.activity_realtime_camera_preview)
   }
 
-
-
   override fun onStart() {
     super.onStart()
-    DaggerGlobalScopeWrapper.getComponent(this).inject(this) //todo: find a way to generize them in Kotlin
+    logger.debug("onStart")
+    DaggerGlobalScopeWrapper.getComponent(this).inject(
+        this) //todo: find a way to generize them in Kotlin
     presenter.attach(this) //todo: find a way to generize them in Kotlin
 
     spinnerSwitchLanguageAdapter = createArrayAdapter(R.array.spinner_lang_data)
-    spinnerSwitchModelAdapter= createArrayAdapter(R.array.spinner_model_data)
+    spinnerSwitchModelAdapter = createArrayAdapter(R.array.spinner_model_data)
     spinnerSwitchLanguage.adapter = spinnerSwitchLanguageAdapter
     spinnerSwitchModel.adapter = spinnerSwitchModelAdapter
-    bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(bottomSheetSinglePhotoDetails)
+    bottomSheetBehavioursSinglePhotoDetails = BottomSheetBehavior.from(
+        bottomSheetSinglePhotoDetails)
     bottomSheetBehavioursSinglePhotoDetails.isHideable = false
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
-    bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object: BottomSheetCallback() {
+    bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object : BottomSheetCallback() {
       override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
       }
@@ -95,20 +113,28 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       override fun onStateChanged(bottomSheet: View, newState: Int) {
         when (newState) {
           BottomSheetBehavior.STATE_COLLAPSED -> {
-            logMethod("STATE_COLLAPSED")
+            logger.debug("STATE_COLLAPSED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_alpha_light)
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(
+                  R.color.saymyname_blue_alpha_light)
             }
           }
-          BottomSheetBehavior.STATE_SETTLING -> { logMethod("STATE_SETTLING") }
-          BottomSheetBehavior.STATE_HIDDEN -> { logMethod("STATE_HIDDEN") }
+          BottomSheetBehavior.STATE_SETTLING -> {
+            logger.debug("STATE_SETTLING")
+          }
+          BottomSheetBehavior.STATE_HIDDEN -> {
+            logger.debug("STATE_HIDDEN")
+          }
           BottomSheetBehavior.STATE_EXPANDED -> {
-            logMethod("STATE_EXPANDED")
+            logger.debug("STATE_EXPANDED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
-              bottomSheetSinglePhotoDetails.background = resources.getDrawable(R.color.saymyname_blue_light)
+              bottomSheetSinglePhotoDetails.background = resources.getDrawable(
+                  R.color.saymyname_blue_light)
             }
           }
-          BottomSheetBehavior.STATE_DRAGGING -> { logMethod("STATE_DRAGGING") }
+          BottomSheetBehavior.STATE_DRAGGING -> {
+            logger.debug("STATE_DRAGGING")
+          }
         }
       }
 
@@ -116,8 +142,22 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   }
 
+  override fun onPause() {
+    super.onPause()
+    logger.debug("onPause")
+    cameraInstance?.release()
+    cameraInstance = null
+  }
+
+  override fun onStop() {
+    presenter.detach()
+    logger.debug("onStop")
+    super.onStop()
+  }
+
 
   override fun bottomSheetPeek() {
+    logger.debug("bottomSheetPeek")
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 75
   }
 
@@ -125,161 +165,120 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       textsOriginal: List<String>,
       textsTranslated: List<String>,
       dateTime: Long) {
-    bottomSheetSinglePhotoDetails.setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
+    logger.debug("bottomSheetFillData, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
+    bottomSheetSinglePhotoDetails
+        .setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
   }
 
   override fun bottomSheetUnpeek() {
+    logger.debug("bottomSheetUnpeek")
+    bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
   }
 
-  override fun onStop() {
-    logMethod()
-    presenter.detach()
-    super.onStop()
-  }
 
   override fun onUserTakePictureButtonClicked(): Observable<Any> {
+    logger.debug("onUserTakePictureButtonClicked")
     return RxView.clicks(buttonCameraShutter)
   }
 
   override fun onUserModelSwitchButtonClicked(): Observable<String> {
+    logger.debug("onUserModelSwitchButtonClicked")
     return itemSelections(spinnerSwitchModel)
   }
 
   override fun onUserLanguageSwitchClicked(): Observable<String> {
+    logger.debug("onUserLanguageSwitchClicked")
     return itemSelections(spinnerSwitchLanguage)
   }
 
   override fun onUserHamburgerMenuClicked(): Observable<Any> {
-    return RxView.clicks(buttonHamburgerMenu).doOnNext({parentDrawerLayout.openDrawer(sideNavigationView)})
+    logger.debug("onUserHamburgerMenuClicked")
+    return RxView
+        .clicks(buttonHamburgerMenu)
+        .doOnNext({ parentDrawerLayout.openDrawer(sideNavigationView) })
   }
 
   override fun onUserHistoricalEntriesClicked(): Observable<Any> {
+    logger.debug("onUserHistoricalEntriesClicked")
     return RxView.clicks(buttonHistoricalEntries)
   }
 
-  override fun initializeCameraPreviewSurfaceView(): Completable {
-    logMethod()
-    return Completable.fromAction {
-      val holder = cameraSurfaceView.holder
-      holder.addCallback(this)
-      holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
-    }
-  }
-
-  override fun retrieveHardwareBackCamera(): Completable {
-    logMethod()
-    return Completable.create { emitter ->
-      cameraInstance = openHardwareBackCamera()
-      if (cameraInstance != null) emitter.onComplete() else emitter.onError(Throwable()) //todo: custom throwable
-    }
-  }
-
-  override fun renderRealtimeCameraPreview(): Completable {
-    logMethod()
-    return Completable.create { emitter ->
-      if (cameraInstance == null) emitter.onError(Throwable()) //todo: custom throwable
-      try {
-        cameraInstance?.let {
-          it.setPreviewDisplay(cameraSurfaceView.holder)
-          configureCameraDisplayOrientation(0)
-          configureFocusMode(cameraInstance)
-          it.startPreview()
-          emitter.onComplete()
-        }
-      } catch (exc: Throwable) {
-        emitter.onError(Throwable()) //todo: custom throwable
-      }
-    }
-  }
-
-  //todo: get rid of cameraId, we only care about back-facing cam here
-  private fun configureCameraDisplayOrientation(cameraId: Int) {
-    logMethod()
-    cameraInstance?.let {
-      val info = getCameraHardwareInfo(cameraId)
-      val parameters = it.parameters
-      val displayRotation = this.windowManager.defaultDisplay.rotation
-      var degreesToRotate = 0
-      when (displayRotation) {
-        Surface.ROTATION_0 -> degreesToRotate = 0
-        Surface.ROTATION_90 -> degreesToRotate = 90
-        Surface.ROTATION_180 -> degreesToRotate = 180
-        Surface.ROTATION_270 -> degreesToRotate = 270
-      }
-
-      //todo: add link to this answer (from so, duh)
-      val degreesToRotateFinal: Int
-      if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-        degreesToRotateFinal = (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
+  //todo: really wanted to make this return Completable, but rx noob herp derp
+  override fun retrieveHardwareBackCamera(): Observable<Any> {
+    logger.debug("retrieveHardwareBackCamera")
+    return Observable.create { emitter ->
+      if (cameraInstance == null) {
+        cameraInstance = openHardwareBackCamera()
+        cameraInstance?.setErrorCallback(this::onCameraError)
+        logger.debug("retrieveHardwareBackCamera, retrieved camera instance: $cameraInstance")
       } else {
-        degreesToRotateFinal = (info.orientation - degreesToRotate + 360) % 360
+        logger.debug("retrieveHardwareBackCamera, cached camera instance: $cameraInstance")
       }
-
-      parameters.setRotation(degreesToRotateFinal)
-      it.parameters = parameters
-      it.setDisplayOrientation(degreesToRotateFinal)
+      cameraInstance?.let {
+        emitter.onNext(cameraInstance)
+      } ?:
+          emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
   }
 
-  private fun getCameraHardwareInfo(cameraId: Int): Camera.CameraInfo {
-    logMethod()
-    val info = android.hardware.Camera.CameraInfo()
-    android.hardware.Camera.getCameraInfo(cameraId, info)
-    return info
+  override fun initializeCameraPreviewRendering(): Observable<CameraSurfaceEvent> {
+    logger.debug("initializeCameraPreviewRendering")
+    cameraSurfaceView.initialize()
+    return cameraSurfaceView.subscribeForEvents()
   }
 
-  private fun configureFocusMode(cameraInstance: Camera?) {
-    logMethod()
+  override fun configureAndStartRealtimeCameraRendering() {
+    logger.debug("configureAndStartRealtimeCameraRendering, camera: $cameraInstance")
     cameraInstance?.let {
-      //todo: implement system that handles case where cam doesnt have this FocusMode
-      val parameters = it.parameters
-      parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-      it.parameters = parameters
+      it.configureCameraDisplayOrientation(this.windowManager.defaultDisplay)
+      it.configureFocusMode()
+      it.setPreviewDisplay(cameraSurfaceView.holder)
+      it.startPreview()
     }
   }
-
 
   override fun stopRenderingRealtimeCameraPreview() {
-    logMethod()
+    logger.debug("stopRenderingRealtimeCameraPreview")
   }
 
   override fun renderLoadingAnimation() {
-    logMethod()
+    logger.debug("renderLoadingAnimation")
     floatingWordsView.renderLoadingHalo()
   }
 
   override fun stopRenderingLoadingAnimation() {
-    logMethod()
+    logger.debug("stopRenderingLoadingAnimation")
     floatingWordsView.stopRenderingLoadingHalo()
   }
 
   override fun renderNonTranslatedWords(nonTranslatedWords: List<String>) {
-    logMethod()
+    logger.debug("renderNonTranslatedWords, words: $nonTranslatedWords")
     floatingWordsView.renderAuxiliaryWords(nonTranslatedWords)
   }
 
   override fun renderTranslatedWords(translatedWords: List<String>) {
-    logMethod()
+    logger.debug("renderNonTranslatedWords, words: $translatedWords")
     floatingWordsView.renderPrimaryWords(translatedWords)
   }
 
   override fun stopRenderingWords() {
-    logMethod()
+    logger.debug("stopRenderingWords")
     floatingWordsView.clearWords()
   }
 
   private fun openHardwareBackCamera(): Camera? {
-    logMethod()
+    logger.debug("openHardwareBackCamera")
     try {
       return Camera.open()
     } catch (exc: RuntimeException) {
-      exc.printStackTrace() //todo: ...logging, show error, whatever
+      exc.printStackTrace()
+      //todo: ...logging, show error, whatever
     }
     return null
   }
 
   override fun takePicture(): Observable<CameraPictureEvent> {
-    logMethod()
+    logger.debug("takePicture")
     return Observable.create({ emitter ->
       cameraInstance?.takePicture(
           Camera.ShutterCallback { emitter.onNext(CameraPictureEvent(CAMERA_SHUTTER_EVENT)) },
@@ -294,16 +293,19 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun scaleCompressEncodePictureByteArray(pictureByteArray: ByteArray)
       : Observable<CameraPictureEvent> {
+    logger.debug("scaleCompressEncodePictureByteArray, picture: ${pictureByteArray.hashCode()}")
     return Observable.create { emitter ->
       try {
         val options = BitmapFactory.Options().apply {
           this.inPurgeable = true
-          rescaleImageRequestFactor(8, this) //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
+          rescaleImageRequestFactor(8,
+              this) //todo: refactor so that i can specify minimum res (600-720px) instead of scaling //todo: because i do not know how powerful user camera is
         }
-        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size, options)
+        val scaledBitmap = BitmapFactory.decodeByteArray(pictureByteArray, 0, pictureByteArray.size,
+            options)
         val compressedByteStream = ByteArrayOutputStream()
         scaledBitmap.compress(JPEG, 60, compressedByteStream)
-        if (compressedByteStream.size() == 0) emitter.onError(Throwable())
+        if (compressedByteStream.size() <= 0) emitter.onError(ERROR_COMPRESSED_BYTES_INVALID_SIZE)
         else emitter.onNext(CameraPictureEvent(compressedByteStream.toByteArray()))
       } catch (exc: Throwable) {
         emitter.onError(exc)
@@ -314,12 +316,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   private fun rescaleImageRequestFactor(
       downScaleFactor: Int,
       bitmapOptions: BitmapFactory.Options): BitmapFactory.Options {
+    logger.debug("rescaleImageRequestFactor, downScaleFactor: $downScaleFactor, options: $bitmapOptions")
     bitmapOptions.inSampleSize = downScaleFactor
     return bitmapOptions
   }
 
   override fun initializeTextToSpeechClient(locale: Locale) {
-    logMethod()
+    logger.debug("initializeTextToSpeechClient, locale: $locale")
     textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
       status ->
       status.takeIf { code -> code != TextToSpeech.ERROR }?.run {
@@ -329,32 +332,22 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun speakText(textToSpeak: String, flushSpeakingQueue: Boolean) {
-    logMethod()
+    logger.debug("speakText, textToSpeak: $textToSpeak, flushSpeakingQueue: $flushSpeakingQueue")
     textToSpeechClient.speak(textToSpeak,
         if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
 
   override fun initializeSuddenMovementDetection() {
-    logMethod()
+    logger.debug("initializeSuddenMovementDetection")
   }
 
   override fun onSuddenMovementDetected() {
-    logMethod()
+    logger.debug("onSuddenMovementDetected")
   }
 
-  override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-    logMethod()
-  }
-
-  override fun surfaceDestroyed(holder: SurfaceHolder?) {
-    logMethod()
-  }
-
-  override fun surfaceCreated(holder: SurfaceHolder?) {
-    logMethod()
-  }
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     when (userAlertMessage) {
       UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
         fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark,
@@ -370,8 +363,19 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   override fun stopRenderUserAlertMessage(userAlertMessage: UserAlertMessage) {
+    logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     if (fullscreenMessageType == userAlertMessage)
       fullscreenMessageInfo.hide()
+  }
+
+  private fun onCameraError(errorCode: Int, cameraInstance: Camera) {
+    var errorString =
+        when (errorCode) {
+          Camera.CAMERA_ERROR_EVICTED -> "CAMERA_ERROR_EVICTED"
+          Camera.CAMERA_ERROR_SERVER_DIED -> "CAMERA_ERROR_SERVER_DIED"
+          else -> "CAMERA_ERROR_UNKNOWN"
+        }
+    logger.error("onCameraError, errorCode: $errorCode, errorString: $errorString, camera: $cameraInstance", ERROR_CAMERA_NATIVE_EXCEPTION) //todo: exception
   }
 
 

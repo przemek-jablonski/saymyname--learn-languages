@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.android.szparag.saymyname.R
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.bindView
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,13 +29,12 @@ class BottomSheetSinglePhotoDetails @JvmOverloads constructor(
   private val textViewTranslated3: TextView by bindView(R.id.textview_translated_3)
   private val textViewDatetime: TextView by bindView(R.id.textview_datetime)
   private val imageView: ImageView by bindView(R.id.imageview_camera_image)
+  private val logger = Logger.create(this::class)
 
-  init {
-
-  }
 
   fun setPhotoDetails(imageBytes: ByteArray, textsOriginal: List<String>,
       textsTranslated: List<String>, dateTime: Long) {
+    logger.debug("setPhotoDetails, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
     imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size))
     textViewOriginal1.text = textsOriginal[0]
     textViewOriginal2.text = textsOriginal[1]
