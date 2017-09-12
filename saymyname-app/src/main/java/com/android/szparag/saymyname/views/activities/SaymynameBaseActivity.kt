@@ -31,6 +31,7 @@ import com.android.szparag.saymyname.views.contracts.View.MenuOption.UPGRADE_DON
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.jakewharton.rxbinding2.support.design.widget.RxNavigationView
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.ReplaySubject
 import io.reactivex.subjects.Subject
 
@@ -41,7 +42,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
 
   internal lateinit var logger: Logger
   lateinit open var presenter: P
-  val viewReadySubject: Subject<Boolean> = ReplaySubject.create()
+  val viewReadySubject: Subject<Boolean> = PublishSubject.create()
   val permissionsSubject: Subject<PermissionEvent> = ReplaySubject.create()
   internal val sideNavigationView: NavigationView by bindView(R.id.navigation_view)
   internal val parentDrawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
@@ -53,6 +54,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
     logger = Logger.create(this::class)
     logger.debug("logger created, $logger")
     logger.debug("onCreate, bundle: $savedInstanceState")
+    viewReadySubject.doOnSubscribe { viewReadySubject.onNext(hasWindowFocus()) }
   }
 
   @CallSuper

@@ -94,12 +94,12 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
 
   fun Disposable?.toViewDisposable() {
-    logger.debug("toViewDisposable: viewDisposables: $viewDisposables")
+    logger.debug("toViewDisposable: viewDisposables: $viewDisposables, disposed: ${viewDisposables.isDisposed}")
     viewDisposables.takeIf { !it.isDisposed }?.add(this)
   }
 
   fun Disposable?.toModelDisposable() {
-    logger.debug("toModelDisposable: modelDisposables: $modelDisposables")
+    logger.debug("toModelDisposable: modelDisposables: $modelDisposables, disposed: ${modelDisposables.isDisposed}")
     modelDisposables.takeIf { !it.isDisposed }?.add(this)
   }
 }
