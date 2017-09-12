@@ -26,6 +26,7 @@ import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEven
 import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEventType.CAMERA_SHUTTER_EVENT
 import com.android.szparag.saymyname.events.CameraSurfaceEvent
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
+import com.android.szparag.saymyname.utils.ERROR_CAMERA_NATIVE_EXCEPTION
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
@@ -206,6 +207,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     logger.debug("retrieveHardwareBackCamera")
     return Observable.create { emitter ->
       cameraInstance = openHardwareBackCamera()
+      cameraInstance?.setErrorCallback (this::onCameraError)
       logger.debug("retrieved camera instance: $cameraInstance")
       cameraInstance?.let {
         emitter.onNext(cameraInstance)
@@ -359,6 +361,16 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     if (fullscreenMessageType == userAlertMessage)
       fullscreenMessageInfo.hide()
+  }
+
+  private fun onCameraError(errorCode: Int, cameraInstance: Camera) {
+    var errorString =
+        when (errorCode) {
+          Camera.CAMERA_ERROR_EVICTED -> "CAMERA_ERROR_EVICTED"
+          Camera.CAMERA_ERROR_SERVER_DIED -> "CAMERA_ERROR_SERVER_DIED"
+          else -> "CAMERA_ERROR_UNKNOWN"
+        }
+    logger.error("onCameraError, errorCode: $errorCode, errorString: $errorString, camera: $cameraInstance", ERROR_CAMERA_NATIVE_EXCEPTION) //todo: exception
   }
 
 

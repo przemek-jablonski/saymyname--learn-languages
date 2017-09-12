@@ -38,7 +38,8 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
   private fun subscribeViewReadyEvents() {
     logger.debug("subscribeViewReadyEvents")
-    view?.subscribeOnViewReady()
+    view
+        ?.subscribeOnViewReady()
         ?.ui()
         ?.doOnSubscribe { logger.debug("subscribeViewReadyEvents.sub") }
         ?.filter { readyFlag -> readyFlag }
@@ -46,13 +47,20 @@ abstract class BasePresenter<V : View> : Presenter<V> {
             onNext = { readyFlag ->
               logger.debug("subscribeViewReadyEvents.onNext, ready: $readyFlag")
               onViewReady()
+            },
+            onComplete = {
+              logger.debug("subscribeViewReadyEvents.onComplete")
+            },
+            onError = { exc ->
+              logger.error("subscribeViewReadyEvents.onError", exc)
             }
         )
   }
 
   private fun subscribeViewMenuEvents() {
     logger.debug("subscribeViewMenuEvents")
-    view?.subscribeMenuItemClicked()
+    view
+        ?.subscribeMenuItemClicked()
         ?.ui()
         ?.subscribeBy (
             onNext = { menuOption ->
@@ -86,10 +94,12 @@ abstract class BasePresenter<V : View> : Presenter<V> {
 
 
   fun Disposable?.toViewDisposable() {
+    logger.debug("toViewDisposable: viewDisposables: $viewDisposables")
     viewDisposables.takeIf { !it.isDisposed }?.add(this)
   }
 
   fun Disposable?.toModelDisposable() {
+    logger.debug("toModelDisposable: modelDisposables: $modelDisposables")
     modelDisposables.takeIf { !it.isDisposed }?.add(this)
   }
 }

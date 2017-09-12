@@ -65,7 +65,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   @CallSuper
   override fun onStop() {
     super.onStop()
-    logger.debug("onStart")
+    logger.debug("onStop")
   }
 
   @CallSuper

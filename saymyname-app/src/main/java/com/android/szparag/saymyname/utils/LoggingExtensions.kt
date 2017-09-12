@@ -14,6 +14,7 @@ val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
 val ERROR_CAMERA_RETRIEVAL by lazy { Throwable(ERROR_CAMERA_RETRIEVAL_KEY) }
 val ERROR_CAMERA_CONFIGURATION_NULL by lazy { Throwable(ERROR_CAMERA_CONFIGURATION_NULL_KEY) }
+val ERROR_CAMERA_NATIVE_EXCEPTION by lazy {Throwable(ERROR_CAMERA_NATIVE_EXCEPTION_KEY)}
 val ERROR_CAMERA_RENDERING_COMMAND_NULL by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_NULL_KEY) }
 val ERROR_CAMERA_RENDERING_COMMAND_EXC by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_EXC_KEY) }
 val ERROR_CAMERA_SURFACE_NULL by lazy { Throwable(ERROR_CAMERA_SURFACE_NULL_KEY) }
@@ -28,6 +29,7 @@ private val ERROR_REPOSITORY_PUSH_IMAGE_NULL_KEY = "Error pushing to repository,
 private val ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL_KEY = "Error during 'image processing with translation' request, captured image bytes are null."
 private val ERROR_CAMERA_CONFIGURATION_NULL_KEY = "Error configuring camera, retrieved instance is null."
 private val ERROR_CAMERA_SURFACE_NULL_KEY = "Error performing camera surface operations, surfaceview is null."
+private val ERROR_CAMERA_NATIVE_EXCEPTION_KEY = "Error: Camera threw native error, reason unknown."
 
 
 //inline fun Any.logMethod(optionalString: String? = null, level: Int = Log.DEBUG) {
@@ -70,6 +72,7 @@ class Logger {
   }
 
   fun debug(string: String?) = log(Log.DEBUG, string)
+  fun error(string: String?) = log(Log.ERROR, string)
   fun error(string: String?, exception: Exception) = log(Log.ERROR, string, exception)
   fun error(string: String?, throwable: Throwable) = log(Log.ERROR, string, throwable)
 
