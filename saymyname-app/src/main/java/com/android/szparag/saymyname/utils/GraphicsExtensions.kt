@@ -131,7 +131,6 @@ inline fun View.getClippingSpread(): Pair<Int, Int> {
  */
 inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect {
   val rawBoundingBox = getRawBoundingBox(boundingBox)
-  logMethod("boundingBox: $boundingBox, rawBoundingBox: $rawBoundingBox")
   return Rect(
       rawBoundingBox.left - boundingBox.left,
       rawBoundingBox.top - boundingBox.top,
@@ -149,28 +148,22 @@ inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect
 //}
 
 inline fun View.setCoordinatesCenter(coordX: Float, coordY: Float) {
-  logMethod("(x,y): $coordX, $coordY, translationBefore (x,y): $translationX, $translationY")
   this.translationX = coordX - (left/2f)
   this.translationY = coordY - (top/2f)
-  logMethod("translationAfter (x,y): $translationX, $translationY")
 }
 
 fun View.setCoordinatesCenterNoclip(coordX: Float, coordY: Float) {
-  logMethod("view: (x,y): $coordX, $coordY")
   setCoordinatesCenter(coordX, coordY)
   val clippingRect = this.getClippingRect()
   translate(clippingRect.width(), clippingRect.height())
 }
 
 inline fun View.translate(moveByPxAxisX: Float, moveByPxAxisY: Float) {
-  logMethod("moveByPxAxisX,Y: $moveByPxAxisX, $moveByPxAxisY, before: $x, $y")
   this.x += moveByPxAxisX
   this.y += moveByPxAxisY
-  logMethod("after: $x, $y")
 }
 
 inline fun View.translate(moveByPxAxisX: Int, moveByPxAxisY: Int) {
-  logMethod("moveByPxAxisX,Y: $moveByPxAxisX, $moveByPxAxisY")
   translate(moveByPxAxisX.toFloat(), moveByPxAxisY.toFloat())
 }
 
@@ -215,7 +208,6 @@ fun View.fadeInTranslate(toXDelta: Float, toYDelta: Float, fromAlpha: Float = 0f
 private fun View.fade(fromAlpha: Float, toAlpha: Float,
     interpolator: Interpolator = LinearInterpolator(), durationMillis: Long = 500,
     animationStartCallback: () -> Unit, animationEndCallback: () -> Unit) {
-  logMethod("fromAlpha: $fromAlpha, toAlpha: $toAlpha, $interpolator, duration: $durationMillis")
   val fade = AlphaAnimation(fromAlpha, toAlpha)
   fade.interpolator = interpolator
   fade.duration = durationMillis
@@ -330,3 +322,6 @@ inline fun View.getGlobalVisibleRect(): Rect {
 inline fun View.getLocationOnScreen(): Point {
   return getCoordinatesLeftTop()
 }
+
+inline fun View.show() { this.visibility = View.GONE }
+inline fun View.hide() { this.visibility = View.GONE }

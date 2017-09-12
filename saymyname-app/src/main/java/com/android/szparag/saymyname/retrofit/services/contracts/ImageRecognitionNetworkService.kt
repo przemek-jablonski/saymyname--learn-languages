@@ -2,7 +2,6 @@ package com.android.szparag.saymyname.retrofit.services.contracts
 
 import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.Concept
-import com.android.szparag.saymyname.utils.logMethod
 import io.reactivex.Observable
 
 

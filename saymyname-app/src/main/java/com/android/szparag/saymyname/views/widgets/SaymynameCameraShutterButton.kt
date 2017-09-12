@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
 import android.widget.Button
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.views.widgets.contracts.CameraShutterButton
 
 /**
@@ -15,14 +16,16 @@ class SaymynameCameraShutterButton: CameraShutterButton, FloatingActionButton {
   constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs,
       defStyleAttr)
 
+  private val logger = Logger.create(this::class)
+
 
 
   override fun onShutterButtonClicked() {
-
+    logger.debug("onShutterButtonClicked")
   }
 
   override fun onShutterButtonLongClicked() {
-
+    logger.debug("onShutterButtonLongClicked")
   }
 
 }

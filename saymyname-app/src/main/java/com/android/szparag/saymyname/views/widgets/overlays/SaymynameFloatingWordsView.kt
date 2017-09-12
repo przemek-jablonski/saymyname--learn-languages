@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.android.szparag.saymyname.R
+import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.bindViews
 import com.android.szparag.saymyname.utils.fadeIn
@@ -16,7 +17,6 @@ import com.android.szparag.saymyname.utils.fadeOut
 import com.android.szparag.saymyname.utils.getBoundingBox
 import com.android.szparag.saymyname.utils.getBoundingBoxSpread
 import com.android.szparag.saymyname.utils.getCoordinatesCenter
-import com.android.szparag.saymyname.utils.logMethod
 import com.android.szparag.saymyname.utils.min
 import com.android.szparag.saymyname.views.widgets.FloatingWordTextView
 import com.android.szparag.saymyname.views.widgets.contracts.FloatingWordsView
@@ -29,6 +29,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
 
+  private val logger = Logger.create(SaymynameFloatingWordsView::class)
   private val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
   private val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
   private val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
@@ -53,18 +54,15 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
 
   override fun onFinishInflate() {
     super.onFinishInflate()
-    logMethod()
     random = Random()
   }
 
   override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
     super.onWindowFocusChanged(hasWindowFocus)
-    logMethod(optionalString = "hasWindowFocus: $hasWindowFocus")
     obtainRenderDimensions()
   }
 
   private fun obtainRenderDimensions() {
-    logMethod()
     viewCenter = getCoordinatesCenter()
     viewBoundingBox = getBoundingBox()
     viewBoundingBox?.let {
@@ -74,20 +72,13 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   override fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>) {
-    logMethod(optionalString = auxiliaryWords.toString())
-    logMethod(
-        optionalString = "viewCenter: $viewCenter, viewBoundingBox: $viewBoundingBox, viewBoundingBoxSpawnSpread: $viewBoundingBoxSpawnSpread")
 
     if (viewBoundingBoxSpawnSpread == null || viewCenter == null) {
-      logMethod(level = Log.ERROR,
-          optionalString = "Render Dimensions are nulled out, returning...")
       return
     }
 
     val boundingBoxQuarters = (0..3).toMutableList()
     val iterationCount = IntRange(0, auxiliaryWords.size.min(auxiliaryWordsViews.size) - 1)
-    logMethod(
-        optionalString = "boundingBoxQuarters: $boundingBoxQuarters, iterationCount: $iterationCount")
 
     for (i in iterationCount) {
       boundingBoxQuarters
@@ -96,8 +87,6 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
             val spawnQuarterId = it.removeAt(random.nextInt(it.size))
             val spawnCoordX = random.nextInt(viewBoundingBoxSpawnSpread!!.first)
             val spawnCoordY = random.nextInt(viewBoundingBoxSpawnSpread!!.second)
-            logMethod(
-                optionalString = "spawnQuarterId: $spawnQuarterId, spawn (x,y): $spawnCoordX, $spawnCoordY")
             when (spawnQuarterId) {
               0 -> {
                 renderWord(
@@ -160,13 +149,6 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   private fun renderWord(wordView: TextView?, word: CharSequence, coordX: Float, coordY: Float) {
-    logMethod(
-        optionalString =
-        "wordView : ${wordView?.let { it.resources.getResourceName(it.id) }}, " +
-            "word: $word, " +
-            "(x,y): ($coordX, $coordY)"
-    )
-
     wordView?.let {
       it.text = FLOATING_WORD_TEXT_TAG_PREFIX.plus(word)
       it.fadeIn(

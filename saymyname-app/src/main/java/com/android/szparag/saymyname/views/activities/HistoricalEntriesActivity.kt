@@ -16,7 +16,6 @@ import android.support.v7.widget.LinearSnapHelper
 import android.support.v7.widget.SnapHelper
 import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.repositories.entities.Image
-import com.android.szparag.saymyname.utils.logMethod
 
 
 class HistoricalEntriesActivity : SaymynameBaseActivity<HistoricalEntriesPresenter>(), HistoricalEntriesView {
@@ -27,18 +26,21 @@ class HistoricalEntriesActivity : SaymynameBaseActivity<HistoricalEntriesPresent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    logger.debug("onCreate, bundle: $savedInstanceState")
     overridePendingTransition(R.anim.transition_right_left, R.anim.transition_left_right)
     setContentView(R.layout.activity_historical_entries)
   }
 
   override fun onStart() {
     super.onStart()
+    logger.debug("onStart")
     DaggerGlobalScopeWrapper.getComponent(this).inject(this)
     presenter.attach(this)
   }
 
   override fun setupViews() {
     super.setupViews()
+    logger.debug("setupViews")
     recyclerViewAdapter = ImagesWordsRvAdapter()
     recyclerViewHistorical.adapter = recyclerViewAdapter
     recyclerViewHistorical.layoutManager = LinearLayoutManager(this)
@@ -48,15 +50,15 @@ class HistoricalEntriesActivity : SaymynameBaseActivity<HistoricalEntriesPresent
 
   //todo: i am sending entire list there, this may be not ideal in terms of performance
   override fun updateImagesList(imagesList: List<Image>) {
-    logMethod("list: $imagesList")
+    logger.debug("updateImagesList, list: $imagesList")
     recyclerViewAdapter.setImages(imagesList)
     recyclerViewAdapter.notifyDataSetChanged()
   }
 
   override fun onStop() {
     super.onStop()
+    logger.debug("onStop")
     presenter.detach()
-    super.onStop()
   }
 
 }
