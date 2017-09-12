@@ -47,14 +47,15 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   internal val sideNavigationView: NavigationView by bindView(R.id.navigation_view)
   internal val parentDrawerLayout: DrawerLayout by bindView(R.id.drawer_layout)
   private var defaultUserAlert: Snackbar? = null
+  private var windowFocusCache = false
 
   @CallSuper
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    viewReadySubject.doOnSubscribe { viewReadySubject.onNext(hasWindowFocus()) }
     logger = Logger.create(this::class)
     logger.debug("logger created, $logger")
     logger.debug("onCreate, bundle: $savedInstanceState")
-    viewReadySubject.doOnSubscribe { viewReadySubject.onNext(hasWindowFocus()) }
   }
 
   @CallSuper
@@ -76,9 +77,10 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   override final fun onWindowFocusChanged(hasFocus: Boolean) {
-    logger.debug("onWindowFocusChanged, hasFocus: $hasFocus")
+    logger.debug("onWindowFocusChanged, hasFocus: $hasFocus, windowFocusCache: $windowFocusCache")
     super.onWindowFocusChanged(hasFocus)
-    viewReadySubject.onNext(hasFocus)
+    if (windowFocusCache != hasFocus) viewReadySubject.onNext(hasFocus)
+    windowFocusCache = hasFocus
   }
 
   override fun subscribeOnViewReady(): Observable<Boolean> {
