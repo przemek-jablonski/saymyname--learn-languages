@@ -2,6 +2,7 @@ package com.android.szparag.saymyname.presenters
 
 import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.utils.Logger
+import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
 import com.android.szparag.saymyname.views.contracts.View.MenuOption.*

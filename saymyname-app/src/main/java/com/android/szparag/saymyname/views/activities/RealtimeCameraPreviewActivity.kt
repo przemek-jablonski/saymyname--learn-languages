@@ -50,7 +50,6 @@ import com.android.szparag.saymyname.views.widgets.SaymynameCameraSurfaceView
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import com.jakewharton.rxbinding2.view.RxView
-import hugo.weaving.DebugLog
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.subscribeBy
@@ -59,7 +58,6 @@ import java.util.Locale
 import javax.inject.Inject
 
 @Suppress("DEPRECATION") //because of Camera1 API
-@DebugLog
 class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPreviewPresenter>(), RealtimeCameraPreviewView {
 
   val cameraSurfaceView: SaymynameCameraSurfaceView by bindView(R.id.surfaceview_realtime_camera)
@@ -215,7 +213,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
         logger.debug("retrieveHardwareBackCamera, cached camera instance: $cameraInstance")
       }
       cameraInstance?.let {
-        emitter.onNext(cameraInstance)
+        emitter.onNext(it)
       } ?:
           emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
