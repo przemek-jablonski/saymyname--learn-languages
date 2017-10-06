@@ -30,7 +30,8 @@ class SaymynameImageRecognitionNetworkService(
 
   override fun requestImageProcessing(modelId: String, image: ByteArray): Observable<List<Concept>> {
     logger.debug("requestImageProcessing, modelId: $modelId, image: ${image.hashCode()}")
-    if (modelId == ImageRecognitionModel.COLOURS.modelId) throw RuntimeException("Colours model is not available atm (different json structure)") //todo: fix dat
+    if (modelId == ImageRecognitionModel.COLOURS.modelId) throw RuntimeException(
+        "Colours model is not available atm (different json structure)") //todo: fix dat
     return networkApiClient.processImageByModel(
         key = AUTHORIZATION_KEY_PREFIX + NETWORK_SERVICE_API_KEY,
         modelId = modelId,

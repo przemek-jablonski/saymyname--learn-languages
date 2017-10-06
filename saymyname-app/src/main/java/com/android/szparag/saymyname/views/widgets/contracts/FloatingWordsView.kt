@@ -10,7 +10,7 @@ interface FloatingWordsView {
   fun stopRenderingLoadingHalo()
 
   fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>)
-  fun renderPrimaryWords(primaryWords : List<CharSequence?>)
+  fun renderPrimaryWords(primaryWords: List<CharSequence?>)
 
   fun clearAuxillaryWords()
   fun clearPrimaryWords()

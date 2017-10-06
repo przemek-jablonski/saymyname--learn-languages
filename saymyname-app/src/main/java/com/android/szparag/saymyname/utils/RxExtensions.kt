@@ -1,9 +1,6 @@
 package com.android.szparag.saymyname.utils
 
-import android.widget.Adapter
 import android.widget.Spinner
-import com.jakewharton.rxbinding2.view.RxView
-import com.jakewharton.rxbinding2.widget.RxAdapterView
 import hu.akarnokd.rxjava.interop.RxJavaInterop
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
@@ -96,7 +93,7 @@ fun Realm.executeTransactionAsyncBy(transaction: Transaction, onSuccess: OnSucce
 
 
 fun itemSelections(view: Spinner): Observable<String> {
-  checkNotNull(view, {"view == null"})
+  checkNotNull(view, { "view == null" })
   return SpinnerSelectionObservable(view)
 }
 

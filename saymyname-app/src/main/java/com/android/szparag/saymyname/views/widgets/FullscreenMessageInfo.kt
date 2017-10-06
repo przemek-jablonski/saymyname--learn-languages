@@ -21,12 +21,13 @@ class FullscreenMessageInfo @JvmOverloads constructor(
 
   val messageIcon: ImageView by bindView(R.id.fullscreenMessageIcon)
   val messageText: TextView by bindView(R.id.fullscreenMessageText)
-  private val logger = Logger.create(this::class) //todo: create class BaseWidget so that i can stash this Logger.create() there
+  private val logger = Logger.create(
+      this::class) //todo: create class BaseWidget so that i can stash this Logger.create() there
 
 
   fun show(@DrawableRes messageDrawableRes: Int?, messageString: String) {
     logger.debug("show, messageDrawableRes: $messageDrawableRes, messageString: $messageString")
-    messageDrawableRes?.let {messageIcon.setImageDrawable(resources.getDrawable(it))}
+    messageDrawableRes?.let { messageIcon.setImageDrawable(resources.getDrawable(it)) }
     messageText.text = messageString
     visibility = View.VISIBLE
     //todo: fadein

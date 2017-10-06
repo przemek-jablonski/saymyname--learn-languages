@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
   <stroke
-      android:width="@dimen/hud_margin_uniform_small"
-      android:color="@color/colorPrimary"/>
+      android:color="@color/colorPrimary"
+      android:width="@dimen/hud_margin_uniform_small"/>
 
 </shape>

@@ -1,6 +1,5 @@
 package com.android.szparag.saymyname.views.contracts
 
-import android.view.MenuItem
 import com.android.szparag.saymyname.events.PermissionEvent
 import com.android.szparag.saymyname.presenters.Presenter.PermissionType
 import com.android.szparag.saymyname.views.activities.SaymynameBaseActivity
@@ -68,7 +67,7 @@ interface View {
   /**
    *  Requests permission(s) from PermissionType group.
    */
-  fun requestPermissions(vararg permissions : PermissionType)
+  fun requestPermissions(vararg permissions: PermissionType)
 
   /**
    *  Returns stream of PermissionEvents informing about permission changes.

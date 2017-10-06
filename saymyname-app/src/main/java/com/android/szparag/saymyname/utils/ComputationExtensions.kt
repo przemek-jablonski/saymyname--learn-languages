@@ -95,7 +95,7 @@ inline fun lerp(val1: Float, val2: Float, alpha: Float): Float {
   return val1 + alpha * (val2 - val2)
 }
 
-inline fun <T> Iterable<Iterable<T>?>.flatten(): MutableList <out T> {
+inline fun <T> Iterable<Iterable<T>?>.flatten(): MutableList<out T> {
   val result = ArrayList<T>()
   this.forEach { iterable ->
     iterable?.let { result.addAll(iterable) }

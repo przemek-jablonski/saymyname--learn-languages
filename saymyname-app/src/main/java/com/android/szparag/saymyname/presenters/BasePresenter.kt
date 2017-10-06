@@ -5,7 +5,13 @@ import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.add
 import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.View
-import com.android.szparag.saymyname.views.contracts.View.MenuOption.*
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.ABOUT
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.ACHIEVEMENTS
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.HELP_FEEDBACK
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.OPEN_SOURCE
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.SETTINGS
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.TUTORIAL
+import com.android.szparag.saymyname.views.contracts.View.MenuOption.UPGRADE_DONATE
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -63,16 +69,23 @@ abstract class BasePresenter<V : View> : Presenter<V> {
     view
         ?.subscribeMenuItemClicked()
         ?.ui()
-        ?.subscribeBy (
+        ?.subscribeBy(
             onNext = { menuOption ->
-              when(menuOption) {
-                SETTINGS -> { }
-                ACHIEVEMENTS -> {}
-                TUTORIAL -> {}
-                ABOUT -> {}
-                UPGRADE_DONATE -> {}
-                OPEN_SOURCE -> {}
-                HELP_FEEDBACK -> {}
+              when (menuOption) {
+                SETTINGS -> {
+                }
+                ACHIEVEMENTS -> {
+                }
+                TUTORIAL -> {
+                }
+                ABOUT -> {
+                }
+                UPGRADE_DONATE -> {
+                }
+                OPEN_SOURCE -> {
+                }
+                HELP_FEEDBACK -> {
+                }
               }
             }
         )

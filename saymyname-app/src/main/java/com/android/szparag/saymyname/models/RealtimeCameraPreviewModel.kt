@@ -1,6 +1,5 @@
 package com.android.szparag.saymyname.models
 
-import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.repositories.entities.Image
 import io.reactivex.Completable
 import io.reactivex.Flowable

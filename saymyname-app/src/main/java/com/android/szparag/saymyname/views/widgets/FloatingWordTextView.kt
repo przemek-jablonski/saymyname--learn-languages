@@ -46,7 +46,7 @@ class FloatingWordTextView : TextView {
     applyWordType(wordType)
   }
 
-  private fun applyWordType(wordType : Int?) {
+  private fun applyWordType(wordType: Int?) {
     when (wordType) {
       FLOATINGWORD_TYPE_AUXILLIARY -> {
         setAllCaps(AUXILIARY_TEXTALLCAPS)

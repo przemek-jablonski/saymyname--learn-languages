@@ -8,5 +8,5 @@ import com.google.gson.annotations.SerializedName
  */
 data class AvailableLanguages(
     @SerializedName("dirs") @Expose val dirs: List<String>?
-  //?
+    //?
 )

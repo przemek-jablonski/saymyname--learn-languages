@@ -2,9 +2,7 @@ package com.android.szparag.saymyname.retrofit.apis
 
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictRequest
 import com.android.szparag.saymyname.retrofit.entities.imageRecognition.ImagePredictResponse
-import io.reactivex.Flowable
 import io.reactivex.Observable
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -21,8 +19,8 @@ interface ApiImageRecognitionClarifai {
 
   @POST("models/{model_id}/outputs")
   fun processImageByModel(
-    @Header("Authorization") key : String,
-      @Path("model_id") modelId : String,
+      @Header("Authorization") key: String,
+      @Path("model_id") modelId: String,
       @Body imagePredictRequest: ImagePredictRequest): Observable<ImagePredictResponse>
 
 }

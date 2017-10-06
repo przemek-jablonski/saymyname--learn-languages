@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Point
-import android.graphics.PointF
 import android.graphics.Rect
 import android.hardware.Camera
 import android.hardware.Camera.ShutterCallback
@@ -41,8 +40,8 @@ inline fun View.getCoordinatesLeftTop(): Point {
 
 inline fun View.getCoordinatesCenter(): Point {
   val coordsCenter = Point(getCoordinatesLeftTop())
-  coordsCenter.x += width/2
-  coordsCenter.y += height/2
+  coordsCenter.x += width / 2
+  coordsCenter.y += height / 2
   return coordsCenter
 }
 
@@ -148,8 +147,8 @@ inline fun View.getClippingRect(boundingBox: Rect = this.getBoundingBox()): Rect
 //}
 
 inline fun View.setCoordinatesCenter(coordX: Float, coordY: Float) {
-  this.translationX = coordX - (left/2f)
-  this.translationY = coordY - (top/2f)
+  this.translationX = coordX - (left / 2f)
+  this.translationY = coordY - (top / 2f)
 }
 
 fun View.setCoordinatesCenterNoclip(coordX: Float, coordY: Float) {
@@ -195,9 +194,11 @@ fun View.fadeInTranslate(toXDelta: Float, toYDelta: Float, fromAlpha: Float = 0f
     override fun onAnimationStart(animation: Animation?) {
       animationStartCallback.invoke()
     }
+
     override fun onAnimationEnd(animation: Animation?) {
       animationEndCallback.invoke()
     }
+
     override fun onAnimationRepeat(animation: Animation?) {
 
     }
@@ -242,8 +243,7 @@ fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: Pictur
   this.takePicture(
       shutterCallback,
       null,
-      Camera.PictureCallback {
-        data, camera ->
+      Camera.PictureCallback { data, camera ->
         pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data,
             camera)
       })
@@ -323,5 +323,10 @@ inline fun View.getLocationOnScreen(): Point {
   return getCoordinatesLeftTop()
 }
 
-inline fun View.show() { this.visibility = View.GONE }
-inline fun View.hide() { this.visibility = View.GONE }
+inline fun View.show() {
+  this.visibility = View.GONE
+}
+
+inline fun View.hide() {
+  this.visibility = View.GONE
+}

@@ -1,6 +1,5 @@
 package com.android.szparag.saymyname.presenters
 
-import android.support.annotation.CallSuper
 import com.android.szparag.saymyname.views.contracts.View
 
 /**
@@ -14,9 +13,12 @@ interface Presenter<V : View> {
   enum class PermissionType() {
     CAMERA_PERMISSION,
     STORAGE_ACCESS;
+
     var permissionAskCount = -1
 
-    init { permissionAskCount += 1 }
+    init {
+      permissionAskCount += 1
+    }
   }
 
   /**

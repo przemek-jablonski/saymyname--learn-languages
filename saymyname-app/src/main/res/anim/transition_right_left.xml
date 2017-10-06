@@ -5,10 +5,10 @@
   <translate
       android:duration="350"
       android:factor="2"
-      android:interpolator="@android:anim/decelerate_interpolator"
       android:fromXDelta="100%"
-      android:toXDelta="0%"
       android:fromYDelta="0%"
+      android:interpolator="@android:anim/decelerate_interpolator"
+      android:toXDelta="0%"
       android:toYDelta="0%"
       />
 </set>

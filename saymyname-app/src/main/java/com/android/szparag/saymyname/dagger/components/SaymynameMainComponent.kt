@@ -5,14 +5,14 @@ import com.android.szparag.saymyname.presenters.SaymynameHistoricalEntriesPresen
 import com.android.szparag.saymyname.retrofit.services.SaymynameImageRecognitionNetworkService
 import com.android.szparag.saymyname.views.activities.HistoricalEntriesActivity
 import com.android.szparag.saymyname.views.activities.RealtimeCameraPreviewActivity
-import com.android.szparag.saymyname.views.activities.SaymynameBaseActivity
 import dagger.Component
 import javax.inject.Singleton
 
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/5/2017.
  */
-@Singleton @Component(modules = arrayOf(SaymynameMainModule::class))
+@Singleton
+@Component(modules = arrayOf(SaymynameMainModule::class))
 interface SaymynameMainComponent {
 
   fun inject(target: RealtimeCameraPreviewActivity)

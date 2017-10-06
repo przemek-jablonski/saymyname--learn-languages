@@ -1,9 +1,7 @@
 package com.android.szparag.saymyname.utils
 
 import android.view.View
-import android.widget.Adapter
 import android.widget.AdapterView
-import android.widget.AdapterView.INVALID_POSITION
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Spinner
 import com.jakewharton.rxbinding2.InitialValueObservable
@@ -17,7 +15,9 @@ import io.reactivex.android.MainThreadDisposable
 class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObservable<String>() {
 
   override fun subscribeListener(observer: Observer<in String>?) {
-    if (observer == null || !checkMainThread(observer)) { return }
+    if (observer == null || !checkMainThread(observer)) {
+      return
+    }
     val listener = Listener(view, observer)
     view.onItemSelectedListener = listener
     observer.onSubscribe(listener)
@@ -32,7 +32,9 @@ class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObserv
     : MainThreadDisposable(), OnItemSelectedListener {
 
     override fun onItemSelected(adapterView: AdapterView<*>, view: View, position: Int, id: Long) {
-      if (!isDisposed) { observer.onNext(spinner.adapter.getItem(position).toString()) }
+      if (!isDisposed) {
+        observer.onNext(spinner.adapter.getItem(position).toString())
+      }
     }
 
     override fun onNothingSelected(adapterView: AdapterView<*>) {

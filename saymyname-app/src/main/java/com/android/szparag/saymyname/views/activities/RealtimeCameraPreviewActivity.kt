@@ -10,12 +10,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetBehavior.BottomSheetCallback
-import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageButton
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceHolder.Callback
-import android.view.SurfaceView
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -27,21 +22,14 @@ import com.android.szparag.saymyname.events.CameraPictureEvent.CameraPictureEven
 import com.android.szparag.saymyname.events.CameraSurfaceEvent
 import com.android.szparag.saymyname.presenters.RealtimeCameraPreviewPresenter
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_NATIVE_EXCEPTION
-import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_EXC
-import com.android.szparag.saymyname.utils.ERROR_CAMERA_RENDERING_COMMAND_NULL
 import com.android.szparag.saymyname.utils.ERROR_CAMERA_RETRIEVAL
 import com.android.szparag.saymyname.utils.ERROR_COMPRESSED_BYTES_INVALID_SIZE
-import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.bindView
 import com.android.szparag.saymyname.utils.configureCameraDisplayOrientation
 import com.android.szparag.saymyname.utils.configureFocusMode
 import com.android.szparag.saymyname.utils.createArrayAdapter
-import com.android.szparag.saymyname.utils.getCameraHardwareInfo
 import com.android.szparag.saymyname.utils.hide
 import com.android.szparag.saymyname.utils.itemSelections
-import com.android.szparag.saymyname.utils.letNull
-import com.android.szparag.saymyname.utils.setRotation
-import com.android.szparag.saymyname.utils.ui
 import com.android.szparag.saymyname.views.contracts.RealtimeCameraPreviewView
 import com.android.szparag.saymyname.views.contracts.View.UserAlertMessage
 import com.android.szparag.saymyname.views.widgets.FullscreenMessageInfo
@@ -50,9 +38,7 @@ import com.android.szparag.saymyname.views.widgets.SaymynameCameraSurfaceView
 import com.android.szparag.saymyname.views.widgets.overlays.BottomSheetSinglePhotoDetails
 import com.android.szparag.saymyname.views.widgets.overlays.SaymynameFloatingWordsView
 import com.jakewharton.rxbinding2.view.RxView
-import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.subscribeBy
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
@@ -163,7 +149,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       textsOriginal: List<String>,
       textsTranslated: List<String>,
       dateTime: Long) {
-    logger.debug("bottomSheetFillData, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
+    logger.debug(
+        "bottomSheetFillData, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
     bottomSheetSinglePhotoDetails
         .setPhotoDetails(imageBytes, textsOriginal, textsTranslated, dateTime)
   }
@@ -321,8 +308,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
 
   override fun initializeTextToSpeechClient(locale: Locale) {
     logger.debug("initializeTextToSpeechClient, locale: $locale")
-    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
-      status ->
+    textToSpeechClient = TextToSpeech(applicationContext, TextToSpeech.OnInitListener { status ->
       status.takeIf { code -> code != TextToSpeech.ERROR }?.run {
         textToSpeechClient.language = locale
       }
@@ -373,7 +359,8 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
           Camera.CAMERA_ERROR_SERVER_DIED -> "CAMERA_ERROR_SERVER_DIED"
           else -> "CAMERA_ERROR_UNKNOWN"
         }
-    logger.error("onCameraError, errorCode: $errorCode, errorString: $errorString, camera: $cameraInstance", ERROR_CAMERA_NATIVE_EXCEPTION) //todo: exception
+    logger.error("onCameraError, errorCode: $errorCode, errorString: $errorString, camera: $cameraInstance",
+        ERROR_CAMERA_NATIVE_EXCEPTION) //todo: exception
   }
 
 

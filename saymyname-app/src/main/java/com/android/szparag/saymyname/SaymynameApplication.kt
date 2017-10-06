@@ -1,8 +1,6 @@
 package com.android.szparag.saymyname
 
 import android.app.Application
-import com.android.szparag.saymyname.repositories.entities.Image
-import com.android.szparag.saymyname.repositories.entities.Word
 import com.facebook.stetho.Stetho
 import io.realm.Realm
 import io.realm.RealmConfiguration

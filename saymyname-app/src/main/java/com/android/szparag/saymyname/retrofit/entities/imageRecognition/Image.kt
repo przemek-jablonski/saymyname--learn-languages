@@ -9,7 +9,8 @@ import com.google.gson.annotations.SerializedName
  */
 class Image() {
 
-  @SerializedName("base64") @Expose lateinit var imageBase64: String
+  @SerializedName("base64")
+  @Expose lateinit var imageBase64: String
 
   constructor(imageBase64: String) : this() {
     this.imageBase64 = imageBase64

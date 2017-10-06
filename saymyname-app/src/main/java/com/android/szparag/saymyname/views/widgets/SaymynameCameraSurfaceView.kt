@@ -24,7 +24,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
   private val surfaceEventsSubject = ReplaySubject.create<CameraSurfaceEvent>()
   private val logger = Logger.create(this::class)
 
-  fun subscribeForEvents():Observable<CameraSurfaceEvent> {
+  fun subscribeForEvents(): Observable<CameraSurfaceEvent> {
     logger.debug("subscribeForEvents")
     return surfaceEventsSubject
   }
@@ -44,7 +44,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
   override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
     logger.debug("surfaceChanged, holder: $holder, format: $format, dimens: ($width x $height")
-    holder?.let { surfaceEventsSubject.onNext(CameraSurfaceEvent(SURFACE_CHANGED)) } ?: surfaceEventsSubject.onError(ERROR_CAMERA_SURFACE_NULL)
+    holder?.let { surfaceEventsSubject.onNext(CameraSurfaceEvent(SURFACE_CHANGED)) } ?: surfaceEventsSubject.onError(
+        ERROR_CAMERA_SURFACE_NULL)
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder?) {

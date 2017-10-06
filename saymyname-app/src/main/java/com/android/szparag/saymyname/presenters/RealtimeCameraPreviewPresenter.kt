@@ -11,7 +11,7 @@ interface RealtimeCameraPreviewPresenter :
     ImageRecognitionPresenter<RealtimeCameraPreviewView> {
 
 
-  val model : RealtimeCameraPreviewModel
+  val model: RealtimeCameraPreviewModel
 
   fun subscribeNewWords()
 }

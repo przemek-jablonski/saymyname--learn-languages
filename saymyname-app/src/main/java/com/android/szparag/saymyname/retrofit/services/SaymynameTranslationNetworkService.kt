@@ -5,7 +5,6 @@ import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetw
 import com.android.szparag.saymyname.utils.Logger
 import com.android.szparag.saymyname.utils.single
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 
 /**

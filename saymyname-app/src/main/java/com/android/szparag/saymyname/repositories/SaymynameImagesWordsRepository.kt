@@ -1,6 +1,5 @@
 package com.android.szparag.saymyname.repositories
 
-import android.util.Log
 import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.repositories.entities.Word
 import com.android.szparag.saymyname.utils.ERROR_REPOSITORY_PUSH_IMAGE_NULL
@@ -55,14 +54,17 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
   //todo: shouldnt this be Completable?
   override fun pushImage(imageBase64: ByteArray, languageFrom: String, languageTo: String, model: String,
       wordsOriginal: List<String>, wordsTranslated: List<String>): Observable<Image> {
-    logger.debug("pushImage, languageFrom: $languageFrom, languageTo: $languageTo, model: $model, wordsOriginal: $wordsOriginal, wordsTranslated: $wordsTranslated, imageBase64: ${imageBase64.hashCode()}")
+    logger.debug(
+        "pushImage, languageFrom: $languageFrom, languageTo: $languageTo, model: $model, wordsOriginal: $wordsOriginal, wordsTranslated: $wordsTranslated, imageBase64: ${imageBase64.hashCode()}")
     return Observable.create { emitter ->
       logger.debug("pushImage.Observable.create")
       var parentImage: Image? = null
       try {
         realm.executeTransaction { realm ->
           logger.debug("pushImage.Observable.create.executeTransaction, thread: ${Thread.currentThread().name}")
-          parentImage = realm.createObject(Image::class.java).apply { this.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model) }
+          parentImage = realm.createObject(Image::class.java).apply {
+            this.set(System.currentTimeMillis(), imageBase64, languageFrom, languageTo, model)
+          }
           wordsOriginal.forEachIndexed { index, original ->
             parentImage?.words?.add(realm.createObject(Word::class.java).apply {
               this.set(System.currentTimeMillis(), original, wordsTranslated[index])

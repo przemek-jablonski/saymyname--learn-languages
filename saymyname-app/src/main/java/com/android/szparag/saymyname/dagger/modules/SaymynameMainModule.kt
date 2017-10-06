@@ -1,8 +1,6 @@
 package com.android.szparag.saymyname.dagger.modules
 
 import android.content.Context
-import android.hardware.Camera
-import android.speech.tts.TextToSpeech
 import com.android.szparag.saymyname.R
 import com.android.szparag.saymyname.models.RealtimeCameraPreviewModel
 import com.android.szparag.saymyname.models.SaymynameRealtimeCameraPreviewModel
@@ -30,7 +28,8 @@ import javax.inject.Singleton
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/5/2017.
  */
 
-@Module class SaymynameMainModule(private val context: Context) {
+@Module
+class SaymynameMainModule(private val context: Context) {
 
   @Named("ImageRecognition.NetworkService.BaseUrl")
   val IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL = "https://api.clarifai.com/v2/"
@@ -38,67 +37,94 @@ import javax.inject.Singleton
   val TRANSLATION_NETWORK_SERVICE_BASEURL = "https://translate.yandex.net/api/v1.5/"
 
 
-  @Provides @Singleton fun provideContext(): Context {
+  @Provides
+  @Singleton
+  fun provideContext(): Context {
     return context
   }
 
-  @Provides fun provideRealtimeCameraPresenter(
+  @Provides
+  fun provideRealtimeCameraPresenter(
       realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter {
     return SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
   }
 
-  @Provides fun provideHistoricalEntriesPresenter(repository: ImagesWordsRepository): HistoricalEntriesPresenter {
+  @Provides
+  fun provideHistoricalEntriesPresenter(repository: ImagesWordsRepository): HistoricalEntriesPresenter {
     return SaymynameHistoricalEntriesPresenter(repository)
   }
 
-  @Provides @Singleton fun provideImageRecognitionNetworkService(
+  @Provides
+  @Singleton
+  fun provideImageRecognitionNetworkService(
       @Named("ImageRecognition.NetworkService.BaseUrl") baseUrl: String,
       @Named(
           "ImageRecognition.NetworkService.ApiKey") apiKey: String): ImageRecognitionNetworkService {
     return SaymynameImageRecognitionNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
   }
 
-  @Provides @Singleton fun provideTranslationNetworkService(
+  @Provides
+  @Singleton
+  fun provideTranslationNetworkService(
       @Named("Translation.NetworkService.BaseUrl") baseUrl: String,
       @Named("Translation.NetworkService.ApiKey") apiKey: String): TranslationNetworkService {
     return SaymynameTranslationNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
   }
 
-  @Provides @Singleton fun provideRealtimeCameraPreviewModel(
+  @Provides
+  @Singleton
+  fun provideRealtimeCameraPreviewModel(
       imageRecognitionNetworkService: ImageRecognitionNetworkService,
       translationNetworkService: TranslationNetworkService,
       imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPreviewModel {
-    return SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService, imagesWordsRepository)
+    return SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService,
+        imagesWordsRepository)
   }
 
-  @Provides @Singleton fun provideImagesWordsRepository(): ImagesWordsRepository {
+  @Provides
+  @Singleton
+  fun provideImagesWordsRepository(): ImagesWordsRepository {
     return SaymynameImagesWordsRepository()
   }
 
-  @Provides @Singleton @Named(
-      "Translation.NetworkService.ApiKey") fun provideTranslationNetworkServiceApiKey(
+  @Provides
+  @Singleton
+  @Named(
+      "Translation.NetworkService.ApiKey")
+  fun provideTranslationNetworkServiceApiKey(
       context: Context): String {
     return context.getString(R.string.yandex_api_key)
   }
 
-  @Provides @Singleton @Named(
-      "ImageRecognition.NetworkService.ApiKey") fun provideImageRecognitionNetworkServiceApiKey(
+  @Provides
+  @Singleton
+  @Named(
+      "ImageRecognition.NetworkService.ApiKey")
+  fun provideImageRecognitionNetworkServiceApiKey(
       context: Context): String {
     return context.getString(R.string.clarifai_api_key)
   }
 
   //todo: unify naming - Translation not Translate, ImageRecognition not ImageProcessing etc
-  @Provides @Singleton @Named(
-      "ImageRecognition.NetworkService.BaseUrl") fun provideImageRecognitionNetworkServiceBaseUrl(): String {
+  @Provides
+  @Singleton
+  @Named(
+      "ImageRecognition.NetworkService.BaseUrl")
+  fun provideImageRecognitionNetworkServiceBaseUrl(): String {
     return IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL
   }
 
-  @Provides @Singleton @Named(
-      "Translation.NetworkService.BaseUrl") fun provideTranslationNetworkServiceBaseUrl(): String {
+  @Provides
+  @Singleton
+  @Named(
+      "Translation.NetworkService.BaseUrl")
+  fun provideTranslationNetworkServiceBaseUrl(): String {
     return TRANSLATION_NETWORK_SERVICE_BASEURL
   }
 
-  @Provides @Singleton fun provideNetworkServiceRestClient(
+  @Provides
+  @Singleton
+  fun provideNetworkServiceRestClient(
       networkServiceBaseString: String): Retrofit {
     return Retrofit.Builder()
         .baseUrl(networkServiceBaseString)

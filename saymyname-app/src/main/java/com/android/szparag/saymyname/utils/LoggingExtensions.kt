@@ -14,13 +14,15 @@ val LOG_EXTENSION_STACKTRACE_DESIRED_DEPTH = 4
 
 val ERROR_CAMERA_RETRIEVAL by lazy { Throwable(ERROR_CAMERA_RETRIEVAL_KEY) }
 val ERROR_CAMERA_CONFIGURATION_NULL by lazy { Throwable(ERROR_CAMERA_CONFIGURATION_NULL_KEY) }
-val ERROR_CAMERA_NATIVE_EXCEPTION by lazy {Throwable(ERROR_CAMERA_NATIVE_EXCEPTION_KEY)}
+val ERROR_CAMERA_NATIVE_EXCEPTION by lazy { Throwable(ERROR_CAMERA_NATIVE_EXCEPTION_KEY) }
 val ERROR_CAMERA_RENDERING_COMMAND_NULL by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_NULL_KEY) }
 val ERROR_CAMERA_RENDERING_COMMAND_EXC by lazy { Throwable(ERROR_CAMERA_RENDERING_COMMAND_EXC_KEY) }
 val ERROR_CAMERA_SURFACE_NULL by lazy { Throwable(ERROR_CAMERA_SURFACE_NULL_KEY) }
-val ERROR_COMPRESSED_BYTES_INVALID_SIZE by lazy {Throwable(ERROR_COMPRESSED_BYTES_INVALID_SIZE_KEY) }
-val ERROR_REPOSITORY_PUSH_IMAGE_NULL by lazy {Throwable(ERROR_REPOSITORY_PUSH_IMAGE_NULL_KEY)}
-val ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL by lazy {Throwable(ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL_KEY)}
+val ERROR_COMPRESSED_BYTES_INVALID_SIZE by lazy { Throwable(ERROR_COMPRESSED_BYTES_INVALID_SIZE_KEY) }
+val ERROR_REPOSITORY_PUSH_IMAGE_NULL by lazy { Throwable(ERROR_REPOSITORY_PUSH_IMAGE_NULL_KEY) }
+val ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL by lazy {
+  Throwable(ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL_KEY)
+}
 private val ERROR_CAMERA_RETRIEVAL_KEY = "Error retrieving camera instance, camera object is null."
 private val ERROR_CAMERA_RENDERING_COMMAND_NULL_KEY = "Error rendering stream from camera, camera is null."
 private val ERROR_CAMERA_RENDERING_COMMAND_EXC_KEY = "Error rendering stream from camera, operation thrown exception."
@@ -62,7 +64,7 @@ class Logger {
   private val errorLoggingAvailable = true //todo: check if NOT in debug
 
   companion object {
-    fun create(callerClass : KClass<*>): Logger {
+    fun create(callerClass: KClass<*>): Logger {
       return Logger().apply { this.callerClassString = callerClass.simpleName.toString() }
     }
   }

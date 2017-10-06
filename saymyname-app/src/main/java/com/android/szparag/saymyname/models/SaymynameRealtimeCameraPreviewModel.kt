@@ -4,10 +4,18 @@ import com.android.szparag.saymyname.repositories.ImagesWordsRepository
 import com.android.szparag.saymyname.repositories.entities.Image
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel
-import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.*
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.CLOTHING
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.COLOURS
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.FOOD
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.GENERAL
+import com.android.szparag.saymyname.retrofit.services.contracts.ImageRecognitionNetworkService.ImageRecognitionModel.TRAVEL
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService
 import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage
-import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.*
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.ENGLISH
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.GERMAN
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.ITALIAN
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.POLISH
+import com.android.szparag.saymyname.retrofit.services.contracts.TranslationNetworkService.TranslationLanguage.SPANISH
 import com.android.szparag.saymyname.utils.ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
 import com.android.szparag.saymyname.utils.Logger
 import io.reactivex.Completable
@@ -55,7 +63,8 @@ class SaymynameRealtimeCameraPreviewModel(
     imageByteArray ?: throw ERROR_IMAGEPROCESSINGWITHTRANSLATION_IMAGE_NULL
     val modelType = modelStringToType(modelString)
     val languageToType = languageStringToType(languageToString)
-    logger.debug("requestImageProcessingWithTranslation, modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")
+    logger.debug(
+        "requestImageProcessingWithTranslation, modelType: $modelType, languageFromCode: $languageFromCode, languageToType: $languageToType, imageByteArray: ${imageByteArray.hashCode()}")
     return imageRecognitionService
         .requestImageProcessing(modelType.modelId, imageByteArray)
         .observeOn(Schedulers.io())
@@ -63,16 +72,18 @@ class SaymynameRealtimeCameraPreviewModel(
           concepts.map { concept -> concept.name }.subList(0, 3)
         }
         .flatMap { concepts ->
-          translationService.requestTextTranslation(concepts, languageCodesToPair(languageFromCode, languageToType.languageCode))
+          translationService.requestTextTranslation(concepts,
+              languageCodesToPair(languageFromCode, languageToType.languageCode))
         }
         .observeOn(AndroidSchedulers.mainThread())
         .flatMap { words ->
-          repository.pushImage(imageByteArray, languageToString, languageToType.languageCode, modelType.modelString, words.map { (first) -> first }, words.map { words -> words.second })
+          repository.pushImage(imageByteArray, languageToString, languageToType.languageCode, modelType.modelString,
+              words.map { (first) -> first }, words.map { words -> words.second })
         }
   }
 
   private fun modelStringToType(modelString: String): ImageRecognitionModel {
-    when(modelString) {
+    when (modelString) {
       COLOURS.modelString -> return COLOURS
       FOOD.modelString -> return FOOD
       TRAVEL.modelString -> return TRAVEL
@@ -82,7 +93,7 @@ class SaymynameRealtimeCameraPreviewModel(
   }
 
   private fun languageStringToType(languageString: String): TranslationLanguage {
-    when(languageString) {
+    when (languageString) {
       ITALIAN.languageString -> return ITALIAN
       SPANISH.languageString -> return SPANISH
       GERMAN.languageString -> return GERMAN

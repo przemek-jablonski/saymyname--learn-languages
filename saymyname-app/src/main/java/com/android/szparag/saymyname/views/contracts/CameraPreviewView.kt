@@ -2,7 +2,6 @@ package com.android.szparag.saymyname.views.contracts
 
 import com.android.szparag.saymyname.events.CameraPictureEvent
 import com.android.szparag.saymyname.events.CameraSurfaceEvent
-import io.reactivex.Completable
 import io.reactivex.Observable
 
 /**

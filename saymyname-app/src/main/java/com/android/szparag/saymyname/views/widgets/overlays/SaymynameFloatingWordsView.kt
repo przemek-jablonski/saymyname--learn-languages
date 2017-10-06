@@ -5,7 +5,6 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.android.szparag.saymyname.R
@@ -48,8 +47,6 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
       R.id.textview_word_primary_2,
       R.id.textview_word_primary_3
   )
-
-
 
 
   override fun onFinishInflate() {
@@ -154,16 +151,8 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
       it.fadeIn(
           animationStartCallback = {
             it.visibility = View.VISIBLE
-//            it.setCoordinatesCenterNoclip(coordX, coordY)
           },
           animationEndCallback = {
-            //            val anim = TranslateAnimation(-10 * random.nextFloat(0.5f, 10f), 10 * random.nextFloat(0.5f, 20f), -1f, 1f)
-//            anim.repeatMode = REVERSE
-//            anim.repeatCount = INFINITE
-//            anim.interpolator = AnticipateInterpolator(random.nextFloat(0.5f, 2.0f))
-//            anim.duration = (3000 * (random.nextFloat(0.1f, 1.25f)).toLong())
-//            anim.startTime = 0
-//            it.animation = anim
           })
     }
   }

@@ -79,7 +79,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   override final fun onWindowFocusChanged(hasFocus: Boolean) {
     logger.debug("onWindowFocusChanged, hasFocus: $hasFocus, windowFocusCache: $windowFocusCache")
     super.onWindowFocusChanged(hasFocus)
-      if (windowFocusCache != hasFocus) viewReadySubject.onNext(hasFocus)
+    if (windowFocusCache != hasFocus) viewReadySubject.onNext(hasFocus)
     windowFocusCache = hasFocus
   }
 
@@ -123,7 +123,8 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
 
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
       grantResults: IntArray) {
-    logger.debug("onRequestPermissionsResult, requestCode: $requestCode, permissions: $permissions, results: $grantResults")
+    logger.debug(
+        "onRequestPermissionsResult, requestCode: $requestCode, permissions: $permissions, results: $grantResults")
     if (requestCode == requestCode()) {
       permissions.forEachIndexed { index, permissionString ->
         permissionsSubject.onNext(

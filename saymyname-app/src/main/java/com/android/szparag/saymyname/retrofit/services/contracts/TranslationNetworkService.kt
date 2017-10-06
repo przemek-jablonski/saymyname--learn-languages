@@ -1,6 +1,5 @@
 package com.android.szparag.saymyname.retrofit.services.contracts
 
-import android.support.annotation.CallSuper
 import io.reactivex.Observable
 
 /**

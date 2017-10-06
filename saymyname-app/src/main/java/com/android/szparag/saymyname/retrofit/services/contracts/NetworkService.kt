@@ -5,6 +5,6 @@ package com.android.szparag.saymyname.retrofit.services.contracts
  */
 interface NetworkService {
 
-  val NETWORK_SERVICE_API_KEY : String
+  val NETWORK_SERVICE_API_KEY: String
 
 }
