@@ -7,8 +7,7 @@ import io.reactivex.Observable
  */
 interface TranslationNetworkService : NetworkService {
 
-  enum class TranslationLanguage(val languageString: String, val languageCode: String) {
-    ITALIAN("🇮🇹", "it"),
+  enum class TranslationLanguage(val languageString: String, val languageCode: String) { ITALIAN("🇮🇹", "it"),
     SPANISH("🇪🇸", "es"),
     GERMAN("🇩🇪", "de"),
     ENGLISH("🇺🇸", "en"),

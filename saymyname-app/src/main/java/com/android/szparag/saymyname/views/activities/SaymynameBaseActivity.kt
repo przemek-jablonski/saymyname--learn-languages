@@ -72,9 +72,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   }
 
   @CallSuper
-  override fun setupViews() {
-    logger.debug("setupViews")
-  }
+  override fun setupViews() = logger.debug("setupViews")
 
   override final fun onWindowFocusChanged(hasFocus: Boolean) {
     logger.debug("onWindowFocusChanged, hasFocus: $hasFocus, windowFocusCache: $windowFocusCache")
@@ -117,7 +115,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   override fun requestPermissions(vararg permissions: PermissionType) {
     logger.debug("requestPermissions, permissions: $permissions")
     requestPermissions(
-        permissions.map { permissionType -> permissionTypeToString(permissionType) }.toTypedArray(),
+        permissions.map(this::permissionTypeToString).toTypedArray(),
         requestCode())
   }
 
@@ -139,7 +137,7 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
     logger.debug("renderUserAlertMessage, alert: $userAlertMessage")
     when (userAlertMessage) {
-      View.UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
+      View.UserAlertMessage.CAMERA_PERMISSION_ALERT  -> {
         defaultUserAlert = Snackbar.make(window.decorView.rootView,
             resources.getString(R.string.dialog_alert_permission_camera),
             Snackbar.LENGTH_INDEFINITE)
@@ -167,69 +165,67 @@ abstract class SaymynameBaseActivity<P : Presenter<*>> : AppCompatActivity(), Vi
 
   private fun permissionTypeToString(permissionType: PermissionType): String {
     logger.debug("permissionTypeToString, permissionType: $permissionType")
-    when (permissionType) {
+    return when (permissionType) {
       Presenter.PermissionType.CAMERA_PERMISSION -> {
-        return Manifest.permission.CAMERA
+        Manifest.permission.CAMERA
       }
-      Presenter.PermissionType.STORAGE_ACCESS -> {
-        return Manifest.permission.WRITE_EXTERNAL_STORAGE
+      Presenter.PermissionType.STORAGE_ACCESS    -> {
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
       }
     }
   }
 
   private fun permissionStringToType(permissionString: String): PermissionType {
     logger.debug("permissionStringToType, permissionString: $permissionString")
-    when (permissionString) {
-      Manifest.permission.CAMERA -> {
-        return CAMERA_PERMISSION
+    return when (permissionString) {
+      Manifest.permission.CAMERA                 -> {
+        CAMERA_PERMISSION
       }
       Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-        return STORAGE_ACCESS
+        STORAGE_ACCESS
       }
-      else -> throw RuntimeException()
+      else                                       -> throw RuntimeException()
     }
   }
 
   private fun permissionResponseToType(permissionResponseInt: Int): PermissionResponse {
     logger.debug("permissionResponseToType, permissionResponseInt: $permissionResponseInt")
-    when (permissionResponseInt) {
+    return when (permissionResponseInt) {
       PackageManager.PERMISSION_GRANTED -> {
-        return PermissionResponse.PERMISSION_GRANTED
+        PermissionResponse.PERMISSION_GRANTED
       }
-      else -> {
-        return PermissionResponse.PERMISSION_DENIED
+      else                              -> {
+        PermissionResponse.PERMISSION_DENIED
       }
     }
   }
 
-  private fun requestCode(): Int {
-    return Math.abs(this.packageName.hashCode())
-  }
+  private fun requestCode() = Math.abs(this.packageName.hashCode())
 
   private fun MenuItem.toMenuOption(): MenuOption {
     when (this.itemId) {
-      R.id.menu_action_settings -> {
+      R.id.menu_action_settings      -> {
         return SETTINGS
       }
-      R.id.menu_action_achievements -> {
+      R.id.menu_action_achievements  -> {
         return ACHIEVEMENTS
       }
-      R.id.menu_action_tutorial -> {
+      R.id.menu_action_tutorial      -> {
         return TUTORIAL
       }
-      R.id.menu_action_about -> {
+      R.id.menu_action_about         -> {
         return ABOUT
       }
       R.id.menu_action_upgradedonate -> {
         return UPGRADE_DONATE
       }
-      R.id.menu_action_opensource -> {
+      R.id.menu_action_opensource    -> {
         return OPEN_SOURCE
       }
-      R.id.menu_action_helpfeedback -> {
+      R.id.menu_action_helpfeedback  -> {
         return HELP_FEEDBACK
       }
-      else -> {
+      else                           -> {
         return SETTINGS
       }
     }

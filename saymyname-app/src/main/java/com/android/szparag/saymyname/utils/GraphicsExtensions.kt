@@ -68,13 +68,10 @@ inline fun View.getBoundingBox(): Rect {
  *  @return Pair of BoundingBoxSpread dimensions (x,y) / (width,height), which is basically
  *  measurement of how much pixels does the Views Bounding Box take in X and Y axis.
  */
-inline fun View.getBoundingBoxSpread(boundingBox: Rect = this.getBoundingBox(),
-    divider: Float = 1f): Pair<Int, Int> {
-  return Pair(
-      boundingBox.width().div(divider).toInt(),
-      boundingBox.height().div(divider).toInt()
-  )
-}
+inline fun View.getBoundingBoxSpread(boundingBox: Rect = this.getBoundingBox(), divider: Float = 1f) = Pair(
+    boundingBox.width().div(divider).toInt(),
+    boundingBox.height().div(divider).toInt()
+)
 
 /**
  * Sisterly method to {@see #getBoundingBox()}, but the Bounding Box coordinates are not susceptible
@@ -100,9 +97,7 @@ inline fun View.getRawBoundingBox(boundingBox: Rect = this.getBoundingBox()): Re
  *
  * @return Pair of BoundingBoxSpread dimensions (x,y) / (width,height).
  */
-inline fun View.getRawBoundingBoxSpread(): Pair<Int, Int> {
-  return Pair(measuredWidth, measuredHeight)
-}
+inline fun View.getRawBoundingBoxSpread() = Pair(measuredWidth, measuredHeight)
 
 /**
  * Calculates how much of the view is clipped (how much of it is not actually visible for the user),
@@ -162,16 +157,14 @@ inline fun View.translate(moveByPxAxisX: Float, moveByPxAxisY: Float) {
   this.y += moveByPxAxisY
 }
 
-inline fun View.translate(moveByPxAxisX: Int, moveByPxAxisY: Int) {
-  translate(moveByPxAxisX.toFloat(), moveByPxAxisY.toFloat())
-}
+inline fun View.translate(moveByPxAxisX: Int, moveByPxAxisY: Int) =
+    translate(moveByPxAxisX.toFloat(), moveByPxAxisY.toFloat())
 
 
 fun View.fadeOut(toAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(),
     durationMillis: Long = 500, animationStartCallback: () -> Unit,
-    animationEndCallback: () -> Unit) {
-  fade(1f, toAlpha, interpolator, durationMillis, animationStartCallback, animationEndCallback)
-}
+    animationEndCallback: () -> Unit) =
+    fade(1f, toAlpha, interpolator, durationMillis, animationStartCallback, animationEndCallback)
 
 fun View.fadeIn(fromAlpha: Float = 0f, interpolator: Interpolator = LinearInterpolator(),
     durationMillis: Long = 500, animationStartCallback: () -> Unit,
@@ -184,24 +177,18 @@ fun View.fadeInTranslate(toXDelta: Float, toYDelta: Float, fromAlpha: Float = 0f
     interpolator: Interpolator = LinearInterpolator(),
     durationMillis: Long = 3000, animationStartCallback: () -> Unit,
     animationEndCallback: () -> Unit) {
-  val animationSet: AnimationSet = AnimationSet(true)
+  val animationSet = AnimationSet(true)
   animationSet.interpolator = AccelerateDecelerateInterpolator()
   val alphaAnimation = AlphaAnimation(fromAlpha, 1f).apply { this.duration = durationMillis }
   val translateAnimation = TranslateAnimation(0f, toXDelta, 0f, toYDelta)
   animationSet.addAnimation(alphaAnimation)
   animationSet.addAnimation(translateAnimation)
   animationSet.setAnimationListener(object : AnimationListener {
-    override fun onAnimationStart(animation: Animation?) {
-      animationStartCallback.invoke()
-    }
+    override fun onAnimationStart(animation: Animation?) = animationStartCallback.invoke()
 
-    override fun onAnimationEnd(animation: Animation?) {
-      animationEndCallback.invoke()
-    }
+    override fun onAnimationEnd(animation: Animation?) = animationEndCallback.invoke()
 
-    override fun onAnimationRepeat(animation: Animation?) {
-
-    }
+    override fun onAnimationRepeat(animation: Animation?) = Unit
   })
   animationSet.start()
 }
@@ -215,12 +202,8 @@ private fun View.fade(fromAlpha: Float, toAlpha: Float,
   if (toAlpha != 1f) fade.fillAfter = true
 
   fade.setAnimationListener(object : AnimationListener {
-    override fun onAnimationStart(animation: Animation) {
-//      if (this@fade.visibility != VISIBLE) this@fade.visibility = VISIBLE
-      animationStartCallback.invoke()
-    }
-
-    override fun onAnimationRepeat(animation: Animation) {}
+    override fun onAnimationStart(animation: Animation) = animationStartCallback.invoke()
+    override fun onAnimationRepeat(animation: Animation) = Unit
     override fun onAnimationEnd(animation: Animation) {
       animationEndCallback.invoke()
       if (toAlpha == 0f) this@fade.visibility = GONE
@@ -232,24 +215,23 @@ private fun View.fade(fromAlpha: Float, toAlpha: Float,
 
 
 //todo: this is memory inneficient, think about different implementation
-public fun Bitmap.createBitmap(source: Bitmap, angle: Float): Bitmap {
+fun Bitmap.createBitmap(source: Bitmap, angle: Float): Bitmap {
   val matrix = Matrix()
   matrix.postRotate(angle)
   return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
 }
 
 //todo: this should not be as extension function, it does too much and has hardcoded shit in it
-fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: PictureBitmapCallback) {
-  this.takePicture(
-      shutterCallback,
-      null,
-      Camera.PictureCallback { data, camera ->
-        pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data,
-            camera)
-      })
-}
+fun Camera.takePicture(shutterCallback: ShutterCallback, pictureCallback: PictureBitmapCallback) = this.takePicture(
+    shutterCallback,
+    null,
+    Camera.PictureCallback { data, camera ->
+      pictureCallback.onPictureTaken(BitmapFactory.decodeByteArray(data, 0, data.size), data,
+          camera)
+    })
 
-//fun BitmapFactory.compressToStream(compressFormat : Bitmap.CompressFormat, qualityPercent : Int): ByteArrayOutputStream {
+//fun BitmapFactory.compressToStream(compressFormat : Bitmap.CompressFormat, qualityPercent : Int):
+// ByteArrayOutputStream {
 //  val compressedStream = ByteArrayOutputStream()
 //  Bitma(compressFormat, qualityPercent, compressedStream)
 //  return compressedStream
@@ -308,9 +290,7 @@ interface PictureBitmapCallback {
  *
  * Reference for @see getBoundingBox method.
  */
-inline fun View.getGlobalVisibleRect(): Rect {
-  return getBoundingBox()
-}
+inline fun View.getGlobalVisibleRect() = getBoundingBox()
 
 
 /**
@@ -319,9 +299,7 @@ inline fun View.getGlobalVisibleRect(): Rect {
  *
  * Reference for @see getCoordinatesLeftTop method.
  */
-inline fun View.getLocationOnScreen(): Point {
-  return getCoordinatesLeftTop()
-}
+inline fun View.getLocationOnScreen() = getCoordinatesLeftTop()
 
 inline fun View.show() {
   this.visibility = View.GONE

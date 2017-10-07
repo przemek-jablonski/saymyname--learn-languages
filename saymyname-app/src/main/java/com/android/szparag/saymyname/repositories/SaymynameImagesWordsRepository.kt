@@ -75,16 +75,14 @@ open class SaymynameImagesWordsRepository : ImagesWordsRepository {
         logger.error("pushImage.Observable.executeTransaction.errored", exc)
         emitter.onError(exc)
       }
-      parentImage?.let { emitter.onNext(it) } ?: emitter.onError(ERROR_REPOSITORY_PUSH_IMAGE_NULL)
+      parentImage?.let(emitter::onNext) ?: emitter.onError(ERROR_REPOSITORY_PUSH_IMAGE_NULL)
     }
   }
 
-  override fun fetchAllImages(): Flowable<List<Image>> {
-    return realm
-        .where(Image::class.java)
-        .findAllSorted("dateTime", Sort.DESCENDING)
-        .asFlowable()
-        .subscribeOn(AndroidSchedulers.mainThread())
-  }
+  override fun fetchAllImages(): Flowable<List<Image>> = realm
+      .where(Image::class.java)
+      .findAllSorted("dateTime", Sort.DESCENDING)
+      .asFlowable()
+      .subscribeOn(AndroidSchedulers.mainThread())
 
 }

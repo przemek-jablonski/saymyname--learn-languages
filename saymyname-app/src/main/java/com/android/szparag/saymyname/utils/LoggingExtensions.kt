@@ -64,9 +64,7 @@ class Logger {
   private val errorLoggingAvailable = true //todo: check if NOT in debug
 
   companion object {
-    fun create(callerClass: KClass<*>): Logger {
-      return Logger().apply { this.callerClassString = callerClass.simpleName.toString() }
-    }
+    fun create(callerClass: KClass<*>) = Logger().apply { this.callerClassString = callerClass.simpleName.toString() }
   }
 
   init {

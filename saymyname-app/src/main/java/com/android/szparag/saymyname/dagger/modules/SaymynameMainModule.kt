@@ -39,99 +39,80 @@ class SaymynameMainModule(private val context: Context) {
 
   @Provides
   @Singleton
-  fun provideContext(): Context {
-    return context
-  }
+  fun provideContext(): Context = context
 
   @Provides
   fun provideRealtimeCameraPresenter(
-      realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter {
-    return SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
-  }
+      realtimeCameraPreviewModel: RealtimeCameraPreviewModel): RealtimeCameraPreviewPresenter =
+      SaymynameRealtimeCameraPreviewPresenter(realtimeCameraPreviewModel)
 
   @Provides
-  fun provideHistoricalEntriesPresenter(repository: ImagesWordsRepository): HistoricalEntriesPresenter {
-    return SaymynameHistoricalEntriesPresenter(repository)
-  }
+  fun provideHistoricalEntriesPresenter(repository: ImagesWordsRepository): HistoricalEntriesPresenter =
+      SaymynameHistoricalEntriesPresenter(repository)
 
   @Provides
   @Singleton
   fun provideImageRecognitionNetworkService(
       @Named("ImageRecognition.NetworkService.BaseUrl") baseUrl: String,
       @Named(
-          "ImageRecognition.NetworkService.ApiKey") apiKey: String): ImageRecognitionNetworkService {
-    return SaymynameImageRecognitionNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
-  }
+          "ImageRecognition.NetworkService.ApiKey") apiKey: String): ImageRecognitionNetworkService =
+      SaymynameImageRecognitionNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
 
   @Provides
   @Singleton
   fun provideTranslationNetworkService(
       @Named("Translation.NetworkService.BaseUrl") baseUrl: String,
-      @Named("Translation.NetworkService.ApiKey") apiKey: String): TranslationNetworkService {
-    return SaymynameTranslationNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
-  }
+      @Named("Translation.NetworkService.ApiKey") apiKey: String): TranslationNetworkService =
+      SaymynameTranslationNetworkService(provideNetworkServiceRestClient(baseUrl), apiKey)
 
   @Provides
   @Singleton
   fun provideRealtimeCameraPreviewModel(
       imageRecognitionNetworkService: ImageRecognitionNetworkService,
       translationNetworkService: TranslationNetworkService,
-      imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPreviewModel {
-    return SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService,
-        imagesWordsRepository)
-  }
+      imagesWordsRepository: ImagesWordsRepository): RealtimeCameraPreviewModel =
+      SaymynameRealtimeCameraPreviewModel(imageRecognitionNetworkService, translationNetworkService,
+          imagesWordsRepository)
 
   @Provides
   @Singleton
-  fun provideImagesWordsRepository(): ImagesWordsRepository {
-    return SaymynameImagesWordsRepository()
-  }
+  fun provideImagesWordsRepository(): ImagesWordsRepository = SaymynameImagesWordsRepository()
 
   @Provides
   @Singleton
   @Named(
       "Translation.NetworkService.ApiKey")
   fun provideTranslationNetworkServiceApiKey(
-      context: Context): String {
-    return context.getString(R.string.yandex_api_key)
-  }
+      context: Context): String = context.getString(R.string.yandex_api_key)
 
   @Provides
   @Singleton
   @Named(
       "ImageRecognition.NetworkService.ApiKey")
   fun provideImageRecognitionNetworkServiceApiKey(
-      context: Context): String {
-    return context.getString(R.string.clarifai_api_key)
-  }
+      context: Context): String = context.getString(R.string.clarifai_api_key)
 
   //todo: unify naming - Translation not Translate, ImageRecognition not ImageProcessing etc
   @Provides
   @Singleton
   @Named(
       "ImageRecognition.NetworkService.BaseUrl")
-  fun provideImageRecognitionNetworkServiceBaseUrl(): String {
-    return IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL
-  }
+  fun provideImageRecognitionNetworkServiceBaseUrl(): String = IMAGE_RECOGNITION_NETWORK_SERVICE_BASEURL
 
   @Provides
   @Singleton
   @Named(
       "Translation.NetworkService.BaseUrl")
-  fun provideTranslationNetworkServiceBaseUrl(): String {
-    return TRANSLATION_NETWORK_SERVICE_BASEURL
-  }
+  fun provideTranslationNetworkServiceBaseUrl(): String = TRANSLATION_NETWORK_SERVICE_BASEURL
 
   @Provides
   @Singleton
   fun provideNetworkServiceRestClient(
-      networkServiceBaseString: String): Retrofit {
-    return Retrofit.Builder()
-        .baseUrl(networkServiceBaseString)
-        .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-  }
+      networkServiceBaseString: String): Retrofit = Retrofit.Builder()
+      .baseUrl(networkServiceBaseString)
+      .client(OkHttpClient.Builder().addNetworkInterceptor(StethoInterceptor()).build())
+      .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
 
 }

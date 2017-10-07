@@ -24,9 +24,7 @@ class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObserv
   }
 
 
-  override fun getInitialValue(): String {
-    return view.selectedItem.toString()
-  }
+  override fun getInitialValue() = view.selectedItem.toString()
 
   internal class Listener(private val spinner: Spinner, private val observer: Observer<in String>)
     : MainThreadDisposable(), OnItemSelectedListener {
@@ -37,8 +35,7 @@ class SpinnerSelectionObservable(private val view: Spinner) : InitialValueObserv
       }
     }
 
-    override fun onNothingSelected(adapterView: AdapterView<*>) {
-    }
+    override fun onNothingSelected(adapterView: AdapterView<*>) = Unit
 
     override fun onDispose() {
       spinner.onItemSelectedListener = null

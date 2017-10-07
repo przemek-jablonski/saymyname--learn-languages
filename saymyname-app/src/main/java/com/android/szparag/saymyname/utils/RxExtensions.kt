@@ -46,23 +46,20 @@ fun CompositeDisposable.add(disposable: Disposable?): Boolean {
   return false
 }
 
-fun <E : RealmModel> RealmResults<E>.asFlowable(): Flowable<List<E>> {
-  return RxJavaInterop.toV2Flowable(
-      this.asObservable()).map { realmResults -> realmResults.toList() }
-}
+fun <E : RealmModel> RealmResults<E>.asFlowable(): Flowable<List<E>> = RxJavaInterop.toV2Flowable(
+    this.asObservable()).map { realmResults -> realmResults.toList() }
 
 /**
  * Extension function that pushes error value from Completable object into stream,
  * even if the object itself is completely nulled out in the moment of execution.
  */
 fun Completable?.nonNull(): Completable =
-    if (this == null) Completable.error {
+    this ?: Completable.error {
       Throwable(COMPLETABLE_NULL_ERROR_THROWABLE_TEXT)
-    } else this
+    }
 
-fun CompletableEmitter.safeOnError(throwable: Throwable?) {
-  this.onError(throwable ?: Throwable(REALM_COMPLETABLE_NULL_EXCEPTION_THROWABLE_TEXT))
-}
+fun CompletableEmitter.safeOnError(throwable: Throwable?) = this.onError(
+    throwable ?: Throwable(REALM_COMPLETABLE_NULL_EXCEPTION_THROWABLE_TEXT))
 
 
 fun Realm.executeTransactionAsyncBy(transaction: Transaction, onSuccess: OnSuccess = OnSuccess {},
@@ -97,30 +94,16 @@ fun itemSelections(view: Spinner): Observable<String> {
   return SpinnerSelectionObservable(view)
 }
 
-fun Completable.ui(): Completable {
-  return this.subscribeOn(AndroidSchedulers.mainThread())
-}
+fun Completable.ui(): Completable = this.subscribeOn(AndroidSchedulers.mainThread())
 
-fun <T> Observable<T>.ui(): Observable<T> {
-  return this.subscribeOn(AndroidSchedulers.mainThread())
-}
+fun <T> Observable<T>.ui(): Observable<T> = this.subscribeOn(AndroidSchedulers.mainThread())
 
-fun <T> Flowable<T>.ui(): Flowable<T> {
-  return this.subscribeOn(AndroidSchedulers.mainThread())
-}
+fun <T> Flowable<T>.ui(): Flowable<T> = this.subscribeOn(AndroidSchedulers.mainThread())
 
-fun Completable.single(): Completable {
-  return this.subscribeOn(Schedulers.single())
-}
+fun Completable.single(): Completable = this.subscribeOn(Schedulers.single())
 
-fun <T> Observable<T>.single(): Observable<T> {
-  return this.subscribeOn(Schedulers.single())
-}
+fun <T> Observable<T>.single(): Observable<T> = this.subscribeOn(Schedulers.single())
 
-fun <T> Flowable<T>.single(): Flowable<T> {
-  return this.subscribeOn(Schedulers.single())
-}
+fun <T> Flowable<T>.single(): Flowable<T> = this.subscribeOn(Schedulers.single())
 
-fun <T> Observable<T>.computation(): Observable<T> {
-  return this.subscribeOn(Schedulers.computation())
-}
+fun <T> Observable<T>.computation(): Observable<T> = this.subscribeOn(Schedulers.computation())

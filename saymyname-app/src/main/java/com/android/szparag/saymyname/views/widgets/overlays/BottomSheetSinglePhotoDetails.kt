@@ -33,8 +33,8 @@ class BottomSheetSinglePhotoDetails @JvmOverloads constructor(
 
   fun setPhotoDetails(imageBytes: ByteArray, textsOriginal: List<String>,
       textsTranslated: List<String>, dateTime: Long) {
-    logger.debug(
-        "setPhotoDetails, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
+    logger.debug("setPhotoDetails, textsOriginal: $textsOriginal, textsTranslated: $textsTranslated, " +
+        "dateTime: $dateTime, imageBytes: ${imageBytes.hashCode()}")
     imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size))
     textViewOriginal1.text = textsOriginal[0]
     textViewOriginal2.text = textsOriginal[1]

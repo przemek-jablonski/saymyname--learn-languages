@@ -12,6 +12,7 @@ import com.android.szparag.saymyname.R
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/23/2017.
  */
 class FloatingWordTextView : TextView {
+
   private val INITIAL_VISIBILITY = GONE
   private val GRAVITY = Gravity.CENTER
   private val AUXILIARY_TEXTALLCAPS = false
@@ -59,7 +60,7 @@ class FloatingWordTextView : TextView {
             AUXILIARY_SHADOWCOLOR
         )
       }
-      FLOATINGWORD_TYPE_PRIMARY -> {
+      FLOATINGWORD_TYPE_PRIMARY    -> {
         setAllCaps(PRIMARY_TEXTALLCAPS)
         setTextColor(ContextCompat.getColor(context, PRIMARY_TEXTCOLOR))
         textSize = context.resources.getDimension(PRIMARY_TEXTSIZE)

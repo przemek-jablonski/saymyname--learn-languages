@@ -28,7 +28,5 @@ class SaymynameHistoricalEntriesPresenter(
         )
   }
 
-  override fun onViewReady() {
-    logger.debug("onViewReady")
-  }
+  override fun onViewReady() = logger.debug("onViewReady")
 }

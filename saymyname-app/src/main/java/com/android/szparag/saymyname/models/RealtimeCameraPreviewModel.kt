@@ -10,8 +10,7 @@ import io.reactivex.Observable
  */
 interface RealtimeCameraPreviewModel {
 
-  enum class NetworkRequestStatus {
-    OK,
+  enum class NetworkRequestStatus { OK,
     MIXED_SUCCESS,
     FAILURE_GENERIC,
     REQUEST_LIMIT_EXCEEDED_GENERIC,

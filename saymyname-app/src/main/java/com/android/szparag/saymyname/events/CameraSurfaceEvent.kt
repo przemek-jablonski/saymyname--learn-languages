@@ -7,8 +7,7 @@ data class CameraSurfaceEvent(
     val type: CameraSurfaceEventType
 ) {
 
-  enum class CameraSurfaceEventType {
-    SURFACE_INITIALIZED,
+  enum class CameraSurfaceEventType { SURFACE_INITIALIZED,
     SURFACE_CREATED,
     SURFACE_DESTROYED,
     SURFACE_CHANGED

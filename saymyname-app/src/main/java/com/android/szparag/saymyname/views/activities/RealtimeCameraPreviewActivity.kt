@@ -90,9 +90,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     bottomSheetBehavioursSinglePhotoDetails.isHideable = false
     bottomSheetBehavioursSinglePhotoDetails.peekHeight = 0
     bottomSheetBehavioursSinglePhotoDetails.setBottomSheetCallback(object : BottomSheetCallback() {
-      override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
-      }
+      override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
 
       override fun onStateChanged(bottomSheet: View, newState: Int) {
         when (newState) {
@@ -103,20 +101,20 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
                   R.color.saymyname_blue_alpha_light)
             }
           }
-          BottomSheetBehavior.STATE_SETTLING -> {
+          BottomSheetBehavior.STATE_SETTLING  -> {
             logger.debug("STATE_SETTLING")
           }
-          BottomSheetBehavior.STATE_HIDDEN -> {
+          BottomSheetBehavior.STATE_HIDDEN    -> {
             logger.debug("STATE_HIDDEN")
           }
-          BottomSheetBehavior.STATE_EXPANDED -> {
+          BottomSheetBehavior.STATE_EXPANDED  -> {
             logger.debug("STATE_EXPANDED")
             if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
               bottomSheetSinglePhotoDetails.background = resources.getDrawable(
                   R.color.saymyname_blue_light)
             }
           }
-          BottomSheetBehavior.STATE_DRAGGING -> {
+          BottomSheetBehavior.STATE_DRAGGING  -> {
             logger.debug("STATE_DRAGGING")
           }
         }
@@ -199,10 +197,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
       } else {
         logger.debug("retrieveHardwareBackCamera, cached camera instance: $cameraInstance")
       }
-      cameraInstance?.let {
-        emitter.onNext(it)
-      } ?:
-          emitter.onError(ERROR_CAMERA_RETRIEVAL)
+      cameraInstance?.let(emitter::onNext) ?: emitter.onError(ERROR_CAMERA_RETRIEVAL)
     }
   }
 
@@ -222,9 +217,7 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
     }
   }
 
-  override fun stopRenderingRealtimeCameraPreview() {
-    logger.debug("stopRenderingRealtimeCameraPreview")
-  }
+  override fun stopRenderingRealtimeCameraPreview() = logger.debug("stopRenderingRealtimeCameraPreview")
 
   override fun renderLoadingAnimation() {
     logger.debug("renderLoadingAnimation")
@@ -321,19 +314,15 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
         if (flushSpeakingQueue) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null)
   }
 
-  override fun initializeSuddenMovementDetection() {
-    logger.debug("initializeSuddenMovementDetection")
-  }
+  override fun initializeSuddenMovementDetection() = logger.debug("initializeSuddenMovementDetection")
 
-  override fun onSuddenMovementDetected() {
-    logger.debug("onSuddenMovementDetected")
-  }
+  override fun onSuddenMovementDetected() = logger.debug("onSuddenMovementDetected")
 
 
   override fun renderUserAlertMessage(userAlertMessage: UserAlertMessage) {
     logger.debug("renderUserAlertMessage.alert: $userAlertMessage")
     when (userAlertMessage) {
-      UserAlertMessage.CAMERA_PERMISSION_ALERT -> {
+      UserAlertMessage.CAMERA_PERMISSION_ALERT  -> {
         fullscreenMessageInfo.show(R.drawable.ic_action_camera_dark,
             R.string.dialog_alert_permission_camera)
         fullscreenMessageType = UserAlertMessage.CAMERA_PERMISSION_ALERT
@@ -353,14 +342,13 @@ class RealtimeCameraPreviewActivity : SaymynameBaseActivity<RealtimeCameraPrevie
   }
 
   private fun onCameraError(errorCode: Int, cameraInstance: Camera) {
-    var errorString =
-        when (errorCode) {
-          Camera.CAMERA_ERROR_EVICTED -> "CAMERA_ERROR_EVICTED"
-          Camera.CAMERA_ERROR_SERVER_DIED -> "CAMERA_ERROR_SERVER_DIED"
-          else -> "CAMERA_ERROR_UNKNOWN"
-        }
+    val errorString = when (errorCode) {
+      Camera.CAMERA_ERROR_EVICTED     -> "CAMERA_ERROR_EVICTED"
+      Camera.CAMERA_ERROR_SERVER_DIED -> "CAMERA_ERROR_SERVER_DIED"
+      else                            -> "CAMERA_ERROR_UNKNOWN"
+    }
     logger.error("onCameraError, errorCode: $errorCode, errorString: $errorString, camera: $cameraInstance",
-        ERROR_CAMERA_NATIVE_EXCEPTION) //todo: exception
+        ERROR_CAMERA_NATIVE_EXCEPTION)
   }
 
 

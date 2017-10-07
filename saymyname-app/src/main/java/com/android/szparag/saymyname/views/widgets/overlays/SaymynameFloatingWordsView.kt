@@ -24,14 +24,15 @@ import java.util.Random
 /**
  * Created by Przemyslaw Jablonski (github.com/sharaquss, pszemek.me) on 7/7/2017.
  */
+private const val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
+private const val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
+private const val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
+
 class SaymynameFloatingWordsView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FloatingWordsView {
 
   private val logger = Logger.create(SaymynameFloatingWordsView::class)
-  private val FLOATING_WORD_TEXT_TAG_PREFIX: String = "#"
-  private val FLOATING_WORD_SPAWN_BOUNDARIES_MARGIN_CUTOFF = 0.15f
-  private val PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR = 0.40f
   private val loadingHaloContainer: View by bindView(R.id.view_loading_halo_container)
   private var viewCenter: Point? = null
   private var viewBoundingBox: Rect? = null
@@ -136,7 +137,8 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
                       primaryWordsViews[i],
                       primaryWords[i]!!,
                       auxiliaryWordView.x,
-                      auxiliaryWordView.y + auxiliaryWordView.getBoundingBox().height() * PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR)
+                      auxiliaryWordView.y +
+                          auxiliaryWordView.getBoundingBox().height() * PRIMARY_WORD_AUXILLIARY_OVERLAP_FACTOR)
                 },
                 animationEndCallback = {
                 })
@@ -166,7 +168,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
     loadingHaloContainer.visibility = View.GONE
   }
 
-  override fun clearAuxillaryWords() {
+  override fun clearAuxiliaryWords() {
     auxiliaryWordsViews.forEach {
       it.fadeOut(animationStartCallback = {}, animationEndCallback = {})
     }
@@ -179,7 +181,7 @@ class SaymynameFloatingWordsView @JvmOverloads constructor(
   }
 
   override fun clearWords() {
-    clearAuxillaryWords()
+    clearAuxiliaryWords()
     clearPrimaryWords()
   }
 

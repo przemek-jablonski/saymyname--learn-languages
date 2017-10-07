@@ -72,19 +72,19 @@ abstract class BasePresenter<V : View> : Presenter<V> {
         ?.subscribeBy(
             onNext = { menuOption ->
               when (menuOption) {
-                SETTINGS -> {
+                SETTINGS       -> {
                 }
-                ACHIEVEMENTS -> {
+                ACHIEVEMENTS   -> {
                 }
-                TUTORIAL -> {
+                TUTORIAL       -> {
                 }
-                ABOUT -> {
+                ABOUT          -> {
                 }
                 UPGRADE_DONATE -> {
                 }
-                OPEN_SOURCE -> {
+                OPEN_SOURCE    -> {
                 }
-                HELP_FEEDBACK -> {
+                HELP_FEEDBACK  -> {
                 }
               }
             }

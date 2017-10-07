@@ -18,9 +18,7 @@ class SaymynameTranslationNetworkService(
   private val logger = Logger.create(SaymynameTranslationNetworkService::class)
   private val networkApiClient: ApiTranslationYandex = initializeNetworkApiClient()
 
-  private fun initializeNetworkApiClient(): ApiTranslationYandex {
-    return retrofit.create(ApiTranslationYandex::class.java)
-  }
+  private fun initializeNetworkApiClient() = retrofit.create(ApiTranslationYandex::class.java)
 
   //todo: languagesPair should be handled here somehow
   override fun requestTextTranslation(

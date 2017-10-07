@@ -12,11 +12,10 @@ class DaggerGlobalScopeWrapper {
 
   //todo: make dagger scoped
   companion object {
+
     private var component: SaymynameMainComponent? = null
 
-    fun getComponent(context: Context): SaymynameMainComponent {
-      if (component == null) return constructComponent(context) else return component!!
-    }
+    fun getComponent(context: Context) = if (component == null) constructComponent(context) else component!!
 
     private fun constructComponent(context: Context): SaymynameMainComponent {
       component = DaggerSaymynameMainComponent.builder()

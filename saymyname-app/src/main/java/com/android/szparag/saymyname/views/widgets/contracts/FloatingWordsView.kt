@@ -12,7 +12,7 @@ interface FloatingWordsView {
   fun renderAuxiliaryWords(auxiliaryWords: List<CharSequence>)
   fun renderPrimaryWords(primaryWords: List<CharSequence?>)
 
-  fun clearAuxillaryWords()
+  fun clearAuxiliaryWords()
   fun clearPrimaryWords()
   fun clearWords()
 }

@@ -86,7 +86,7 @@ class SaymynameRealtimeCameraPreviewPresenter(
                     view?.stopRenderUserAlertMessage(View.UserAlertMessage.CAMERA_PERMISSION_ALERT)
                   }
                 }
-                Presenter.PermissionType.STORAGE_ACCESS -> {
+                Presenter.PermissionType.STORAGE_ACCESS    -> {
                   if (permissionEvent.permissionResponse.isNotGranted()) {
                     view?.renderUserAlertMessage(View.UserAlertMessage.STORAGE_PERMISSION_ALERT)
                     if (Presenter.PermissionType.STORAGE_ACCESS.permissionAskCount == 0) view?.requestPermissions(
@@ -282,7 +282,5 @@ class SaymynameRealtimeCameraPreviewPresenter(
     view?.initializeTextToSpeechClient(locale)
   }
 
-  override fun startCameraRealtimePreview() {
-    logger.debug("startCameraRealtimePreview")
-  }
+  override fun startCameraRealtimePreview() = logger.debug("startCameraRealtimePreview")
 }

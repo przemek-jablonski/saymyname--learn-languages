@@ -28,16 +28,13 @@ import io.realm.annotations.RealmClass
     return this
   }
 
-  fun getNonTranslatedWords(): List<String> {
-    return words.map { word -> word.original }
-  }
+  fun getNonTranslatedWords() = words.map(Word::original)
 
-  fun getTranslatedWords(): List<String> {
-    return words.map { word -> word.translated }
-  }
+  fun getTranslatedWords() = words.map(Word::translated)
 
   override fun toString(): String {
-    var asString = "[IMAGE] [datetime: $dateTime | lanFrom: $languageFrom | lanTo: $languageTo | model: $model | image: $imageBase64 | words: ${words.size}] (hash: ${hashCode()}) \n"
+    val asString = "[IMAGE] [datetime: $dateTime | lanFrom: $languageFrom | lanTo: $languageTo | model: $model | " +
+        "image: $imageBase64 | words: ${words.size}] (hash: ${hashCode()}) \n"
     words.forEach { word -> asString.plus(word.toString()) }
     return asString
   }

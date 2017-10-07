@@ -14,6 +14,7 @@ interface View {
    *  Collection of alert messages that can be rendered for the user in this app
    */
   enum class UserAlertMessage {
+
     CAMERA_PERMISSION_ALERT,
     INTERNET_CONNECTION_NOT_AVAILABLE,
     INTERNET_CONNECTION_WEAK,
@@ -24,6 +25,7 @@ interface View {
    *  Collection of menu options that can be clicked / selected by the user in this app
    */
   enum class MenuOption {
+
     SETTINGS,
     ACHIEVEMENTS,
     TUTORIAL,

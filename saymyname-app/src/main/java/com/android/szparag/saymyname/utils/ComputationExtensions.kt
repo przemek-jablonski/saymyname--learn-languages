@@ -59,18 +59,16 @@ inline fun Camera.getCameraHardwareInfo(cameraId: Int = 0)
     val info = getCameraHardwareInfo(cameraId)
     var degreesToRotate = 0
     when (defaultDisplay.rotation) {
-      Surface.ROTATION_0 -> degreesToRotate = 0
-      Surface.ROTATION_90 -> degreesToRotate = 90
+      Surface.ROTATION_0   -> degreesToRotate = 0
+      Surface.ROTATION_90  -> degreesToRotate = 90
       Surface.ROTATION_180 -> degreesToRotate = 180
       Surface.ROTATION_270 -> degreesToRotate = 270
     }
 
-    //todo: add link to this answer (from so, duh)
-    val degreesToRotateFinal: Int
-    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-      degreesToRotateFinal = (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
+    val degreesToRotateFinal = if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+      (360 - (info.orientation + degreesToRotate) % 360) % 360 //super haxxxx
     } else {
-      degreesToRotateFinal = (info.orientation - degreesToRotate + 360) % 360
+      (info.orientation - degreesToRotate + 360) % 360
     }
 
     it.setRotation(degreesToRotateFinal)
@@ -78,22 +76,15 @@ inline fun Camera.getCameraHardwareInfo(cameraId: Int = 0)
   }
 }
 
-inline fun Int.max(otherNumber: Int): Int {
-  return if (this > otherNumber) this else otherNumber
-}
+inline fun Int.max(otherNumber: Int) = if (this > otherNumber) this else otherNumber
 
-inline fun Int.min(otherNumber: Int): Int {
-  return if (this < otherNumber) this else otherNumber
-}
+inline fun Int.min(otherNumber: Int) = if (this < otherNumber) this else otherNumber
 
-inline fun Random.nextFloat(minInclusive: Float, maxExclusive: Float): Float {
-  return lerp(minInclusive, maxExclusive, nextFloat())
-}
+inline fun Random.nextFloat(minInclusive: Float, maxExclusive: Float) =
+    lerp(minInclusive, maxExclusive, nextFloat())
 
 
-inline fun lerp(val1: Float, val2: Float, alpha: Float): Float {
-  return val1 + alpha * (val2 - val2)
-}
+inline fun lerp(val1: Float, val2: Float, alpha: Float): Float = val1 + alpha * (val2 - val2)
 
 inline fun <T> Iterable<Iterable<T>?>.flatten(): MutableList<out T> {
   val result = ArrayList<T>()
@@ -106,8 +97,6 @@ inline fun <T> Iterable<Iterable<T>?>.flatten(): MutableList<out T> {
 inline fun PermissionResponse.isGranted(): Boolean = this == PERMISSION_GRANTED || this == PERMISSION_GRANTED_ALREADY
 inline fun PermissionResponse.isNotGranted(): Boolean = !this.isGranted()
 
-inline fun Context.createArrayAdapter(@ArrayRes textArrayResId: Int): ArrayAdapter<CharSequence> {
-  return ArrayAdapter
-      .createFromResource(this, textArrayResId, android.R.layout.simple_spinner_item)
-      .apply { this.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-}
+inline fun Context.createArrayAdapter(@ArrayRes textArrayResId: Int): ArrayAdapter<CharSequence> = ArrayAdapter
+    .createFromResource(this, textArrayResId, android.R.layout.simple_spinner_item)
+    .apply { this.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }

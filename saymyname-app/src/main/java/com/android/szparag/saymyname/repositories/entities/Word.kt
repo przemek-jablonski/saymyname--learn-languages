@@ -20,7 +20,6 @@ open class Word(
     this.translated = translated
   }
 
-  override fun toString(): String {
-    return "\t [WORD] [id: $id | original: $original | translated: $translated] (${hashCode()})\n"
-  }
+  override fun toString() =
+      "\t [WORD] [id: $id | original: $original | translated: $translated] (${hashCode()})\n"
 }
